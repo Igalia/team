@@ -1,0 +1,53 @@
+body {
+    font-family: 'Open Sans', sans-serif !important;
+}
+
+.main-content {
+    width: 1024px;
+    margin-left: auto;
+    margin-right: auto;
+    clear: both;
+}
+
+.form-row, .table-row {
+    width: 100%;
+    display: table;
+}
+
+.form-cell, .form-label, .table-cell-level, .table-cell-level-avg, .table-cell-row-header, .table-cell-column-header,
+.table-cell-column-header-span, .table-cell-comment {
+    width: 35%;
+    float: left;
+    padding: 3px 10px 3px 10px;
+    box-sizing: border-box;
+}
+
+.form-label, .table-cell-row-header {
+    width: 30%;
+}
+
+.table-cell-level, .table-cell-column-header, .table-cell-column-header-span {
+    width: 3%;
+    text-align: center;
+}
+
+.table-cell-comment {
+    width: auto;
+}
+
+.level-avg {
+    width: 5%;
+}
+
+.table-cell-column-header-span {
+    width: 22%;
+}
+
+.table-cell-column-header, .table-cell-row-header, .table-cell-column-header-span {
+    /* transform: rotate(-90deg); */
+    font-weight: bolder;
+}
+
+.form-cell > select {
+    width: 100%;
+}

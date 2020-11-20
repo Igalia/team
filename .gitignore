@@ -1,0 +1,7 @@
+*.mo
+*.pyc
+*.sqlite3
+.directory
+.idea
+venv
+
