@@ -6,7 +6,7 @@ from people.models import Person
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=50)
 
     class Meta:
         verbose_name_plural = 'Categories'
@@ -16,7 +16,7 @@ class Category(models.Model):
 
 
 class Skill(models.Model):
-    name = models.CharField(max_length=30)
+    name = models.CharField(max_length=50)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
 
     def __str__(self):
