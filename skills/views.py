@@ -1,11 +1,10 @@
-import base64
-
 from django.forms import formset_factory
 from django.http.response import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.utils import timezone
 
+from common.auth import get_user
 from people.models import Person
 
 from . import forms, models
@@ -80,7 +79,7 @@ def assess(request):
     MeasurementFormSet = formset_factory(forms.MeasurementForm, extra=0)
 
     # Take the login from the basic auth header.
-    user_login = base64.b64decode(request.META['HTTP_AUTHORIZATION'].split()[1]).decode('utf8').split(':')[0]
+    user_login = get_user(request)
 
     try:
         person = Person.objects.get(login=user_login)
