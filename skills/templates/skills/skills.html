@@ -6,7 +6,7 @@
 <div class="table-row">
     <div class="table-cell-row-header"></div>
     <div class="table-cell-column-header-span">Knowledge</div>
-    <div class="table-cell-column-header"></div>
+    <div class="table-cell-comment"></div>
     <div class="table-cell-column-header-span">Interest</div>
 </div>
 <div class="table-row">
@@ -17,7 +17,7 @@
     <div class="table-cell-column-header">4</div>
     <div class="table-cell-column-header level-avg">Avg.</div>
     <div class="table-cell-column-header level-avg">Acc.</div>
-    <div class="table-cell-column-header"></div>
+    <div class="table-cell-comment"></div>
     <div class="table-cell-column-header">1</div>
     <div class="table-cell-column-header">2</div>
     <div class="table-cell-column-header">3</div>
@@ -37,13 +37,12 @@
         {% endfor %}
         <div class="table-cell-level level-avg">{{ skill.knowledge_average|floatformat:2 }}</div>
         <div class="table-cell-level level-avg">{{ skill.knowledge_accumulated }}</div>
-        <div class="table-cell-level"></div>
+        <div class="table-cell-comment">{{ skill.comment }}</div>
         {% for level in skill.interest %}
             <div class="table-cell-level">{{ level }}</div>
         {% endfor %}
         <div class="table-cell-level level-avg">{{ skill.interest_average|floatformat:2 }}</div>
         <div class="table-cell-level level-avg">{{ skill.interest_accumulated }}</div>
-        <div class="table-cell-comment">{{ skill.comment }}</div>
     </div>
 {% endfor %}
 
