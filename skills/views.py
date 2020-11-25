@@ -1,5 +1,5 @@
 from django.forms import formset_factory
-from django.http.response import HttpResponseRedirect
+from django.http.response import HttpResponseRedirect, Http404
 from django.shortcuts import render
 from django.urls import reverse
 from django.utils import timezone
@@ -8,7 +8,7 @@ from common.auth import get_user
 from people.models import Person
 
 from . import forms, models
-from .models import PersonAssessment, Measurement
+from .models import PersonAssessment, Measurement, Skill
 
 
 def skills(request):
@@ -58,6 +58,24 @@ def skills(request):
     return render(request,
                   'skills/skills.html',
                   {'page_title': 'Our skills', 'skills': skills_data})
+
+
+def skill(request, skill_id):
+    try:
+        skill = Skill.objects.get(pk=skill_id)
+    except Skill.DoesNotExist:
+        raise Http404("Skill does not exist")
+
+    latest_assessments = [a for a in PersonAssessment.objects.filter(latest=True).order_by('person__login')]
+    people = [{'person': assessment.person} for assessment in latest_assessments]
+    people_index = {people[i]['person'].login: i for i in range(len(people))}
+    measurements = Measurement.objects.filter(assessment__in=latest_assessments, skill=skill)
+    for measurement in measurements:
+        people[people_index[measurement.assessment.person.login]]['measurement'] = measurement
+
+    return render(request,
+                  'skills/skill.html',
+                  {'page_title': 'Skill: {}'.format(skill.name), 'skill': skill, 'people': people})
 
 
 def assess(request):

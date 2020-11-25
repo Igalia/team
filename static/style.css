@@ -14,7 +14,7 @@ body {
     display: table;
 }
 
-.form-cell, .form-label, .table-cell-level, .table-cell-level-avg, .table-cell-row-header, .table-cell-column-header,
+.form-cell, .form-label, .table-cell, .table-cell-level, .table-cell-level-avg, .table-cell-row-header, .table-cell-column-header,
 .table-cell-column-header-span, .table-cell-comment {
     width: 35%;
     float: left;
@@ -54,4 +54,14 @@ body {
 
 .form-cell > select {
     width: 100%;
+}
+
+.interest {
+    text-align: right;
+    width: 30%;
+}
+
+.knowledge {
+    text-align: left;
+    width: 30%;
 }

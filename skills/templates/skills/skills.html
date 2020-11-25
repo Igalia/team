@@ -31,7 +31,7 @@
         <h2>{{ skill.category_title }}</h2>
     {% endif %}
     <div class="table-row">
-        <div class="table-cell-row-header">{{ skill.title }}</div>
+        <div class="table-cell-row-header"><a href="{% url 'skills:skill' skill.skill %}">{{ skill.title }}</a></div>
         {% for level in skill.knowledge %}
             <div class="table-cell-level">{{ level }}</div>
         {% endfor %}

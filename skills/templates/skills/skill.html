@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1><a href="{% url 'skills:home' %}">Our skills</a> &gt; {{ skill.name }}</h1>
+
+<div class="table-row">
+    <div class="table-cell-row-header"></div>
+    <div class="table-cell-column-header interest">← Interest</div>
+    <div class="table-cell-column-header knowledge">Knowledge →</div>
+</div>
+
+{% for person in people %}
+    <div class="table-row">
+        <div class="table-cell-row-header">{{ person.person.login }}</div>
+        <div class="table-cell interest">{{ person.measurement.interest }}</div>
+        <div class="table-cell knowledge">{{ person.measurement.knowledge }}</div>
+    </div>
+{% endfor %}
+
+{% endblock %}
