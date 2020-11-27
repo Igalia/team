@@ -11,7 +11,7 @@ from . import forms, models
 from .models import PersonAssessment, Measurement, Skill
 
 
-def skills(request):
+def home(request):
     """Shows the current team stats on all skills.
     """
 
@@ -61,6 +61,9 @@ def skills(request):
 
 
 def skill(request, skill_id):
+    """Shows details for the single skill.
+    """
+
     try:
         skill = Skill.objects.get(pk=skill_id)
     except Skill.DoesNotExist:
