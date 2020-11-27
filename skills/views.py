@@ -135,11 +135,22 @@ def assess(request):
                 measurement.save()
         return HttpResponseRedirect(reverse('skills:assess-done'))
     else:
-        formset = MeasurementFormSet(
-            initial=[describe(s) for s in models.Skill.objects.order_by('category__name', 'name')])
+        form_data = [describe(s) for s in models.Skill.objects.order_by('category__name', 'name')]
+        skills_index = {form_data[i]['skill']: i for i in range(len(form_data))}
+        try:
+            latest_assessment = PersonAssessment.objects.get(person=person, latest=True)
+            for measurement in Measurement.objects.filter(assessment=latest_assessment):
+                form = form_data[skills_index[measurement.skill.pk]]
+                form['knowledge'] = measurement.knowledge
+                form['interest'] = measurement.interest
+        except PersonAssessment.DoesNotExist:
+            latest_assessment = None
+
+        formset = MeasurementFormSet(initial=form_data)
         return render(request,
                       'skills/assess.html',
-                      {'page_title': 'Self assessment', 'user_login': person.login, 'formset': formset})
+                      {'page_title': 'Self assessment', 'user_login': person.login, 'formset': formset,
+                       'latest_assessment': latest_assessment})
 
 
 def assess_done(request):

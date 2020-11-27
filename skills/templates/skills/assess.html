@@ -1,7 +1,10 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Self assessment of skills for {{ user_login }}</h1>
+<h1>Self assessment of skills</h1>
+
+<p>Hi there, {{ user_login }}.  {% if latest_assessment %}Your latest record is {{ latest_assessment.date }}.{% else %}We have no records for you.{% endif %}</p>
+
 <form method="post">
     {% csrf_token %}
     {{ formset.management_form }}
