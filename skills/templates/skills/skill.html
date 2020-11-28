@@ -11,7 +11,7 @@
 
 {% for person in people %}
     <div class="table-row">
-        <div class="table-cell-row-header">{{ person.person.login }}</div>
+        <div class="table-cell-row-header"><a href="{% url 'skills:person' person.person.login %}">{{ person.person.login }}</a></div>
         <div class="table-cell interest">{{ person.measurement.interest }}</div>
         <div class="table-cell knowledge">{{ person.measurement.knowledge }}</div>
     </div>

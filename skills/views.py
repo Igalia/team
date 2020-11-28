@@ -56,7 +56,7 @@ def home(request):
         skill['interest'] = skill['interest'][1:]
 
     return render(request,
-                  'skills/skills.html',
+                  'skills/home.html',
                   {'page_title': 'Our skills', 'skills': skills_data})
 
 
@@ -79,6 +79,46 @@ def skill(request, skill_id):
     return render(request,
                   'skills/skill.html',
                   {'page_title': 'Skill: {}'.format(skill.name), 'skill': skill, 'people': people})
+
+
+def person(request, login):
+    """Shows details for the single person.
+    """
+
+    try:
+        person = Person.objects.get(login=login)
+    except Person.DoesNotExist:
+        raise Http404("Person does not exist")
+
+    try:
+        latest_assessment = PersonAssessment.objects.get(latest=True, person=person)
+    except PersonAssessment.DoesNotExist:
+        latest_assessment = None
+
+    def describe(skill):
+        nonlocal current_category
+        description = {'skill': skill.pk,
+                       'title': skill.name}
+        if current_category != skill.category:
+            current_category = skill.category
+            description['category_title'] = current_category.name
+        return description
+
+    # Holds status for describe().
+    current_category = None
+
+    skills_data = [describe(s) for s in models.Skill.objects.order_by('category__name', 'name')]
+    skills_index = {skills_data[i]['skill']: i for i in range(len(skills_data))}
+    if latest_assessment is not None:
+        for measurement in Measurement.objects.filter(assessment=latest_assessment):
+            skills_data[skills_index[measurement.skill.pk]]['measurement'] = measurement
+
+    return render(request,
+                  'skills/person.html',
+                  {'page_title': 'Member: {}'.format(person.login),
+                   'person': person,
+                   'latest_assessment': latest_assessment,
+                   'skills': skills_data})
 
 
 def assess(request):
