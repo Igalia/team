@@ -125,17 +125,6 @@ def assess(request):
     """Shows and handles the person assessment form.
     """
 
-    def describe(skill):
-        nonlocal current_category
-        description = {'skill': skill.pk, 'title': skill.name}
-        if current_category != skill.category:
-            current_category = skill.category
-            description['category_title'] = current_category.name
-        return description
-
-    # Holds status for describe().
-    current_category = None
-
     # noinspection PyPep8Naming
     MeasurementFormSet = formset_factory(forms.MeasurementForm, extra=0)
 
@@ -178,6 +167,17 @@ def assess(request):
                 measurement.save()
         return HttpResponseRedirect(reverse('skills:assess-done'))
     else:
+        def describe(skill):
+            nonlocal current_category
+            description = {'skill': skill.pk, 'title': skill.name}
+            if current_category != skill.category:
+                current_category = skill.category
+                description['category_title'] = current_category.name
+            return description
+
+        # Holds status for describe().
+        current_category = None
+
         form_data = [describe(s) for s in models.Skill.objects.order_by('category__name', 'name')]
         skills_index = {form_data[i]['skill']: i for i in range(len(form_data))}
         try:
