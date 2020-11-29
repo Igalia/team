@@ -1,3 +1,5 @@
+import copy
+
 from django.forms import formset_factory
 from django.http.response import HttpResponseRedirect, Http404
 from django.shortcuts import render
@@ -11,16 +13,12 @@ from . import forms, models
 from .models import PersonAssessment, Measurement, Skill
 
 
-def home(request):
-    """Shows the current team stats on all skills.
-    """
-
+def enumerate_skills(additional_fields={}):
     def describe(skill):
         nonlocal current_category
-        description = {'skill': skill.pk,
-                       'title': skill.name,
-                       'knowledge': [0 for i in Measurement.KNOWLEDGE_CHOICES],
-                       'interest': [0 for i in Measurement.INTEREST_CHOICES]}
+        description = {'skill': skill.pk, 'title': skill.name}
+        for key, value in additional_fields.items():
+            description[key] = copy.copy(value)
         if current_category != skill.category:
             current_category = skill.category
             description['category_title'] = current_category.name
@@ -29,8 +27,17 @@ def home(request):
     # Holds status for describe().
     current_category = None
 
-    skills_data = [describe(s) for s in models.Skill.objects.order_by('category__name', 'name')]
-    skills_index = {skills_data[i]['skill']: i for i in range(len(skills_data))}
+    form_data = [describe(s) for s in models.Skill.objects.order_by('category__name', 'name')]
+    skills_index = {form_data[i]['skill']: i for i in range(len(form_data))}
+    return form_data, skills_index
+
+
+def home(request):
+    """Shows the current team stats on all skills.
+    """
+
+    skills_data, skills_index = enumerate_skills({'knowledge': [0 for i in Measurement.KNOWLEDGE_CHOICES],
+                                                  'interest': [0 for i in Measurement.INTEREST_CHOICES]})
 
     latest_assessments = [a for a in PersonAssessment.objects.filter(latest=True)]
 
@@ -95,20 +102,8 @@ def person(request, login):
     except PersonAssessment.DoesNotExist:
         latest_assessment = None
 
-    def describe(skill):
-        nonlocal current_category
-        description = {'skill': skill.pk,
-                       'title': skill.name}
-        if current_category != skill.category:
-            current_category = skill.category
-            description['category_title'] = current_category.name
-        return description
+    skills_data, skills_index = enumerate_skills()
 
-    # Holds status for describe().
-    current_category = None
-
-    skills_data = [describe(s) for s in models.Skill.objects.order_by('category__name', 'name')]
-    skills_index = {skills_data[i]['skill']: i for i in range(len(skills_data))}
     if latest_assessment is not None:
         for measurement in Measurement.objects.filter(assessment=latest_assessment):
             skills_data[skills_index[measurement.skill.pk]]['measurement'] = measurement
@@ -167,29 +162,18 @@ def assess(request):
                 measurement.save()
         return HttpResponseRedirect(reverse('skills:assess-done'))
     else:
-        def describe(skill):
-            nonlocal current_category
-            description = {'skill': skill.pk, 'title': skill.name}
-            if current_category != skill.category:
-                current_category = skill.category
-                description['category_title'] = current_category.name
-            return description
+        skills, index = enumerate_skills()
 
-        # Holds status for describe().
-        current_category = None
-
-        form_data = [describe(s) for s in models.Skill.objects.order_by('category__name', 'name')]
-        skills_index = {form_data[i]['skill']: i for i in range(len(form_data))}
         try:
             latest_assessment = PersonAssessment.objects.get(person=person, latest=True)
             for measurement in Measurement.objects.filter(assessment=latest_assessment):
-                form = form_data[skills_index[measurement.skill.pk]]
+                form = skills[index[measurement.skill.pk]]
                 form['knowledge'] = measurement.knowledge
                 form['interest'] = measurement.interest
         except PersonAssessment.DoesNotExist:
             latest_assessment = None
 
-        formset = MeasurementFormSet(initial=form_data)
+        formset = MeasurementFormSet(initial=skills)
         return render(request,
                       'skills/assess.html',
                       {'page_title': 'Self assessment', 'user_login': person.login, 'formset': formset,
