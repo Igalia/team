@@ -75,6 +75,13 @@ a:hover {
 
 .interest-1, .interest-2, .interest-3, .interest-4 {
     float: right;
+    padding-right: 5px;
+    border-radius: 5px 0 0 5px;
+}
+
+.knowledge-1, .knowledge-2, .knowledge-3, .knowledge-4 {
+    border-radius: 0 5px 5px 0;
+    padding-left: 5px;
 }
 
 .interest-1, .knowledge-1 {
