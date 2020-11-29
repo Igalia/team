@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1><a href="{% url 'skills:home' %}">Our skills</a> &gt; {{ person.login }}</h1>
+<h1><a href="{% url 'skills:home' %}">Our skills</a> &rarr; {{ person.login }}</h1>
 
 <p>{% if latest_assessment %}The latest record for {{ person.login }} is {{ latest_assessment.date }}.{% else %}No records so far.{% endif %}</p>
 
@@ -18,8 +18,8 @@
     {% endif %}
     <div class="table-row">
         <div class="table-cell-row-header"><a href="{% url 'skills:skill' skill.skill %}">{{ skill.title }}</a></div>
-        <div class="table-cell interest">{{ skill.measurement.interest }}</div>
-        <div class="table-cell knowledge">{{ skill.measurement.knowledge }}</div>
+        <div class="table-cell interest"><div class="interest-{{ skill.measurement.interest }}">{{ skill.measurement.interest }}</div></div>
+        <div class="table-cell knowledge"><div class="knowledge-{{ skill.measurement.knowledge }}">{{ skill.measurement.knowledge }}</div></div>
     </div>
 {% endfor %}
 

@@ -27,3 +27,5 @@ The Self Assessment page (`skills.views.assess()` view) displays a form that lis
 The Our Skills page (`skills.views.home()`) loads the latest assessments for each team member, and displays a table with team stats.  For each skill, numbers of people at each level of knowledge and interest are displayed; also some aggregated values are shown.
 
 The Skill page (`skills.views.skill()`) displays full details for a single skill: what are levels of knowledge and interest for each team member.
+
+The Person page (`skills.views.person()`) displays full details for a single team member: what are their levels of knowledge and interest for each skill.

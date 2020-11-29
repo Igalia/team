@@ -2,6 +2,14 @@ body {
     font-family: 'Open Sans', sans-serif !important;
 }
 
+a {
+    color: black;
+}
+
+a:hover {
+    color: blue;
+}
+
 .main-content {
     width: 1024px;
     margin-left: auto;
@@ -48,7 +56,6 @@ body {
 }
 
 .table-cell-column-header, .table-cell-row-header, .table-cell-column-header-span {
-    /* transform: rotate(-90deg); */
     font-weight: bolder;
 }
 
@@ -64,4 +71,56 @@ body {
 .knowledge {
     text-align: left;
     width: 30%;
+}
+
+.interest-1, .interest-2, .interest-3, .interest-4 {
+    float: right;
+}
+
+.interest-1, .knowledge-1 {
+    width: 20%;
+}
+
+.interest-1 {
+    background-color: #FFD180;
+}
+
+.knowledge-1 {
+    background-color: #82B1FF;
+}
+
+.interest-2, .knowledge-2 {
+    width: 40%;
+}
+
+.interest-2 {
+    background-color: #FFAB40;
+}
+
+.knowledge-2 {
+    background-color: #448AFF;
+}
+
+.interest-3, .knowledge-3 {
+    width: 60%;
+}
+
+.interest-3 {
+    background-color: #FF9100;
+}
+
+.knowledge-3 {
+    background-color: #2979FF;
+}
+
+.interest-4, .knowledge-4 {
+    width: 80%;
+}
+
+.interest-4 {
+    background-color: #FF6D00;
+}
+
+.knowledge-4 {
+    background-color: #2962FF;
 }
