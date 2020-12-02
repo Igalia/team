@@ -9,7 +9,7 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(PersonAssessment)
 class PersonAssessmentAdmin(admin.ModelAdmin):
-    ordering = ('-date', )
+    ordering = ('-date', 'person__login')
 
 
 @admin.register(Skill)
