@@ -1,13 +1,15 @@
 from django.contrib import admin
-from skills.models import Category, Skill, Measurement, PersonAssessment
-
-admin.site.register(PersonAssessment)
-admin.site.register(Measurement)
+from skills.models import Category, Skill, PersonAssessment
 
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     ordering = ('name', )
+
+
+@admin.register(PersonAssessment)
+class PersonAssessmentAdmin(admin.ModelAdmin):
+    ordering = ('-date', )
 
 
 @admin.register(Skill)

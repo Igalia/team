@@ -9,7 +9,8 @@ class Category(models.Model):
     name = models.CharField(max_length=50)
 
     class Meta:
-        verbose_name_plural = 'Categories'
+        verbose_name = _('Category')
+        verbose_name_plural = _('Categories')
 
     def __str__(self):
         return self.name
@@ -18,6 +19,10 @@ class Category(models.Model):
 class Skill(models.Model):
     name = models.CharField(max_length=50)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = _('Skill')
+        verbose_name_plural = _('Skills')
 
     def __str__(self):
         return self.name
@@ -39,6 +44,8 @@ class PersonAssessment(models.Model):
             models.UniqueConstraint(fields=('date', 'person'), name='one_assessment_per_day'),
             models.UniqueConstraint(fields=['person'], condition=Q(latest=True), name='one_latest_per_person')
         ]
+        verbose_name = _('Assessment')
+        verbose_name_plural = _('Assessments')
 
     def __str__(self):
         return '{person} at {date}'.format(person=self.person, date=self.date)
