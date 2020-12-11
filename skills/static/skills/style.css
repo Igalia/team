@@ -1,0 +1,139 @@
+/*
+    CSS for the Skills application.
+*/
+
+.skills-assess-form-label {
+    width: 30%;
+}
+
+.skills-assess-form-field {
+    width: 35%;
+}
+
+.skills-row-header {
+    width: 35%;
+}
+
+.skills-column-header {
+    width: 30%;
+}
+
+.skills-row-header, .skills-column-header {
+    font-weight: bolder;
+}
+
+.skills-cell-right {
+    text-align: right;
+}
+
+.skills-cell-left {
+    text-align: left;
+}
+
+.skills-cell-right, .skills-cell-left {
+    width: 30%;
+}
+
+.skills-cell-comment {
+    width: 20%;
+}
+
+.skills-interest-1, .skills-interest-2, .skills-interest-3, .skills-interest-4 {
+    float: right;
+    padding-right: 5px;
+    border-radius: 5px 0 0 5px;
+}
+
+.skills-knowledge-1, .skills-knowledge-2, .skills-knowledge-3, .skills-knowledge-4 {
+    border-radius: 0 5px 5px 0;
+    padding-left: 5px;
+}
+
+.skills-interest-1, .skills-knowledge-1 {
+    width: 20%;
+}
+
+.skills-interest-1 {
+    background-color: #FFD180;
+}
+
+.skills-knowledge-1 {
+    background-color: #82B1FF;
+}
+
+.skills-interest-2, .skills-knowledge-2 {
+    width: 40%;
+}
+
+.skills-interest-2 {
+    background-color: #FFAB40;
+}
+
+.skills-knowledge-2 {
+    background-color: #448AFF;
+}
+
+.skills-interest-3, .skills-knowledge-3 {
+    width: 60%;
+}
+
+.skills-interest-3 {
+    background-color: #FF9100;
+}
+
+.skills-knowledge-3 {
+    background-color: #2979FF;
+}
+
+.skills-interest-4, .skills-knowledge-4 {
+    width: 80%;
+}
+
+.skills-interest-4 {
+    background-color: #FF6D00;
+}
+
+.skills-knowledge-4 {
+    background-color: #2962FF;
+}
+
+
+
+
+.table-cell-level, .table-cell-level-avg, .table-cell-row-header, .table-cell-column-header,
+.table-cell-column-header-span, .table-cell-comment {
+    width: 35%;
+}
+
+.table-cell-level, .table-cell-level-avg, .table-cell-row-header, .table-cell-column-header,
+.table-cell-column-header-span, .table-cell-comment {
+    width: 35%;
+    float: left;
+    padding: 3px 10px 3px 10px;
+    box-sizing: border-box;
+}
+
+.table-cell-row-header {
+    width: 35%;
+}
+
+.table-cell-level, .table-cell-column-header, .table-cell-column-header-span {
+    width: 3%;
+    text-align: center;
+}
+
+.table-cell-comment {
+    width: 20%;
+}
+
+.level-avg {
+    width: 5%;
+}
+
+.table-cell-column-header-span {
+    width: 22%;
+}
+
+.table-cell-column-header, .table-cell-row-header, .table-cell-column-header-span {
+    font-weight: bolder;
+}

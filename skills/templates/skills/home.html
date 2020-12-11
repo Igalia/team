@@ -1,15 +1,15 @@
-{% extends "base.html" %}
+{% extends "skills/base.html" %}
 
 {% block content %}
 <h1>Our skills</h1>
 
-<div class="table-row">
+<div class="t-row">
     <div class="table-cell-row-header"></div>
     <div class="table-cell-column-header-span">Knowledge</div>
     <div class="table-cell-comment"></div>
     <div class="table-cell-column-header-span">Interest</div>
 </div>
-<div class="table-row">
+<div class="t-row">
     <div class="table-cell-row-header"></div>
     <div class="table-cell-column-header">1</div>
     <div class="table-cell-column-header">2</div>
@@ -30,7 +30,7 @@
         <hr>
         <h2>{{ skill.category_title }}</h2>
     {% endif %}
-    <div class="table-row">
+    <div class="t-row">
         <div class="table-cell-row-header"><a href="{% url 'skills:skill' skill.skill %}">{{ skill.title }}</a></div>
         {% for level in skill.knowledge %}
             <div class="table-cell-level">{{ level }}</div>

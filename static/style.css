@@ -1,5 +1,9 @@
+/*
+    CSS shared by all applications.  See notes on particular rules.
+*/
+
 body {
-    font-family: 'Open Sans', sans-serif !important;
+    font-family: 'Open Sans', sans-serif;
 }
 
 a {
@@ -17,117 +21,18 @@ a:hover {
     clear: both;
 }
 
-.form-row, .table-row {
+/* Forms and tables are rendered using DIVs. */
+.t-row {
     width: 100%;
     display: table;
 }
 
-.form-cell, .form-label, .table-cell, .table-cell-level, .table-cell-level-avg, .table-cell-row-header, .table-cell-column-header,
-.table-cell-column-header-span, .table-cell-comment {
-    width: 35%;
+.t-cell {
     float: left;
     padding: 3px 10px 3px 10px;
     box-sizing: border-box;
 }
 
-.form-label {
-    width: 30%;
-}
-
-.table-cell-row-header {
-    width: 35%;
-}
-
-.table-cell-level, .table-cell-column-header, .table-cell-column-header-span {
-    width: 3%;
-    text-align: center;
-}
-
-.table-cell-comment {
-    width: 20%;
-}
-
-.level-avg {
-    width: 5%;
-}
-
-.table-cell-column-header-span {
-    width: 22%;
-}
-
-.table-cell-column-header, .table-cell-row-header, .table-cell-column-header-span {
-    font-weight: bolder;
-}
-
-.form-cell > select {
+.t-cell > select {
     width: 100%;
-}
-
-.interest {
-    text-align: right;
-    width: 30%;
-}
-
-.knowledge {
-    text-align: left;
-    width: 30%;
-}
-
-.interest-1, .interest-2, .interest-3, .interest-4 {
-    float: right;
-    padding-right: 5px;
-    border-radius: 5px 0 0 5px;
-}
-
-.knowledge-1, .knowledge-2, .knowledge-3, .knowledge-4 {
-    border-radius: 0 5px 5px 0;
-    padding-left: 5px;
-}
-
-.interest-1, .knowledge-1 {
-    width: 20%;
-}
-
-.interest-1 {
-    background-color: #FFD180;
-}
-
-.knowledge-1 {
-    background-color: #82B1FF;
-}
-
-.interest-2, .knowledge-2 {
-    width: 40%;
-}
-
-.interest-2 {
-    background-color: #FFAB40;
-}
-
-.knowledge-2 {
-    background-color: #448AFF;
-}
-
-.interest-3, .knowledge-3 {
-    width: 60%;
-}
-
-.interest-3 {
-    background-color: #FF9100;
-}
-
-.knowledge-3 {
-    background-color: #2979FF;
-}
-
-.interest-4, .knowledge-4 {
-    width: 80%;
-}
-
-.interest-4 {
-    background-color: #FF6D00;
-}
-
-.knowledge-4 {
-    background-color: #2962FF;
 }

@@ -1,19 +1,19 @@
-{% extends "base.html" %}
+{% extends "skills/base.html" %}
 
 {% block content %}
 <h1><a href="{% url 'skills:home' %}">Our skills</a> &rarr; {{ skill.name }}</h1>
 
-<div class="table-row">
-    <div class="table-cell-row-header"></div>
-    <div class="table-cell-column-header interest">← Interest</div>
-    <div class="table-cell-column-header knowledge">Knowledge →</div>
+<div class="t-row">
+    <div class="t-cell skills-row-header"></div>
+    <div class="t-cell skills-column-header skills-cell-right">← Interest</div>
+    <div class="t-cell skills-column-header">Knowledge →</div>
 </div>
 
 {% for person in people %}
-    <div class="table-row">
-        <div class="table-cell-row-header"><a href="{% url 'skills:person' person.person.login %}">{{ person.person.login }}</a></div>
-        <div class="table-cell interest"><div class="interest-{{ person.measurement.interest }}">{{ person.measurement.interest }}</div></div>
-        <div class="table-cell knowledge"><div class="knowledge-{{ person.measurement.knowledge }}">{{ person.measurement.knowledge }}</div></div>
+    <div class="t-row">
+        <div class="t-cell skills-row-header"><a href="{% url 'skills:person' person.person.login %}">{{ person.person.login }}</a></div>
+        <div class="t-cell skills-cell-right"><div class="skills-interest-{{ person.measurement.interest }}">{{ person.measurement.interest }}</div></div>
+        <div class="t-cell skills-cell-left"><div class="skills-knowledge-{{ person.measurement.knowledge }}">{{ person.measurement.knowledge }}</div></div>
     </div>
 {% endfor %}
 
