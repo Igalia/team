@@ -38,7 +38,7 @@
     width: 20%;
 }
 
-.skills-interest-1, .skills-interest-2, .skills-interest-3, .skills-interest-4 {
+.skills-interest, .skills-interest-1, .skills-interest-2, .skills-interest-3, .skills-interest-4 {
     float: right;
     padding-right: 5px;
     border-radius: 5px 0 0 5px;
@@ -95,6 +95,10 @@
 
 .skills-knowledge-4 {
     background-color: #2962FF;
+}
+
+.skills-cell-narrow {
+    width: 20%;
 }
 
 

@@ -4,6 +4,51 @@
 <h1>Our skills</h1>
 
 <div class="t-row">
+    <div class="t-cell skills-row-header"></div>
+    <div class="t-cell skills-column-header skills-cell-right">← Interest</div>
+    <div class="t-cell skills-column-header">Knowledge →</div>
+</div>
+{% for skill in skills %}
+    {% if skill.category_title %}
+        <hr>
+        <h2>{{ skill.category_title }}</h2>
+    {% endif %}
+    <div class="t-row">
+        <div class="t-cell skills-row-header"><a href="{% url 'skills:skill' skill.skill %}">{{ skill.title }}</a></div>
+        <div class="t-cell skills-cell-right">
+            {% for level in skill.interest %}
+                {% if level %}
+                    <div class="t-cell skills-interest-{{ forloop.counter }} skills-cell-narrow">{{ level }}</div>
+                {% else %}
+                    <div class="t-cell skills-interest skills-cell-narrow"></div>
+                {% endif %}
+            {% endfor %}
+            {% if skill.star_interest %}
+                <div class="t-cell skills-cell-narrow">&star;</div>
+            {% endif %}
+        </div>
+        <div class="t-cell skills-cell-left">
+            {% for level in skill.knowledge %}
+                {% if level %}
+                    <div class="t-cell skills-knowledge-{{ forloop.counter }} skills-cell-narrow">{{ level }}</div>
+                {% else %}
+                    <div class="t-cell skills-cell-narrow"></div>
+                {% endif %}
+            {% endfor %}
+            {% if skill.star_knowledge %}
+                <div class="t-cell skills-cell-narrow">&star;</div>
+            {% endif %}
+        </div>
+    </div>
+{% endfor %}
+
+<hr>
+
+<h2>Below goes the initial 'ugly' version.</h2>
+
+<hr>
+
+<div class="t-row">
     <div class="table-cell-row-header"></div>
     <div class="table-cell-column-header-span">Knowledge</div>
     <div class="table-cell-comment"></div>

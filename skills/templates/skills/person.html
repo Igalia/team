@@ -3,8 +3,6 @@
 {% block content %}
 <h1><a href="{% url 'skills:home' %}">Our skills</a> &rarr; {{ person.login }}</h1>
 
-<p>{% if latest_assessment %}The latest record for {{ person.login }} is {{ latest_assessment.date }}.{% else %}No records so far.{% endif %}</p>
-
 <div class="t-row">
     <div class="t-cell skills-row-header"></div>
     <div class="t-cell skills-column-header skills-cell-right">← Interest</div>
@@ -22,5 +20,7 @@
         <div class="t-cell skills-cell-left"><div class="skills-knowledge-{{ skill.measurement.knowledge }}">{{ skill.measurement.knowledge }}</div></div>
     </div>
 {% endfor %}
+
+<p>{% if latest_assessment %}The latest record for {{ person.login }} is {{ latest_assessment.date }}.{% else %}No records so far.{% endif %}</p>
 
 {% endblock %}

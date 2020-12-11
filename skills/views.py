@@ -55,10 +55,19 @@ def home(request):
         skill['interest_accumulated'] = sum(
             (skill['interest'][i] * i for i in range(len(Measurement.INTEREST_CHOICES))))
         skill['interest_average'] = skill['interest_accumulated'] / assessment_count
+
         if skill['knowledge'][Measurement.KNOWLEDGE_EXPERT] >= 2:
             skill['comment'] = '2 or more experts!'
+            skill['star_knowledge'] = True
+        elif skill['knowledge'][Measurement.KNOWLEDGE_HIGH] >= 5:
+            skill['star_knowledge'] = True
         elif skill['knowledge_average'] > Measurement.KNOWLEDGE_MEDIUM:
             skill['comment'] = 'Average is above medium.'
+            skill['star_knowledge'] = True
+
+        if skill['interest'][Measurement.INTEREST_EXTREME] >= 4:
+            skill['star_interest'] = True
+
         skill['knowledge'] = skill['knowledge'][1:]
         skill['interest'] = skill['interest'][1:]
 
