@@ -1,7 +1,3 @@
-/*
-    CSS for the Skills application.
-*/
-
 .skills-assess-form-label {
     width: 30%;
 }
@@ -99,45 +95,4 @@
 
 .skills-cell-narrow {
     width: 20%;
-}
-
-
-
-
-.table-cell-level, .table-cell-level-avg, .table-cell-row-header, .table-cell-column-header,
-.table-cell-column-header-span, .table-cell-comment {
-    width: 35%;
-}
-
-.table-cell-level, .table-cell-level-avg, .table-cell-row-header, .table-cell-column-header,
-.table-cell-column-header-span, .table-cell-comment {
-    width: 35%;
-    float: left;
-    padding: 3px 10px 3px 10px;
-    box-sizing: border-box;
-}
-
-.table-cell-row-header {
-    width: 35%;
-}
-
-.table-cell-level, .table-cell-column-header, .table-cell-column-header-span {
-    width: 3%;
-    text-align: center;
-}
-
-.table-cell-comment {
-    width: 20%;
-}
-
-.level-avg {
-    width: 5%;
-}
-
-.table-cell-column-header-span {
-    width: 22%;
-}
-
-.table-cell-column-header, .table-cell-row-header, .table-cell-column-header-span {
-    font-weight: bolder;
 }
