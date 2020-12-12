@@ -4,7 +4,7 @@
 <h1>Our skills</h1>
 
 <div class="t-row">
-    <div class="t-cell skills-row-header"></div>
+    <div class="t-cell skills-row-header"><em>How to read this?  See <a href="#howto">below</a>.</em></div>
     <div class="t-cell skills-column-header skills-cell-right">← Interest</div>
     <div class="t-cell skills-column-header">Knowledge →</div>
 </div>
@@ -20,7 +20,7 @@
                 {% if level %}
                     <div class="t-cell skills-interest-{{ forloop.counter }} skills-cell-narrow">{{ level }}</div>
                 {% else %}
-                    <div class="t-cell skills-interest skills-cell-narrow"></div>
+                    <div class="t-cell skills-interest skills-cell-narrow">&nbsp;</div>
                 {% endif %}
             {% endfor %}
             {% if skill.star_interest %}
@@ -32,7 +32,7 @@
                 {% if level %}
                     <div class="t-cell skills-knowledge-{{ forloop.counter }} skills-cell-narrow">{{ level }}</div>
                 {% else %}
-                    <div class="t-cell skills-cell-narrow"></div>
+                    <div class="t-cell skills-cell-narrow">&nbsp;</div>
                 {% endif %}
             {% endfor %}
             {% if skill.star_knowledge %}
@@ -41,5 +41,46 @@
         </div>
     </div>
 {% endfor %}
+
+<hr>
+
+<h2 id="howto">How to read this page</h2>
+
+<h3>Bricks</h3>
+
+<p>This page shows data aggregated for the entire team.  The main purpose is to give the idea of team capabilities at a glance, without diving into details.</p>
+
+<p>These color bars indicate levels.  The bars are divided into bricks that correspond to levels from 1 to 4, and number in each brick shows how many people rated themselves at that level.  Interest is orange and grows to the left, and knowledge is blue and grows to the right.</p>
+
+<p>Here is the example.</p>
+
+<div class="t-row">
+    <div class="t-cell skills-row-header"><u>Django framework</u></div>
+    <div class="t-cell skills-cell-right">
+        <div class="t-cell skills-interest-1 skills-cell-narrow">2</div>
+        <div class="t-cell skills-interest-2 skills-cell-narrow">1</div>
+        <div class="t-cell skills-interest skills-cell-narrow">&nbsp;</div>
+        <div class="t-cell skills-interest-4 skills-cell-narrow">1</div>
+    </div>
+    <div class="t-cell skills-cell-left">
+        <div class="t-cell skills-knowledge-1 skills-cell-narrow">1</div>
+        <div class="t-cell skills-knowledge-2 skills-cell-narrow">2</div>
+        <div class="t-cell skills-knowledge-3 skills-cell-narrow">1</div>
+        <div class="t-cell skills-cell-narrow">&nbsp;</div>
+    </div>
+</div>
+
+<p>The orange (left) half is interest; it grows from right to left.  Two people in the team have minimal interest in Django (level 1), one more teammate would like to learn more (level 2), and one person is extremely interested in working with Django (level 4).  Note the gap between levels 2 and 4: nobody rated their interest at level 3.</p>
+
+<p>The blue (right) half is knowledge, and it is read likewise, but from left to right.</p>
+
+<h3>Stars</h3>
+
+<p>Some areas have star marks; these stars mean "notable interest" if appear on the interest side or "good knowledge" otherwise.  The criteria is that the team has minimal number of people at certain levels:</p>
+
+<ul>
+    <li><em>Notable interest</em> means that {{ notable_interest_threshold }} people rated their interest at level 4 (the highest).</li>
+    <li><em>Good knowledge</em> means that at least {{ high_knowledge_threshold }} people rated their knowledge at level 3, or at least {{ expert_knowledge_threshold }} people rated their knowledge at level 4 (the highest).</li>
+</ul>
 
 {% endblock %}

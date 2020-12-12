@@ -5,6 +5,11 @@ from django.utils.translation import ugettext_lazy as _
 from people.models import Person
 
 
+NOTABLE_INTEREST_THRESHOLD = 0.3
+EXPERT_KNOWLEDGE_THRESHOLD = 0.2
+HIGH_KNOWLEDGE_THRESHOLD = 0.4
+
+
 class Category(models.Model):
     name = models.CharField(max_length=50)
 

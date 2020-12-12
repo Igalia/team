@@ -10,7 +10,8 @@ from common.auth import get_user
 from people.models import Person
 
 from . import forms, models
-from .models import PersonAssessment, Measurement, Skill
+from .models import PersonAssessment, Measurement, Skill, NOTABLE_INTEREST_THRESHOLD, HIGH_KNOWLEDGE_THRESHOLD, \
+    EXPERT_KNOWLEDGE_THRESHOLD
 
 
 def enumerate_skills(additional_fields={}):
@@ -41,39 +42,29 @@ def home(request):
 
     latest_assessments = [a for a in PersonAssessment.objects.filter(latest=True)]
 
-    assessment_count = len(latest_assessments)
-
     for measurement in Measurement.objects.filter(assessment__in=latest_assessments):
         skill = skills_data[skills_index[measurement.skill.pk]]
         skill['knowledge'][measurement.knowledge] += 1
         skill['interest'][measurement.interest] += 1
 
+    assessment_count = len(latest_assessments)
+    expert_threshold = assessment_count * EXPERT_KNOWLEDGE_THRESHOLD
+    high_threshold = assessment_count * HIGH_KNOWLEDGE_THRESHOLD
+    interest_threshold = assessment_count * NOTABLE_INTEREST_THRESHOLD
     for skill in skills_data:
-        skill['knowledge_accumulated'] = sum(
-            (skill['knowledge'][i] * i for i in range(len(Measurement.KNOWLEDGE_CHOICES))))
-        skill['knowledge_average'] = skill['knowledge_accumulated'] / assessment_count
-        skill['interest_accumulated'] = sum(
-            (skill['interest'][i] * i for i in range(len(Measurement.INTEREST_CHOICES))))
-        skill['interest_average'] = skill['interest_accumulated'] / assessment_count
-
-        if skill['knowledge'][Measurement.KNOWLEDGE_EXPERT] >= 2:
-            skill['comment'] = '2 or more experts!'
-            skill['star_knowledge'] = True
-        elif skill['knowledge'][Measurement.KNOWLEDGE_HIGH] >= 5:
-            skill['star_knowledge'] = True
-        elif skill['knowledge_average'] > Measurement.KNOWLEDGE_MEDIUM:
-            skill['comment'] = 'Average is above medium.'
-            skill['star_knowledge'] = True
-
-        if skill['interest'][Measurement.INTEREST_EXTREME] >= 4:
-            skill['star_interest'] = True
+        skill['star_knowledge'] = (skill['knowledge'][Measurement.KNOWLEDGE_EXPERT] >= expert_threshold or
+                                  skill['knowledge'][Measurement.KNOWLEDGE_HIGH] >= high_threshold)
+        skill['star_interest'] = skill['interest'][Measurement.INTEREST_EXTREME] >= interest_threshold
 
         skill['knowledge'] = skill['knowledge'][1:]
         skill['interest'] = skill['interest'][1:]
 
     return render(request,
                   'skills/home.html',
-                  {'page_title': 'Our skills', 'skills': skills_data})
+                  {'page_title': 'Our skills', 'skills': skills_data,
+                   'notable_interest_threshold': format(NOTABLE_INTEREST_THRESHOLD, ".0%"),
+                   'expert_knowledge_threshold': format(EXPERT_KNOWLEDGE_THRESHOLD, ".0%"),
+                   'high_knowledge_threshold': format(HIGH_KNOWLEDGE_THRESHOLD, ".0%")})
 
 
 def skill(request, skill_id):
