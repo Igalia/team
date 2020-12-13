@@ -28,8 +28,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'ballots',
     'people',
-    'skills'
+    'skills',
 ]
 
 MIDDLEWARE = [
@@ -49,7 +50,8 @@ TEMPLATES = [
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
             BASE_DIR / 'templates',
-            BASE_DIR / 'skills' / 'templates'
+            BASE_DIR / 'ballots' / 'templates',
+            BASE_DIR / 'skills' / 'templates',
         ],
         'APP_DIRS': True,
         'OPTIONS': {
@@ -106,5 +108,6 @@ STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
+    BASE_DIR / 'ballots' / 'static',
     BASE_DIR / 'skills' / 'static',
 ]

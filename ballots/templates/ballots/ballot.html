@@ -1,0 +1,49 @@
+{% extends "ballots/base.html" %}
+{% load static %}
+
+{% block content %}
+<h1><a href="{% url 'ballots:home' %}">Our ballots</a> &rarr; {{ ballot.question }}</h1>
+
+<p>Created by {{ ballot.creator }} at {{ ballot.created }}.</p>
+
+{% if vote %}
+    {{ form }}
+{% endif %}
+
+{% if form %}
+<p>Please cast your vote, {{ user.login }}.</p>
+
+<form method="post">
+    {% csrf_token %}
+    <div class="t-row">
+        <div class="t-cell ballots-vote-form-label">
+            Vote:
+        </div>
+        <div class="t-cell ballots-vote-form-vote">
+            <input type="radio" name="vote" value="Y">Yes
+        </div>
+        <div class="t-cell ballots-vote-form-vote">
+            <input type="radio" name="vote" value="N">No
+        </div>
+        <div class="t-cell ballots-vote-form-vote">
+            <input type="radio" name="vote" value="A">Abstain
+        </div>
+    </div>
+    <div class="t-row">
+        <div class="t-cell ballots-vote-form-label">
+            Comment (optional):
+        </div>
+        <div class="t-cell ballots-vote-form-comment">
+            {{ form.comment }}
+        </div>
+    </div>
+    <div><button type="submit">Submit</button></div>
+</form>
+{% endif %}
+
+{% if votes %}
+{% else %}
+    <p>This ballot is secret.  You cannot see others' votes until </p>
+{% endif %}
+
+{% endblock %}

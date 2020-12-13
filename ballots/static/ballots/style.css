@@ -1,0 +1,16 @@
+.ballots-vote-form-label {
+    width: 22%;
+}
+
+.ballots-vote-form-vote {
+    width: 26%;
+}
+
+.ballots-vote-form-comment {
+    width: 78%;
+}
+
+.ballots-vote-form-comment > textarea {
+    width: 100%;
+    height: 40px;
+}
