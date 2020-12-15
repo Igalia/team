@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'markdownify',
     'ballots',
     'people',
     'skills',
@@ -111,3 +112,28 @@ STATICFILES_DIRS = [
     BASE_DIR / 'ballots' / 'static',
     BASE_DIR / 'skills' / 'static',
 ]
+
+MARKDOWNIFY_STRIP = False
+MARKDOWNIFY_WHITELIST_TAGS = [
+    'a',
+    'abbr',
+    'acronym',
+    'b',
+    'blockquote',
+    'em',
+    'h2', 'h3', 'h4', 'h5', 'h6',
+    'i',
+    'li',
+    'ol',
+    'p',
+    'strong',
+    'ul'
+]
+
+
+def set_target_blank(attrs, new=False):
+    attrs[(None, u'target')] = u'blank'
+    return attrs
+
+
+MARKDOWNIFY_LINKIFY_CALLBACKS = [set_target_blank, ]

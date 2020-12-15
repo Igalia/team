@@ -10,4 +10,5 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('new/', views.new, name='new'),
     path('ballot/<int:ballot_id>/', views.ballot, name='ballot'),
+    path('retract_vote/<int:ballot_id>/', views.retract_vote, name='retract_vote'),
 ]

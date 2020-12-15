@@ -1,14 +1,14 @@
 {% extends "ballots/base.html" %}
-{% load static %}
+{% load static %}{% load markdownify %}
 
 {% block content %}
 <h1><a href="{% url 'ballots:home' %}">Our ballots</a> &rarr; {{ ballot.question }}</h1>
 
-<p>Created by {{ ballot.creator }} at {{ ballot.created }}.</p>
+{{ ballot.description|markdownify }}
 
-{% if vote %}
-    {{ form }}
-{% endif %}
+<p>Created by: {{ ballot.creator }} at {{ ballot.created }}, ballot type: {% if ballot.open %}open{% else %}secret{% endif %}, deadline: {{ ballot.deadline }}.</p>
+
+<hr>
 
 {% if form %}
 <p>Please cast your vote, {{ user.login }}.</p>
@@ -20,13 +20,13 @@
             Vote:
         </div>
         <div class="t-cell ballots-vote-form-vote">
-            <input type="radio" name="vote" value="Y">Yes
+            <label><input type="radio" name="vote" required value="Y">Yes</label>
         </div>
         <div class="t-cell ballots-vote-form-vote">
-            <input type="radio" name="vote" value="N">No
+            <label><input type="radio" name="vote" required value="N">No</label>
         </div>
         <div class="t-cell ballots-vote-form-vote">
-            <input type="radio" name="vote" value="A">Abstain
+            <label><input type="radio" name="vote" required value="A">Abstain</label>
         </div>
     </div>
     <div class="t-row">
@@ -41,9 +41,31 @@
 </form>
 {% endif %}
 
-{% if votes %}
+{% if our_vote %}
+    <h2>You voted {{ our_vote.vote_as_string }}</h2>
+    <p>Changed your mind? <a href="{% url 'ballots:retract_vote' ballot.pk %}" onclick="return confirm('This will erase your current choice, and you will need to vote again. Continue?');">Retract the vote</a>.</p>
+{% endif %}
+
+{% if ballot.open %}
+    <h2>Other votes</h2>
+
+    {% for group in all_votes %}
+        <h3>{{ group.title }}: {{ group.votes.count }}</h3>
+        {{ group.votes.people }}
+        {% if group.votes.comments %}
+            <h4>Comments</h4>
+            {% for comment in group.votes.comments %}
+                <p>{{ comment.person.login }}: {{ comment.comment }}</p>
+            {% endfor %}
+        {% endif %}
+    {% endfor %}
+
+    {% if pending.count %}
+        <h3>Not voted: {{ pending.count }}</h3>
+        <p>{{ pending.people }}</p>
+    {% endif %}
 {% else %}
-    <p>This ballot is secret.  You cannot see others' votes until </p>
+    <p>This ballot is secret.  You cannot see others' votes until the ballot is complete.</p>
 {% endif %}
 
 {% endblock %}

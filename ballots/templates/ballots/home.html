@@ -13,8 +13,8 @@
 
 {% if active_ballots %}
     <h2>Active ballots that you have already voted in</h2>
-    {% for ballot in ballots_to_vote %}
-        <p><a href="{% url 'ballots:ballot' ballot.pk %}">{{ ballot.question }}</a></p>
+    {% for b in active_ballots %}
+        <p><a href="{% url 'ballots:ballot' b.ballot.pk %}">{{ b.ballot.question }}</a> {{ b.vote.vote_as_string }}</p>
     {% endfor %}
 {% endif %}
 

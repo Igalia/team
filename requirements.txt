@@ -1,4 +1,11 @@
 asgiref==3.2.10
+bleach==3.2.1
 Django==3.1.2
+django-markdownify==0.8.1
+Markdown==3.3.3
+packaging==20.8
+pyparsing==2.4.7
 pytz==2020.1
+six==1.15.0
 sqlparse==0.4.1
+webencodings==0.5.1

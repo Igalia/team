@@ -50,7 +50,7 @@ class Vote(models.Model):
     ballot = models.ForeignKey(Ballot, on_delete=models.CASCADE)
     caster = models.ForeignKey(Person, on_delete=models.PROTECT)
     vote = models.CharField(choices=VOTE_CHOICES, max_length=1)
-    comment = models.TextField()
+    comment = models.TextField(blank=True)
 
     class Meta:
         constraints = [
@@ -58,3 +58,10 @@ class Vote(models.Model):
         ]
         verbose_name = _('Vote')
         verbose_name_plural = _('Votes')
+
+    @property
+    def vote_as_string(self):
+        for choice in Vote.VOTE_CHOICES:
+            if self.vote == choice[0]:
+                return choice[1]
+        return _('UNKNOWN')
