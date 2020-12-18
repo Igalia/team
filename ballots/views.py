@@ -6,7 +6,7 @@ from django.urls import reverse
 
 from common.auth import get_user_login
 from people.models import Person
-from ballots.forms import VoteForm
+from ballots.forms import VoteForm, BallotForm
 from ballots.models import Ballot, Vote
 
 
@@ -17,7 +17,7 @@ def get_user(request):
     try:
         return Person.objects.get(login=user_login)
     except Person.DoesNotExist:
-        raise Http404("User does not exist")
+        raise Http404('User does not exist')
 
 
 def home(request):
@@ -48,10 +48,46 @@ def home(request):
 
 def new(request):
     user = get_user(request)
+
+    form = BallotForm(max_level=user.level.value)
     return render(request,
                   'ballots/new.html',
                   {'page_title': 'New ballot',
+                   'form': form,
                    'user': user})
+
+
+def edit(request, ballot_id):
+    user = get_user(request)
+
+    try:
+        ballot = Ballot.objects.get(pk=ballot_id)
+    except ballot.DoesNotExist:
+        raise Http404('Ballot does not exist')
+
+
+    form = BallotForm()
+    return render(request,
+                  'ballots/new.html',
+                  {'page_title': 'New ballot',
+                   'form': form,
+                   'user': user})
+
+
+def delete(request, ballot_id):
+    user = get_user(request)
+
+    try:
+        ballot = Ballot.objects.get(pk=ballot_id)
+    except ballot.DoesNotExist:
+        raise Http404('Ballot does not exist')
+
+    if user != ballot.creator:
+        raise Exception('This is not your ballot')
+
+    ballot.delete()
+
+    return HttpResponseRedirect(reverse('ballots:home'))
 
 
 def ballot(request, ballot_id):
@@ -61,11 +97,13 @@ def ballot(request, ballot_id):
     try:
         ballot = Ballot.objects.get(pk=ballot_id)
     except ballot.DoesNotExist:
-        raise Http404("ballot does not exist")
+        raise Http404('Ballot does not exist')
+
 
     user = get_user(request)
     if user.level.value < ballot.access_level.value:
-        raise Http404("ballot does not exist")
+        raise Http404('Ballot does not exist')
+
 
     if request.method == 'POST':
         form = VoteForm(request.POST)
@@ -137,15 +175,22 @@ def retract_vote(request, ballot_id):
     try:
         ballot = Ballot.objects.get(pk=ballot_id)
     except ballot.DoesNotExist:
-        raise Http404("Ballot does not exist")
+        raise Http404('Ballot does not exist')
 
     user = get_user(request)
     if user.level.value < ballot.access_level.value:
-        raise Http404("Ballot does not exist")
+        raise Http404('Ballot does not exist')
+
 
     try:
         our_vote = Vote.objects.get(ballot=ballot, caster=user)
         our_vote.delete()
         return HttpResponseRedirect(reverse('ballots:ballot', kwargs={'ballot_id': ballot_id}))
     except Vote.DoesNotExist:
-        raise Http404("Vote does not exist")
+        raise Http404('Vote does not exist')
+
+
+def markdownify(request):
+    return render(request,
+                  'ballots/markdownify.html',
+                  {'text': request.POST.get('text', '')})

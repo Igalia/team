@@ -33,6 +33,7 @@ a:hover {
     box-sizing: border-box;
 }
 
-.t-cell > select {
+.t-cell > input, .t-cell > textarea, .t-cell > select {
     width: 100%;
+    box-sizing: border-box;
 }

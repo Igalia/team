@@ -4,6 +4,8 @@
 {% block content %}
 <h1>Our ballots</h1>
 
+<p><a href="{% url 'ballots:new' %}">Create a new ballot</a></p>
+
 {% if ballots_to_vote %}
     <h2>Ballots for you to vote, {{ user.login }}</h2>
     {% for ballot in ballots_to_vote %}

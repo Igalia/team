@@ -2,6 +2,88 @@
 {% load static %}
 
 {% block content %}
-<h1>Create new poll</h1>
+<h1><a href="{% url 'ballots:home' %}">Our ballots</a> &rarr; New ballot</h1>
+
+<form method="post">
+    {% csrf_token %}
+    <div class="t-row">
+        <div class="t-cell ballots-edit-form-label">Question:</div>
+        <div class="t-cell ballots-edit-form-field">{{ form.question }}</div>
+    </div>
+    <div class="t-row">
+        <div class="t-cell ballots-edit-form-label">Description:</div>
+        <div class="t-cell ballots-edit-form-field" id="description">{{ form.description }}</div>
+    </div>
+    <div class="t-row">
+        <div class="t-cell ballots-edit-form-label"></div>
+        <div class="t-cell ballots-edit-form-field ballots-edit-form-description-preview" id="description-preview">
+            {{ form.description.value }}
+        </div>
+    </div>
+    <div class="t-row">
+        <div class="t-cell ballots-edit-form-label">Settings:</div>
+        <div class="t-cell ballots-edit-form-field">
+            <div class="t-row">
+                <div class="t-cell">Deadline:</div>
+                <div class="t-cell">{{ form.deadline }}</div>
+                <div class="t-cell">Type:</div>
+                <div class="t-cell">{{ form.open }}</div>
+                <div class="t-cell">Access:</div>
+                <div class="t-cell">{{ form.access_level }}</div>
+            </div>
+        </div>
+    </div>
+    <hr>
+    <div>
+        <button type="submit">Create</button>
+    </div>
+</form>
+
+<script language="JavaScript">
+var updateRequest = null;
+var repeatRequest = false;
+
+function getPreview(text) {
+    let data = new FormData();
+    data.append('text', text);;
+    data.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+    fetch('{% url 'ballots:markdownify' %}', {
+        method: 'POST',
+        mode: 'same-origin',
+        cache: 'no-cache',
+        credentials: 'same-origin',
+        redirect: 'error',
+        referrerPolicy: 'same-origin',
+        body: data
+    }).then(response => response.text())
+      .then(data => {
+        document.getElementById("description-preview").innerHTML = data;
+        if (repeatRequest) {
+            repeatRequest = false;
+            updateRequest = setTimeout(getPreview, 3000, document.getElementById("id_description").value);
+        } else {
+            updateRequest = null;
+        }
+    });
+}
+
+window.onload = function() {
+    document.getElementById("id_description").addEventListener("input", function(e) {
+        var textarea = e.target;
+        if (textarea.scrollHeight > textarea.clientHeight) {
+            textarea.style.height = textarea.scrollHeight + 10 + "px";
+        }
+
+        if (updateRequest === null)
+            updateRequest = setTimeout(getPreview, 3000, textarea.value);
+        else
+            repeatRequest = true;
+    })
+};
+
+
+
+</script>
 
 {% endblock %}

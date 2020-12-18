@@ -1,16 +1,16 @@
-.ballots-vote-form-label {
+.ballots-vote-form-label, .ballots-edit-form-label {
     width: 22%;
+    font-weight: bolder;
 }
 
 .ballots-vote-form-vote {
     width: 26%;
 }
 
-.ballots-vote-form-comment {
+.ballots-vote-form-comment, .ballots-edit-form-field {
     width: 78%;
 }
 
 .ballots-vote-form-comment > textarea {
-    width: 100%;
     height: 40px;
 }
