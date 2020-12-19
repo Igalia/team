@@ -14,3 +14,28 @@
 .ballots-vote-form-comment > textarea {
     height: 40px;
 }
+
+.ballots-vote-group {
+    width: 33%;
+}
+
+.ballots-votes-Y, .ballots-votes-N, .ballots-votes-A {
+    border-radius: 0 5px 5px 0;
+    padding: 0px 0px 0px 5px;
+    font-weight: bolder;
+}
+
+.ballots-votes-Y {
+    /* Material Green 500 */
+    background-color: #4CAF50;
+}
+
+.ballots-votes-N {
+    /* Material Red 500 */
+    background-color: #F44336;
+}
+
+.ballots-votes-A {
+    /* Material Gray 500 */
+    background-color: #9E9E9E;
+}

@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block content %}
-<h1><a href="{% url 'ballots:home' %}">Our ballots</a> &rarr; New ballot</h1>
+<h1><a href="{% url 'ballots:home' %}">Our ballots</a> &rarr; {% if form.instance.pk %}Edit{% else %}New{% endif %} ballot</h1>
 
 <form method="post">
     {% csrf_token %}
@@ -25,7 +25,7 @@
         <div class="t-cell ballots-edit-form-field">
             <div class="t-row">
                 <div class="t-cell">Deadline:</div>
-                <div class="t-cell">{{ form.deadline }}</div>
+                <div class="t-cell">{{ form.deadline }}{{ form.deadline.errors }}</div>
                 <div class="t-cell">Type:</div>
                 <div class="t-cell">{{ form.open }}</div>
                 <div class="t-cell">Access:</div>
@@ -35,7 +35,7 @@
     </div>
     <hr>
     <div>
-        <button type="submit">Create</button>
+        <button type="submit">{% if form.instance.pk %}Update{% else %}Create{% endif %}</button>
     </div>
 </form>
 

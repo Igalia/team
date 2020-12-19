@@ -6,7 +6,7 @@
 
 {{ ballot.description|markdownify }}
 
-<p>Created by: {{ ballot.creator }} at {{ ballot.created }}, ballot type: {% if ballot.open %}open{% else %}secret{% endif %}, deadline: {{ ballot.deadline }}.</p>
+<p>Created by: {{ ballot.creator }} at {{ ballot.created }}, ballot type: {% if ballot.open %}open{% else %}secret{% endif %}, deadline: {{ ballot.deadline }}.{% if show_edit %}  <a href="{% url 'ballots:edit' ballot.pk %}">Edit</a>.{% endif %}</p>
 
 <hr>
 
@@ -47,18 +47,29 @@
 {% endif %}
 
 {% if ballot.open %}
-    <h2>Other votes</h2>
-
+    <h2>Ballot status</h2>
     {% for group in all_votes %}
-        <h3>{{ group.title }}: {{ group.votes.count }}</h3>
-        {{ group.votes.people }}
-        {% if group.votes.comments %}
-            <h4>Comments</h4>
-            {% for comment in group.votes.comments %}
-                <p>{{ comment.person.login }}: {{ comment.comment }}</p>
-            {% endfor %}
-        {% endif %}
+        <div class="t-row">
+            <div class="t-cell ballots-votes-{{ group.code }}" style="width: {{ group.bar_length }}%">&nbsp;</div>
+            <div class="t-cell">{{ group.title }}: {{ group.votes.count }}</div>
+        </div>
     {% endfor %}
+
+    <div class="t-row">
+        {% for group in all_votes %}
+            <div class="t-cell ballots-vote-group">
+                <h3>{{ group.title }}: {{ group.votes.count }}</h3>
+                {{ group.votes.people }}
+                {% if group.votes.comments %}
+                    <ul>
+                        {% for comment in group.votes.comments %}
+                            <li>{{ comment.person.login }}: {{ comment.comment }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
 
     {% if pending.count %}
         <h3>Not voted: {{ pending.count }}</h3>
