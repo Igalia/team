@@ -157,8 +157,6 @@ def ballot(request, ballot_id):
                 comments[v.vote].append({'person': person, 'comment': v.comment})
         ballot_data = {}
         for vote, _ in Vote.VOTE_CHOICES:
-            if not votes[vote]:
-                continue
             ballot_data[vote] = {'count': len(votes[vote]),
                                  'people': ', '.join(sorted(votes[vote])),
                                  'comments': sorted(comments[vote], key=lambda c: c['person'].login)}
@@ -168,9 +166,10 @@ def ballot(request, ballot_id):
         all_votes = []
         titles = {c: v for (c, v) in Vote.VOTE_CHOICES}
         for code in ('Y', 'N', 'A'):
-            if code in ballot_data:
-                all_votes.append({'code': code, 'title': titles[code], 'votes': ballot_data[code],
-                                  'bar_length': int(80 * ballot_data[code]['count'] / max_vote_count)})
+            all_votes.append({
+                'code': code,
+                'title': titles[code], 'votes': ballot_data[code],
+                'bar_length': int(80 * ballot_data[code]['count'] / max_vote_count) if max_vote_count else 0})
     else:
         all_votes = None
 
