@@ -140,13 +140,13 @@ def ballot(request, ballot_id):
     except Vote.DoesNotExist:
         form = VoteForm()
 
+    pending = []
     if ballot.open:
         votes = [v for v in Vote.objects.filter(ballot=ballot)]
         votes_index = {v.caster.pk: v for v in votes}
         people = [p for p in Person.objects.filter(level__value__gte=ballot.access_level.value)]
         votes = collections.defaultdict(list)
         comments = collections.defaultdict(list)
-        pending = []
         for person in people:
             if person.pk not in votes_index:
                 pending.append(person.login)
@@ -155,21 +155,18 @@ def ballot(request, ballot_id):
             votes[v.vote].append(person.login)
             if v.comment:
                 comments[v.vote].append({'person': person, 'comment': v.comment})
-        ballot_data = {}
-        for vote, _ in Vote.VOTE_CHOICES:
-            ballot_data[vote] = {'count': len(votes[vote]),
-                                 'people': ', '.join(sorted(votes[vote])),
-                                 'comments': sorted(comments[vote], key=lambda c: c['person'].login)}
+        ballot_data = {vote: {'count': len(votes[vote]),
+                              'people': ', '.join(sorted(votes[vote])),
+                              'comments': sorted(comments[vote], key=lambda c: c['person'].login)}
+                       for vote, _ in Vote.VOTE_CHOICES}
 
         max_vote_count = max(c for c in [ballot_data[code]['count'] for code in ('Y', 'N', 'A')])
 
-        all_votes = []
         titles = {c: v for (c, v) in Vote.VOTE_CHOICES}
-        for code in ('Y', 'N', 'A'):
-            all_votes.append({
-                'code': code,
-                'title': titles[code], 'votes': ballot_data[code],
-                'bar_length': int(80 * ballot_data[code]['count'] / max_vote_count) if max_vote_count else 0})
+        all_votes = [{'code': code,
+                      'title': titles[code], 'votes': ballot_data[code],
+                      'bar_length': int(80 * ballot_data[code]['count'] / max_vote_count) if max_vote_count else 0}
+                     for code in ('Y', 'N', 'A')]
     else:
         all_votes = None
 
