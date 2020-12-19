@@ -160,8 +160,8 @@ def ballot(request, ballot_id):
             if not votes[vote]:
                 continue
             ballot_data[vote] = {'count': len(votes[vote]),
-                                 'people': ', '.join(votes[vote]),
-                                 'comments': comments[vote]}
+                                 'people': ', '.join(sorted(votes[vote])),
+                                 'comments': sorted(comments[vote], key=lambda c: c['person'].login)}
 
         max_vote_count = max(c for c in [ballot_data[code]['count'] for code in ('Y', 'N', 'A')])
 
