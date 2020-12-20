@@ -10,7 +10,7 @@
 
 <hr>
 
-{% if form %}
+{% if form and not finished %}
 <p>Please cast your vote, {{ user.login }}.</p>
 
 <form method="post">
@@ -43,10 +43,14 @@
 
 {% if our_vote %}
     <h2>You voted {{ our_vote.vote_as_string }}</h2>
-    <p>Changed your mind? <a href="{% url 'ballots:retract_vote' ballot.pk %}" onclick="return confirm('This will erase your current choice, and you will need to vote again. Continue?');">Retract the vote</a>.</p>
+    {% if finished %}
+        <p>Tnis ballot has ended.  You can no longer change your mind.</p>
+    {% else %}
+        <p>Changed your mind? <a href="{% url 'ballots:retract_vote' ballot.pk %}" onclick="return confirm('This will erase your current choice and your comment, if any, and you will need to vote again. Continue?');">Retract the vote</a>.</p>
+    {% endif %}
 {% endif %}
 
-{% if ballot.open %}
+{% if ballot.open or finished %}
     <h2>Ballot status</h2>
     {% for group in all_votes %}
         <div class="t-row">

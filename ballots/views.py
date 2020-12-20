@@ -78,7 +78,8 @@ def edit(request, ballot_id):
         raise Http404('Ballot does not exist')
 
     if user != ballot.creator:
-        raise Exception('This is not your ballot')
+        # This is not our ballot; cannot edit.
+        return HttpResponseRedirect(reverse('ballots:ballot', kwargs={'ballot_id': ballot.pk}))
 
     form = BallotForm(request.POST or None, max_level=user.level.value, instance=ballot)
     if request.method == 'POST' and form.is_valid():
@@ -121,7 +122,9 @@ def ballot(request, ballot_id):
     if user.level.value < ballot.access_level.value:
         raise Http404('Ballot does not exist')
 
-    if request.method == 'POST':
+    finished = timezone.now() >= ballot.deadline
+
+    if not finished and request.method == 'POST':
         form = VoteForm(request.POST)
         if not form.is_valid():
             # Our form doesn't have fields that could contain invalid values, so if we are here, something is seriously
@@ -141,7 +144,7 @@ def ballot(request, ballot_id):
         form = VoteForm()
 
     pending = []
-    if ballot.open:
+    if ballot.open or finished:
         votes = [v for v in Vote.objects.filter(ballot=ballot)]
         votes_index = {v.caster.pk: v for v in votes}
         people = [p for p in Person.objects.filter(level__value__gte=ballot.access_level.value)]
@@ -174,9 +177,10 @@ def ballot(request, ballot_id):
                   'ballots/ballot.html',
                   {'page_title': 'ballot: {}'.format(ballot.question),
                    'ballot': ballot,
+                   'finished': finished,
                    'show_edit': ballot.creator == user,
                    'our_vote': our_vote,
-                   'form': form,
+                   'form': form if not finished else None,
                    'all_votes': all_votes,
                    'pending': {
                        'count': len(pending),
@@ -198,12 +202,14 @@ def retract_vote(request, ballot_id):
     if user.level.value < ballot.access_level.value:
         raise Http404('Ballot does not exist')
 
-    try:
-        our_vote = Vote.objects.get(ballot=ballot, caster=user)
-        our_vote.delete()
-        return HttpResponseRedirect(reverse('ballots:ballot', kwargs={'ballot_id': ballot_id}))
-    except Vote.DoesNotExist:
-        raise Http404('Vote does not exist')
+    if timezone.now() < ballot.deadline:
+        try:
+            our_vote = Vote.objects.get(ballot=ballot, caster=user)
+            our_vote.delete()
+        except Vote.DoesNotExist:
+            pass
+
+    return HttpResponseRedirect(reverse('ballots:ballot', kwargs={'ballot_id': ballot_id}))
 
 
 def markdownify(request):
