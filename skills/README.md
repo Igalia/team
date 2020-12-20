@@ -8,7 +8,6 @@ Teams that work in large areas of expertise sometimes come to point when they ne
 
 The whole area of expertise is divided into a set of sub-areas, or skills.  Each team member can then tell how good they are in each skill, and how much they would want to use that skill more.  After all members have assessed themselves, it becomes possible to see expertise of the team as a whole: which skills are represented better or worse, which skills are more or less interesting to the people, and where there is room for improvement.
 
-
 ## Models
 
 The team member is represented by `people.models.Person` model.
