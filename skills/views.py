@@ -6,7 +6,7 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.utils import timezone
 
-from common.auth import get_user
+from common.auth import get_user_login
 from people.models import Person
 
 from . import forms, models
@@ -124,7 +124,7 @@ def assess(request):
     MeasurementFormSet = formset_factory(forms.MeasurementForm, extra=0)
 
     # Take the login from the basic auth header.
-    user_login = get_user(request)
+    user_login = get_user_login(request)
 
     try:
         person = Person.objects.get(login=user_login)

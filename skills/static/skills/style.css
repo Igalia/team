@@ -52,10 +52,12 @@
 }
 
 .skills-interest-1 {
+    /* Material Orange A100 */
     background-color: #FFD180;
 }
 
 .skills-knowledge-1 {
+    /* Material Blue A100 */
     background-color: #82B1FF;
 }
 
@@ -64,10 +66,12 @@
 }
 
 .skills-interest-2 {
+    /* Material Orange A200 */
     background-color: #FFAB40;
 }
 
 .skills-knowledge-2 {
+    /* Material Blue A200 */
     background-color: #448AFF;
 }
 
@@ -76,10 +80,12 @@
 }
 
 .skills-interest-3 {
+    /* Material Orange A400 */
     background-color: #FF9100;
 }
 
 .skills-knowledge-3 {
+    /* Material Blue A400 */
     background-color: #2979FF;
 }
 
@@ -88,11 +94,13 @@
 }
 
 .skills-interest-4 {
+    /* Material Orange A700 */
     background-color: #FF6D00;
     color: white;
 }
 
 .skills-knowledge-4 {
+    /* Material Blue A700 */
     background-color: #2962FF;
     color: white;
 }

@@ -1,0 +1,23 @@
+{% extends "ballots/base.html" %}
+{% load static %}
+
+{% block content %}
+<h1>Our ballots</h1>
+
+<p><a href="{% url 'ballots:new' %}">Create a new ballot</a></p>
+
+{% if ballots_to_vote %}
+    <h2>Ballots for you to vote, {{ user.login }}</h2>
+    {% for ballot in ballots_to_vote %}
+        <p><a href="{% url 'ballots:ballot' ballot.pk %}">{{ ballot.question }}</a></p>
+    {% endfor %}
+{% endif %}
+
+{% if active_ballots %}
+    <h2>Active ballots that you have already voted in</h2>
+    {% for b in active_ballots %}
+        <p><a href="{% url 'ballots:ballot' b.ballot.pk %}">{{ b.ballot.question }}</a> <strong>{{ b.vote.vote_as_string }}</strong></p>
+    {% endfor %}
+{% endif %}
+
+{% endblock %}

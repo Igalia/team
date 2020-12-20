@@ -1,0 +1,86 @@
+{% extends "ballots/base.html" %}
+{% load static %}{% load markdownify %}
+
+{% block content %}
+<h1><a href="{% url 'ballots:home' %}">Our ballots</a> &rarr; {{ ballot.question }}</h1>
+
+{{ ballot.description|markdownify }}
+
+<p>Created by: {{ ballot.creator }} at {{ ballot.created }}, ballot type: {% if ballot.open %}open{% else %}secret{% endif %}, deadline: {{ ballot.deadline }}.{% if show_edit %}  <a href="{% url 'ballots:edit' ballot.pk %}">Edit</a>.{% endif %}</p>
+
+<hr>
+
+{% if form and not finished %}
+<p>Please cast your vote, {{ user.login }}.</p>
+
+<form method="post">
+    {% csrf_token %}
+    <div class="t-row">
+        <div class="t-cell ballots-vote-form-label">
+            Vote:
+        </div>
+        <div class="t-cell ballots-vote-form-vote">
+            <label><input type="radio" name="vote" required value="Y">Yes</label>
+        </div>
+        <div class="t-cell ballots-vote-form-vote">
+            <label><input type="radio" name="vote" required value="N">No</label>
+        </div>
+        <div class="t-cell ballots-vote-form-vote">
+            <label><input type="radio" name="vote" required value="A">Abstain</label>
+        </div>
+    </div>
+    <div class="t-row">
+        <div class="t-cell ballots-vote-form-label">
+            Comment (optional):
+        </div>
+        <div class="t-cell ballots-vote-form-comment">
+            {{ form.comment }}
+        </div>
+    </div>
+    <div><button type="submit">Submit</button></div>
+</form>
+{% endif %}
+
+{% if our_vote %}
+    <h2>You voted {{ our_vote.vote_as_string }}</h2>
+    {% if finished %}
+        <p>Tnis ballot has ended.  You can no longer change your mind.</p>
+    {% else %}
+        <p>Changed your mind? <a href="{% url 'ballots:retract_vote' ballot.pk %}" onclick="return confirm('This will erase your current choice and your comment, if any, and you will need to vote again. Continue?');">Retract the vote</a>.</p>
+    {% endif %}
+{% endif %}
+
+{% if ballot.open or finished %}
+    <h2>Ballot status</h2>
+    {% for group in all_votes %}
+        <div class="t-row">
+            <div class="t-cell ballots-votes-{{ group.code }}" style="width: {{ group.bar_length }}%">&nbsp;</div>
+            <div class="t-cell">{{ group.title }}: {{ group.votes.count }}</div>
+        </div>
+    {% endfor %}
+
+    <div class="t-row">
+        {% for group in all_votes %}
+            <div class="t-cell ballots-vote-group">
+                <h3>{{ group.title }}: {{ group.votes.count }}</h3>
+                {{ group.votes.people }}
+                {% if group.votes.comments %}
+                    <ul>
+                        {% for comment in group.votes.comments %}
+                            <li>{{ comment.person.login }}: {{ comment.comment }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            </div>
+        {% endfor %}
+    </div>
+
+    {% if pending.count %}
+        <h3>Not voted: {{ pending.count }}</h3>
+        <p>{{ pending.people }}</p>
+    {% endif %}
+{% else %}
+    <p>This ballot is secret.  You cannot see others' votes until the ballot is complete.</p>
+{% endif %}
+
+{% endblock %}
