@@ -34,8 +34,10 @@
         </div>
     </div>
     <hr>
-    <div>
-        <button type="submit">{% if form.instance.pk %}Update{% else %}Create{% endif %}</button>
+    <div class="t-row">
+        <div class="t-cell">
+            <button type="submit">{% if form.instance.pk %}Update{% else %}Create{% endif %}</button>
+        </div>
     </div>
 </form>
 
@@ -81,9 +83,6 @@ window.onload = function() {
             repeatRequest = true;
     })
 };
-
-
-
 </script>
 
 {% endblock %}
