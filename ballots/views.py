@@ -63,7 +63,7 @@ def new(request):
         new_ballot.save()
         return HttpResponseRedirect(reverse('ballots:ballot', kwargs={'ballot_id': new_ballot.pk}))
     return render(request,
-                  'ballots/new.html',
+                  'ballots/new_or_edit.html',
                   {'page_title': 'New ballot',
                    'form': form,
                    'user': user})
@@ -87,7 +87,7 @@ def edit(request, ballot_id):
         return HttpResponseRedirect(reverse('ballots:ballot', kwargs={'ballot_id': ballot.pk}))
 
     return render(request,
-                  'ballots/new.html',
+                  'ballots/new_or_edit.html',
                   {'page_title': 'New ballot',
                    'form': form,
                    'user': user})
