@@ -127,6 +127,12 @@ MARKDOWNIFY_WHITELIST_TAGS = [
     'ol',
     'p',
     'strong',
+    'table',
+    'tbody',
+    'td',
+    'th',
+    'thead',
+    'tr',
     'ul'
 ]
 
@@ -137,3 +143,4 @@ def set_target_blank(attrs, new=False):
 
 
 MARKDOWNIFY_LINKIFY_CALLBACKS = [set_target_blank, ]
+MARKDOWNIFY_MARKDOWN_EXTENSIONS = ['markdown.extensions.extra',]
