@@ -19,6 +19,11 @@
     width: 33%;
 }
 
+.ballots-vote-group > ul {
+    padding-left: 0;
+    list-style: inside;
+}
+
 .ballots-votes-Y, .ballots-votes-N, .ballots-votes-A {
     border-radius: 0 5px 5px 0;
     padding: 0px 0px 0px 5px;
