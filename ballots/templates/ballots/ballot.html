@@ -52,10 +52,11 @@
 
 {% if ballot.open or finished %}
     <h2>Ballot status</h2>
+    <p>{{ vote_count }} of {{ people_count }} people have voted.</p>
     {% for group in all_votes %}
         <div class="t-row">
             <div class="t-cell ballots-votes-{{ group.code }}" style="width: {{ group.bar_length }}%">&nbsp;</div>
-            <div class="t-cell">{{ group.title }}: {{ group.votes.count }}</div>
+            <div class="t-cell">{{ group.title }}: {{ group.votes.count }} ({{ group.votes.share }}%)</div>
         </div>
     {% endfor %}
 

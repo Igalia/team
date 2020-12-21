@@ -146,8 +146,10 @@ def ballot(request, ballot_id):
     pending = []
     if ballot.open or finished:
         votes = [v for v in Vote.objects.filter(ballot=ballot)]
+        vote_count = len(votes)
         votes_index = {v.caster.pk: v for v in votes}
         people = [p for p in Person.objects.filter(level__value__gte=ballot.access_level.value)]
+        people_count = len(people)
         votes = collections.defaultdict(list)
         comments = collections.defaultdict(list)
         for person in people:
@@ -159,19 +161,20 @@ def ballot(request, ballot_id):
             if v.comment:
                 comments[v.vote].append({'person': person, 'comment': v.comment})
         ballot_data = {vote: {'count': len(votes[vote]),
+                              'share': int(100 * len(votes[vote]) / people_count),
                               'people': ', '.join(sorted(votes[vote])),
                               'comments': sorted(comments[vote], key=lambda c: c['person'].login)}
                        for vote, _ in Vote.VOTE_CHOICES}
 
-        max_vote_count = max(c for c in [ballot_data[code]['count'] for code in ('Y', 'N', 'A')])
-
         titles = {c: v for (c, v) in Vote.VOTE_CHOICES}
         all_votes = [{'code': code,
                       'title': titles[code], 'votes': ballot_data[code],
-                      'bar_length': int(80 * ballot_data[code]['count'] / max_vote_count) if max_vote_count else 0}
+                      'bar_length': int(80 * ballot_data[code]['count'] / people_count)}
                      for code in ('Y', 'N', 'A')]
     else:
         all_votes = None
+        vote_count = 0
+        people_count = 0
 
     return render(request,
                   'ballots/ballot.html',
@@ -182,6 +185,8 @@ def ballot(request, ballot_id):
                    'our_vote': our_vote,
                    'form': form if not finished else None,
                    'all_votes': all_votes,
+                   'vote_count': vote_count,
+                   'people_count': people_count,
                    'pending': {
                        'count': len(pending),
                        'people': ', '.join(pending) if len(pending) > 1 else pending,
