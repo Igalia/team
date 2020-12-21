@@ -4,9 +4,11 @@
 {% block content %}
 <h1><a href="{% url 'ballots:home' %}">Our ballots</a> &rarr; {{ ballot.question }}</h1>
 
-{{ ballot.description|markdownify }}
+<p>Created at {{ ballot.created }} by {{ ballot.creator }}.  Deadline: {{ ballot.deadline }}.{% if show_edit %}  <a href="{% url 'ballots:edit' ballot.pk %}">Edit</a>.{% endif %}</p>
 
-<p>Created by: {{ ballot.creator }} at {{ ballot.created }}, ballot type: {% if ballot.open %}open{% else %}secret{% endif %}, deadline: {{ ballot.deadline }}.{% if show_edit %}  <a href="{% url 'ballots:edit' ballot.pk %}">Edit</a>.{% endif %}</p>
+<hr>
+
+{{ ballot.description|markdownify }}
 
 <hr>
 

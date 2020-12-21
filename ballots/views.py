@@ -74,7 +74,7 @@ def edit(request, ballot_id):
 
     try:
         ballot = Ballot.objects.get(pk=ballot_id)
-    except ballot.DoesNotExist:
+    except Ballot.DoesNotExist:
         raise Http404('Ballot does not exist')
 
     if user != ballot.creator:
@@ -98,7 +98,7 @@ def delete(request, ballot_id):
 
     try:
         ballot = Ballot.objects.get(pk=ballot_id)
-    except ballot.DoesNotExist:
+    except Ballot.DoesNotExist:
         raise Http404('Ballot does not exist')
 
     if user != ballot.creator:
@@ -115,7 +115,7 @@ def ballot(request, ballot_id):
 
     try:
         ballot = Ballot.objects.get(pk=ballot_id)
-    except ballot.DoesNotExist:
+    except Ballot.DoesNotExist:
         raise Http404('Ballot does not exist')
 
     user = get_user(request)
@@ -200,7 +200,7 @@ def retract_vote(request, ballot_id):
 
     try:
         ballot = Ballot.objects.get(pk=ballot_id)
-    except ballot.DoesNotExist:
+    except Ballot.DoesNotExist:
         raise Http404('Ballot does not exist')
 
     user = get_user(request)

@@ -16,6 +16,8 @@ class Ballot(models.Model):
     access_level = models.ForeignKey(Level, on_delete=models.PROTECT)
     # Whether this ballot is open, i.e., voters can see votes of others before casting their own vote.
     open = models.BooleanField(default=True)
+    # Whether this ballot is active, i.e., the creator has pushed the Publish button, and people can see it and vote.
+    active = models.BooleanField(default=False)
     # When this ballot has been created.
     created = models.DateTimeField()
     # When this ballot should end.
