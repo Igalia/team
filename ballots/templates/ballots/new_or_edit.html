@@ -1,5 +1,5 @@
 {% extends "ballots/base.html" %}
-{% load static %}
+{% load markdownify %}{% load static %}
 
 {% block content %}
 <h1><a href="{% url 'ballots:home' %}">Our ballots</a> &rarr; {% if form.instance.pk %}Edit{% else %}New{% endif %} ballot</h1>
@@ -17,7 +17,9 @@
     <div class="t-row">
         <div class="t-cell ballots-edit-form-label"></div>
         <div class="t-cell ballots-edit-form-field ballots-edit-form-description-preview" id="description-preview">
-            {{ form.description.value }}
+            {% if form.description.value %}
+                {{ form.description.value|markdownify }}
+            {% endif %}
         </div>
     </div>
     <div class="t-row">
@@ -70,18 +72,24 @@ function getPreview(text) {
     });
 }
 
+function updateHeight(textarea) {
+    if (textarea.scrollHeight > textarea.clientHeight) {
+        textarea.style.height = textarea.scrollHeight + 10 + "px";
+    }
+}
+
 window.onload = function() {
     document.getElementById("id_description").addEventListener("input", function(e) {
         var textarea = e.target;
-        if (textarea.scrollHeight > textarea.clientHeight) {
-            textarea.style.height = textarea.scrollHeight + 10 + "px";
-        }
+        updateHeight(textarea);
 
         if (updateRequest === null)
             updateRequest = setTimeout(getPreview, 3000, textarea.value);
         else
             repeatRequest = true;
     })
+
+    updateHeight(document.getElementById("id_description"));
 };
 </script>
 
