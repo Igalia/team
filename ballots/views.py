@@ -28,7 +28,7 @@ def home(request):
     user = get_user(request)
 
     ballots = [b for b in
-               Ballot.objects.filter(access_level__lte=user.level.value, archived=False).order_by('-deadline')]
+               Ballot.objects.filter(access_level__value__lte=user.level.value, archived=False).order_by('-deadline')]
     votes = Vote.objects.filter(ballot__in=ballots, caster=user)
     votes_index = {v.ballot.pk: v for v in votes}
 

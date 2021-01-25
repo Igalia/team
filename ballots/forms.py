@@ -23,7 +23,7 @@ class BallotForm(forms.ModelForm):
         if max_level == 1:
             self.fields.pop('access_level')
         else:
-            self.fields['access_level'].choices = ((l.value, l.name) for l in
+            self.fields['access_level'].choices = ((l.pk, l.name) for l in
                                                    Level.objects.filter(value__lte=max_level).order_by('value'))
 
         self.fields['open'] = forms.ChoiceField(choices=((True, 'Open'), (False, 'Secret')), widget=forms.Select())
