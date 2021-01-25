@@ -162,8 +162,8 @@ def ballot(request, ballot_id):
                 comments[v.vote].append({'person': person, 'comment': v.comment})
         ballot_data = {vote: {'count': len(votes[vote]),
                               'share': int(100 * len(votes[vote]) / people_count),
-                              'people': ', '.join(sorted(votes[vote])),
-                              'comments': sorted(comments[vote], key=lambda c: c['person'].login)}
+                              'people': ', '.join(sorted(votes[vote], key=str.casefold)),
+                              'comments': sorted(comments[vote], key=lambda c: c['person'].login.lower())}
                        for vote, _ in Vote.VOTE_CHOICES}
 
         titles = {c: v for (c, v) in Vote.VOTE_CHOICES}
@@ -189,7 +189,7 @@ def ballot(request, ballot_id):
                    'people_count': people_count,
                    'pending': {
                        'count': len(pending),
-                       'people': ', '.join(pending) if len(pending) > 1 else pending,
+                       'people': ', '.join(sorted(pending, key=str.casefold)) if len(pending) > 1 else pending,
                    },
                    'user': user})
 
