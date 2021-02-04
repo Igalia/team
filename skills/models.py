@@ -24,6 +24,8 @@ class Category(models.Model):
 class Skill(models.Model):
     name = models.CharField(max_length=50)
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    # Arbitrary text explaining the skill.
+    description = models.TextField(default='')
 
     class Meta:
         verbose_name = _('Skill')
