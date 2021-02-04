@@ -1,4 +1,5 @@
 {% extends "skills/base.html" %}
+{% load markdownify %}
 
 {% block content %}
 <h1><a href="{% url 'skills:home' %}">Our skills</a> &rarr; {{ skill.name }}</h1>
@@ -18,5 +19,10 @@
         <div class="t-cell skills-cell-left"><div class="skills-knowledge-{{ person.measurement.knowledge }}">{{ person.measurement.knowledge }}</div></div>
     </div>
 {% endfor %}
+
+{% if skill.description %}
+    <hr>
+    {{ skill.description|markdownify }}
+{% endif %}
 
 {% endblock %}
