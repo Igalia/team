@@ -10,6 +10,7 @@ from common.auth import get_user_login
 from people.models import Person
 
 from . import forms, models
+from .forms import ProjectForm
 from .models import PersonAssessment, Measurement, Skill, NOTABLE_INTEREST_THRESHOLD, HIGH_KNOWLEDGE_THRESHOLD, \
     EXPERT_KNOWLEDGE_THRESHOLD
 
@@ -182,3 +183,20 @@ def assess(request):
 
 def assess_done(request):
     return render(request, 'skills/assess-done.html', {'page_title': 'Saved!'})
+
+
+def assess_project(request):
+    """Shows and handles the project assessment form.
+    """
+
+    # noinspection PyPep8Naming
+    MeasurementFormSet = formset_factory(forms.ProjectFocusRecordForm, extra=0)
+
+    skills, index = enumerate_skills()
+
+    project_form = ProjectForm(request.POST or None)
+    formset = MeasurementFormSet(request.POST or None, initial=skills)
+
+    return render(request,
+                  'skills/assess-project.html',
+                  {'page_title': 'Project assessment', 'project_form': project_form, 'formset': formset})

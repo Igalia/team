@@ -36,7 +36,8 @@ class Skill(models.Model):
 
 
 class PersonAssessment(models.Model):
-    """Skill assessment of a person.
+    """
+    Skill assessment of a person.
 
     Groups a set of Measurements linked to a Person at the certain date, which basically means recording answers to
     a set of questions like 'do you know it? would you like to know it?' asked to the person as a block (e.g., in form
@@ -89,3 +90,18 @@ class Measurement(models.Model):
     skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
     knowledge = models.IntegerField(choices=KNOWLEDGE_CHOICES, default=KNOWLEDGE_NONE)
     interest = models.IntegerField(choices=INTEREST_CHOICES, default=INTEREST_NONE)
+
+
+class Project(models.Model):
+    """A project that has been once evaluated.  Not necessarily the one that the team works on.
+    """
+    name = models.CharField(max_length=50)
+    # Arbitrary text explaining the project.
+    description = models.TextField(default='')
+
+
+class ProjectFocusRecord(models.Model):
+    """Marks one skill that the project focuses on.
+    """
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    skill = models.ForeignKey(Skill, on_delete=models.CASCADE)

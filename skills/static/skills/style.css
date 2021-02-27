@@ -1,9 +1,13 @@
-.skills-assess-form-label {
+.skills-assess-form-label, .skills-assess-project-form-label {
     width: 30%;
 }
 
 .skills-assess-form-field {
     width: 35%;
+}
+
+.skills-assess-project-form-field {
+    width: 70%;
 }
 
 .skills-row-header {
