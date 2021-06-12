@@ -12,7 +12,7 @@ from people.models import Person
 from . import forms, models
 from .forms import ProjectForm
 from .models import PersonAssessment, Measurement, Skill, NOTABLE_INTEREST_THRESHOLD, HIGH_KNOWLEDGE_THRESHOLD, \
-    EXPERT_KNOWLEDGE_THRESHOLD
+    EXPERT_KNOWLEDGE_THRESHOLD, ProjectFocusRecord
 
 
 def enumerate_skills(additional_fields={}):
@@ -196,6 +196,19 @@ def assess_project(request):
 
     project_form = ProjectForm(request.POST or None)
     formset = MeasurementFormSet(request.POST or None, initial=skills)
+
+    if request.method == 'POST':
+        if not project_form.is_valid() or not formset.is_valid():
+            # Our form doesn't have fields that could contain invalid values, so if we are here, something is seriously
+            # broken.  Terminate.
+            raise Exception('Oops')
+        project = project_form.save()
+        for form in formset:
+            if form.cleaned_data['selected']:
+                print(form.cleaned_data)
+                focus_record = ProjectFocusRecord(project=project, skill=form.cleaned_data['skill'])
+                focus_record.save()
+        return HttpResponseRedirect(reverse('skills:assess-project'))
 
     return render(request,
                   'skills/assess-project.html',

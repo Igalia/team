@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models import Q
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from people.models import Person
@@ -93,11 +94,28 @@ class Measurement(models.Model):
 
 
 class Project(models.Model):
-    """A project that has been once evaluated.  Not necessarily the one that the team works on.
+    """A project that has been evaluated.  Not necessarily the one that the team works on.
     """
-    name = models.CharField(max_length=50)
+
+    # Project name.
+    title = models.CharField(max_length=50, verbose_name=_('Title'))
     # Arbitrary text explaining the project.
-    description = models.TextField(default='')
+    description = models.TextField(default='', verbose_name=_('Description'))
+    # Date of the most recent evaluation.
+    date = models.DateField(verbose_name=_('Last assessment'))
+    # Whether this project has been worked on by the team.
+    active = models.BooleanField(default=False, verbose_name=_('The team is/was working on it'))
+
+    class Meta:
+        verbose_name = _('Project')
+        verbose_name_plural = _('Projects')
+
+    def __str__(self):
+        return self.title
+
+    def save(self, *args, **kwargs):
+        self.date = timezone.now()
+        super().save(*args, **kwargs)
 
 
 class ProjectFocusRecord(models.Model):
@@ -105,3 +123,10 @@ class ProjectFocusRecord(models.Model):
     """
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = _('Project focus record')
+        verbose_name_plural = _('Project focus records')
+
+    def __str__(self):
+        return _('{project} → {skill}').format(project=self.project.title, skill=self.skill.name)

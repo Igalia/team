@@ -8,11 +8,15 @@
 
         <div class="t-row">
             <div class="t-cell skills-assess-project-form-label">Name:</div>
-            <div class="t-cell skills-assess-project-form-field">{{ project_form.name }}</div>
+            <div class="t-cell skills-assess-project-form-field">{{ project_form.title }}</div>
         </div>
         <div class="t-row">
             <div class="t-cell skills-assess-project-form-label">Description:</div>
             <div class="t-cell skills-assess-project-form-field" id="description">{{ project_form.description }}</div>
+        </div>
+        <div class="t-row">
+            <div class="t-cell skills-assess-project-form-label">Active:</div>
+            <div class="t-cell skills-assess-project-form-field" id="active">{{ project_form.active }}</div>
         </div>
 
         {{ formset.management_form }}

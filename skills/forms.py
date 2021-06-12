@@ -21,23 +21,14 @@ class MeasurementForm(forms.ModelForm):
         widgets = {'skill': forms.HiddenInput}
 
 
-class ProjectForm(forms.ModelForm):
-    """
-    Records data on the project.
-
-    This form is used by the skills.assess_project view to render the project fields.
-    """
-    class Meta:
-        model = Project
-        fields = ('name', 'description')
-
-
 class ProjectFocusRecordForm(forms.ModelForm):
     """
     Records entry of skill into the project focus.
 
     This form is used by the skills.assess_project view to render one line of the assessment form.
     """
+    selected = forms.BooleanField(required=False)
+
     def __init__(self, *args, **kwargs):
         if 'initial' in kwargs:
             for field in ('title', 'category_title'):
@@ -47,5 +38,16 @@ class ProjectFocusRecordForm(forms.ModelForm):
 
     class Meta:
         model = ProjectFocusRecord
-        fields = ('skill', )
-        widgets = {'skill': forms.CheckboxInput}
+        fields = ('skill', 'selected')
+        widgets = {'skill': forms.HiddenInput}
+
+
+class ProjectForm(forms.ModelForm):
+    """
+    Records data on the project.
+
+    This form is used by the skills.assess_project view to render the project fields.
+    """
+    class Meta:
+        model = Project
+        fields = ('title', 'description', 'active')
