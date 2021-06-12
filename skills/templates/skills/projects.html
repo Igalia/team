@@ -1,0 +1,22 @@
+{% extends "skills/base.html" %}
+
+{% block content %}
+<h1>Our projects</h1>
+
+<div class="t-row">
+    <div class="t-cell projects-row-header"></div>
+    <div class="t-cell projects-column-header">Project count</div>
+</div>
+{% for skill in skills %}
+    {% if skill.category_title %}
+        <hr>
+        <h2>{{ skill.category_title }}</h2>
+    {% endif %}
+    <div class="t-row">
+        <div class="t-cell projects-row-header"><a href="{% url 'skills:skill' skill.skill %}">{{ skill.title }}</a></div>
+        <div class="t-cell projects-bar" style="width: {{ skill.bar_length }}%">&nbsp;</div>
+        <div class="t-cell">{{ skill.project_count }}</div>
+    </div>
+{% endfor %}
+
+{% endblock %}

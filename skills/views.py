@@ -185,7 +185,7 @@ def assess_done(request):
     return render(request, 'skills/assess-done.html', {'page_title': 'Saved!'})
 
 
-def assess_project(request):
+def project_assess(request):
     """Shows and handles the project assessment form.
     """
 
@@ -208,8 +208,16 @@ def assess_project(request):
                 print(form.cleaned_data)
                 focus_record = ProjectFocusRecord(project=project, skill=form.cleaned_data['skill'])
                 focus_record.save()
-        return HttpResponseRedirect(reverse('skills:assess-project'))
+        return HttpResponseRedirect(reverse('skills:project-assess-done'))
 
     return render(request,
-                  'skills/assess-project.html',
+                  'skills/project-assess.html',
                   {'page_title': 'Project assessment', 'project_form': project_form, 'formset': formset})
+
+
+def project_assess_done(request):
+    return render(request, 'skills/project-assess-done.html', {'page_title': 'Saved!'})
+
+
+def projects(request):
+    return render(request, 'skills/projects.html', {'page_title': 'Our projects'})

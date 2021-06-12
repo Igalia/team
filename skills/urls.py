@@ -10,7 +10,9 @@ urlpatterns = [
     path('', views.home, name='home'),
     path('assess/', views.assess),
     path('assess-done/', views.assess_done, name='assess-done'),
-    path('assess-project/', views.assess_project, name='assess-project'),
+    path('project-assess/', views.project_assess, name='project-assess'),
+    path('project-assess-done/', views.project_assess_done, name='project-assess-done'),
+    path('projects/', views.projects, name='projects'),
     path('person/<str:login>/', views.person, name='person'),
     path('skill/<int:skill_id>/', views.skill, name='skill'),
 ]
