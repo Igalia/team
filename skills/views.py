@@ -117,8 +117,46 @@ def person(request, login):
                    'skills': skills_data})
 
 
-def assess(request):
-    """Shows and handles the person assessment form.
+def project_assess(request):
+    """Shows and handles the project assessment form.
+    """
+
+    # noinspection PyPep8Naming
+    MeasurementFormSet = formset_factory(forms.ProjectFocusRecordForm, extra=0)
+
+    skills, index = enumerate_skills()
+
+    project_form = ProjectForm(request.POST or None)
+    formset = MeasurementFormSet(request.POST or None, initial=skills)
+
+    if request.method == 'POST':
+        if not project_form.is_valid() or not formset.is_valid():
+            # Our form doesn't have fields that could contain invalid values, so if we are here, something is seriously
+            # broken.  Terminate.
+            raise Exception('Oops')
+        project = project_form.save()
+        for form in formset:
+            if form.cleaned_data['selected']:
+                print(form.cleaned_data)
+                focus_record = ProjectFocusRecord(project=project, skill=form.cleaned_data['skill'])
+                focus_record.save()
+        return HttpResponseRedirect(reverse('skills:project-assess-done'))
+
+    return render(request,
+                  'skills/project-assess.html',
+                  {'page_title': 'Project assessment', 'project_form': project_form, 'formset': formset})
+
+
+def project_assess_done(request):
+    return render(request, 'skills/project-assess-done.html', {'page_title': 'Saved!'})
+
+
+def projects(request):
+    return render(request, 'skills/projects.html', {'page_title': 'Our projects'})
+
+
+def self_assess(request):
+    """Shows and handles the person self assessment form.
     """
 
     # noinspection PyPep8Naming
@@ -161,7 +199,7 @@ def assess(request):
                                       interest=form.cleaned_data['interest'])
             if measurement.knowledge != Measurement.KNOWLEDGE_NONE or measurement.interest != Measurement.INTEREST_NONE:
                 measurement.save()
-        return HttpResponseRedirect(reverse('skills:assess-done'))
+        return HttpResponseRedirect(reverse('skills:self-assess-done'))
     else:
         skills, index = enumerate_skills()
 
@@ -176,48 +214,10 @@ def assess(request):
 
         formset = MeasurementFormSet(initial=skills)
         return render(request,
-                      'skills/assess.html',
+                      'skills/self-assess.html',
                       {'page_title': 'Self assessment', 'user_login': person.login, 'formset': formset,
                        'latest_assessment': latest_assessment})
 
 
-def assess_done(request):
-    return render(request, 'skills/assess-done.html', {'page_title': 'Saved!'})
-
-
-def project_assess(request):
-    """Shows and handles the project assessment form.
-    """
-
-    # noinspection PyPep8Naming
-    MeasurementFormSet = formset_factory(forms.ProjectFocusRecordForm, extra=0)
-
-    skills, index = enumerate_skills()
-
-    project_form = ProjectForm(request.POST or None)
-    formset = MeasurementFormSet(request.POST or None, initial=skills)
-
-    if request.method == 'POST':
-        if not project_form.is_valid() or not formset.is_valid():
-            # Our form doesn't have fields that could contain invalid values, so if we are here, something is seriously
-            # broken.  Terminate.
-            raise Exception('Oops')
-        project = project_form.save()
-        for form in formset:
-            if form.cleaned_data['selected']:
-                print(form.cleaned_data)
-                focus_record = ProjectFocusRecord(project=project, skill=form.cleaned_data['skill'])
-                focus_record.save()
-        return HttpResponseRedirect(reverse('skills:project-assess-done'))
-
-    return render(request,
-                  'skills/project-assess.html',
-                  {'page_title': 'Project assessment', 'project_form': project_form, 'formset': formset})
-
-
-def project_assess_done(request):
-    return render(request, 'skills/project-assess-done.html', {'page_title': 'Saved!'})
-
-
-def projects(request):
-    return render(request, 'skills/projects.html', {'page_title': 'Our projects'})
+def self_assess_done(request):
+    return render(request, 'skills/self-assess-done.html', {'page_title': 'Saved!'})
