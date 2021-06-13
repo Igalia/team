@@ -125,6 +125,9 @@ class ProjectFocusRecord(models.Model):
     skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
 
     class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=('project', 'skill'), name='unique_skill_in_project')
+        ]
         verbose_name = _('Project focus record')
         verbose_name_plural = _('Project focus records')
 

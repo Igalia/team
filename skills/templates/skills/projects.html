@@ -3,10 +3,8 @@
 {% block content %}
 <h1>Our projects</h1>
 
-<div class="t-row">
-    <div class="t-cell projects-row-header"></div>
-    <div class="t-cell projects-column-header">Project count</div>
-</div>
+<h2>Skill demand chart</h2>
+
 {% for skill in skills %}
     {% if skill.category_title %}
         <hr>
@@ -14,8 +12,31 @@
     {% endif %}
     <div class="t-row">
         <div class="t-cell projects-row-header"><a href="{% url 'skills:skill' skill.skill %}">{{ skill.title }}</a></div>
-        <div class="t-cell projects-bar" style="width: {{ skill.bar_length }}%">&nbsp;</div>
-        <div class="t-cell">{{ skill.project_count }}</div>
+        {% if skill.bar_length %}
+            <div class="t-cell projects-skill-demand-cell">
+                <div class="t-cell projects-skill-demand-bar" style="width: {{ skill.bar_length }}%">&nbsp;</div>
+                <div class="t-cell">{{ skill.count }}</div>
+            </div>
+        {% endif %}
+    </div>
+{% endfor %}
+
+<hr>
+
+<div class="t-row">
+    <div class="t-cell t-header projects-row-header">Project</div>
+    <div class="t-cell t-header projects-skills-column-header">Skills</div>
+    <div class="t-cell t-header projects-status-column-header">Active</div>
+</div>
+{% for project in projects %}
+    <div class="t-row">
+        <div class="t-cell t-header projects-row-header"><a href="#">{{ project.project.title }}</a></div>
+        <div class="t-cell projects-skills-cell">
+            {% for skill in project.skills %}
+                <span class="projects-project-skill">{{ skill.name }}</span>
+            {% endfor %}
+        </div>
+        <div class="t-cell projects-status-cell">{% if project.project.active %}+{% endif %}</div>
     </div>
 {% endfor %}
 

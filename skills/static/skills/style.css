@@ -10,6 +10,10 @@
     width: 70%;
 }
 
+.projects-row-header {
+    width: 25%;
+}
+
 .skills-row-header {
     width: 35%;
 }
@@ -18,8 +22,34 @@
     width: 30%;
 }
 
-.skills-row-header, .skills-column-header {
+.projects-row-header, .projects-column-header, .skills-row-header, .skills-column-header {
     font-weight: bolder;
+}
+
+.projects-skill-demand-cell, .projects-skills-cell, .projects-skills-column-header {
+    width: 65%;
+}
+
+.projects-skills-cell {
+    line-height: 180%;
+}
+
+.projects-status-cell, .projects-status-column-header {
+    width: 10%;
+}
+
+.projects-skill-demand-bar {
+    border-radius: 0 5px 5px 0;
+    padding: 0px 0px 0px 5px;
+    font-weight: bolder;
+    background-color: #4CAF50;
+}
+
+.projects-project-skill {
+    border: 1px solid black;
+    padding: 0px 3px 0px 3px;
+    border-radius: 5px;
+    white-space: nowrap;
 }
 
 .skills-cell-right {

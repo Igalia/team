@@ -38,3 +38,7 @@ a:hover {
     box-sizing: border-box;
     resize: vertical;
 }
+
+.t-header {
+    font-weight: bolder;
+}

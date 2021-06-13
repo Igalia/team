@@ -1,7 +1,7 @@
 import copy
 
 from django.forms import formset_factory
-from django.http.response import HttpResponseRedirect, Http404
+from django.http.response import Http404, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.utils import timezone
@@ -11,8 +11,8 @@ from people.models import Person
 
 from . import forms, models
 from .forms import ProjectForm
-from .models import PersonAssessment, Measurement, Skill, NOTABLE_INTEREST_THRESHOLD, HIGH_KNOWLEDGE_THRESHOLD, \
-    EXPERT_KNOWLEDGE_THRESHOLD, ProjectFocusRecord
+from .models import Measurement, PersonAssessment, Project, ProjectFocusRecord, Skill, \
+    EXPERT_KNOWLEDGE_THRESHOLD, HIGH_KNOWLEDGE_THRESHOLD, NOTABLE_INTEREST_THRESHOLD
 
 
 def enumerate_skills(additional_fields={}):
@@ -54,7 +54,7 @@ def home(request):
     interest_threshold = assessment_count * NOTABLE_INTEREST_THRESHOLD
     for skill in skills_data:
         skill['star_knowledge'] = (skill['knowledge'][Measurement.KNOWLEDGE_EXPERT] >= expert_threshold or
-                                  skill['knowledge'][Measurement.KNOWLEDGE_HIGH] >= high_threshold)
+                                   skill['knowledge'][Measurement.KNOWLEDGE_HIGH] >= high_threshold)
         skill['star_interest'] = skill['interest'][Measurement.INTEREST_EXTREME] >= interest_threshold
 
         skill['knowledge'] = skill['knowledge'][1:]
@@ -152,7 +152,29 @@ def project_assess_done(request):
 
 
 def projects(request):
-    return render(request, 'skills/projects.html', {'page_title': 'Our projects'})
+    all_projects = [p for p in Project.objects.all()]
+    all_focus_records = [r for r in ProjectFocusRecord.objects.all()]
+
+    skills_data, skills_index = enumerate_skills()
+    max_count = 0
+    for focus_record in all_focus_records:
+        skill_record = skills_data[skills_index[focus_record.skill.pk]]
+        if 'count' not in skill_record:
+            skill_record['count'] = 1
+        else:
+            skill_record['count'] += 1
+        max_count = max(max_count, skill_record['count'])
+
+    for skill_record in skills_data:
+        skill_record['bar_length'] = skill_record['count'] / max_count * 80 if 'count' in skill_record else 0
+
+    return render(request,
+                  'skills/projects.html',
+                  {'page_title': 'Our projects',
+                   'projects': [{'project': p,
+                                 'skills': [s.skill for s in ProjectFocusRecord.objects.filter(project=p)]}
+                                for p in all_projects],
+                   'skills': skills_data})
 
 
 def self_assess(request):
