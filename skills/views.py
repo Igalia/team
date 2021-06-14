@@ -34,6 +34,57 @@ def enumerate_skills(additional_fields={}):
     return form_data, skills_index
 
 
+# ======================================================================================================================
+# Views
+# ======================================================================================================================
+
+
+def demand_vs_knowledge(request):
+    all_projects = [{'project': p, 'skills': []} for p in Project.objects.all()]
+    all_focus_records = [r for r in ProjectFocusRecord.objects.all()]
+
+    project_index = {all_projects[i]['project']: i for i in range(len(all_projects))}
+
+    skills_data, skills_index = enumerate_skills({'knowledge': [0 for i in Measurement.KNOWLEDGE_CHOICES]})
+
+    latest_assessments = [a for a in PersonAssessment.objects.filter(latest=True)]
+
+    for measurement in Measurement.objects.filter(assessment__in=latest_assessments):
+        skill = skills_data[skills_index[measurement.skill.pk]]
+        skill['knowledge'][measurement.knowledge] += 1
+
+    assessment_count = len(latest_assessments)
+    expert_threshold = assessment_count * EXPERT_KNOWLEDGE_THRESHOLD
+    high_threshold = assessment_count * HIGH_KNOWLEDGE_THRESHOLD
+    for skill in skills_data:
+        skill['star_knowledge'] = (skill['knowledge'][Measurement.KNOWLEDGE_EXPERT] >= expert_threshold or
+                                   skill['knowledge'][Measurement.KNOWLEDGE_HIGH] >= high_threshold)
+        skill['knowledge'] = skill['knowledge'][1:]
+
+    max_count = 0
+    for focus_record in all_focus_records:
+        skill_record = skills_data[skills_index[focus_record.skill.pk]]
+        if 'count' not in skill_record:
+            skill_record['count'] = 1
+        else:
+            skill_record['count'] += 1
+        max_count = max(max_count, skill_record['count'])
+        all_projects[project_index[focus_record.project]]['skills'].append(focus_record.skill)
+
+    for skill_record in skills_data:
+        skill_record['bar_length'] = skill_record['count'] / max_count * 80 if 'count' in skill_record else 0
+
+    return render(request,
+                  'skills/demand-vs-knowledge.html',
+                  {'page_title': 'Demand versus knowledge',
+                   'projects': [{'project': p['project'],
+                                 'skills': all_projects[project_index[p['project']]]['skills']}
+                                for p in all_projects],
+                   'skills': skills_data,
+                   'expert_knowledge_threshold': format(EXPERT_KNOWLEDGE_THRESHOLD, ".0%"),
+                   'high_knowledge_threshold': format(HIGH_KNOWLEDGE_THRESHOLD, ".0%")})
+
+
 def home(request):
     """Shows the current team stats on all skills.
     """
@@ -157,42 +208,15 @@ def projects(request):
 
     project_index = {all_projects[i]['project']: i for i in range(len(all_projects))}
 
-    skills_data, skills_index = enumerate_skills({'knowledge': [0 for i in Measurement.KNOWLEDGE_CHOICES]})
-
-    latest_assessments = [a for a in PersonAssessment.objects.filter(latest=True)]
-
-    for measurement in Measurement.objects.filter(assessment__in=latest_assessments):
-        skill = skills_data[skills_index[measurement.skill.pk]]
-        skill['knowledge'][measurement.knowledge] += 1
-
-    assessment_count = len(latest_assessments)
-    expert_threshold = assessment_count * EXPERT_KNOWLEDGE_THRESHOLD
-    high_threshold = assessment_count * HIGH_KNOWLEDGE_THRESHOLD
-    for skill in skills_data:
-        skill['star_knowledge'] = (skill['knowledge'][Measurement.KNOWLEDGE_EXPERT] >= expert_threshold or
-                                   skill['knowledge'][Measurement.KNOWLEDGE_HIGH] >= high_threshold)
-        skill['knowledge'] = skill['knowledge'][1:]
-
-    max_count = 0
     for focus_record in all_focus_records:
-        skill_record = skills_data[skills_index[focus_record.skill.pk]]
-        if 'count' not in skill_record:
-            skill_record['count'] = 1
-        else:
-            skill_record['count'] += 1
-        max_count = max(max_count, skill_record['count'])
         all_projects[project_index[focus_record.project]]['skills'].append(focus_record.skill)
-
-    for skill_record in skills_data:
-        skill_record['bar_length'] = skill_record['count'] / max_count * 80 if 'count' in skill_record else 0
 
     return render(request,
                   'skills/projects.html',
                   {'page_title': 'Our projects',
                    'projects': [{'project': p['project'],
                                  'skills': all_projects[project_index[p['project']]]['skills']}
-                                for p in all_projects],
-                   'skills': skills_data})
+                                for p in all_projects]})
 
 
 def self_assess(request):

@@ -8,6 +8,7 @@ from . import views
 app_name = 'skills'
 urlpatterns = [
     path('', views.home, name='home'),
+    path('demand-vs-knowledge/', views.demand_vs_knowledge, name='demand-vs-knowledge'),
     path('project-assess/', views.project_assess, name='project-assess'),
     path('project-assess-done/', views.project_assess_done, name='project-assess-done'),
     path('projects/', views.projects, name='projects'),
