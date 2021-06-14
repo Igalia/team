@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models import Q
+from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
 from people.models import Person
@@ -36,7 +37,8 @@ class Skill(models.Model):
 
 
 class PersonAssessment(models.Model):
-    """Skill assessment of a person.
+    """
+    Skill assessment of a person.
 
     Groups a set of Measurements linked to a Person at the certain date, which basically means recording answers to
     a set of questions like 'do you know it? would you like to know it?' asked to the person as a block (e.g., in form
@@ -89,3 +91,45 @@ class Measurement(models.Model):
     skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
     knowledge = models.IntegerField(choices=KNOWLEDGE_CHOICES, default=KNOWLEDGE_NONE)
     interest = models.IntegerField(choices=INTEREST_CHOICES, default=INTEREST_NONE)
+
+
+class Project(models.Model):
+    """A project that has been evaluated.  Not necessarily the one that the team works on.
+    """
+
+    # Project name.
+    title = models.CharField(max_length=50, verbose_name=_('Title'))
+    # Arbitrary text explaining the project.
+    description = models.TextField(default='', verbose_name=_('Description'))
+    # Date of the most recent evaluation.
+    date = models.DateField(verbose_name=_('Last assessment'))
+    # Whether this project has been worked on by the team.
+    active = models.BooleanField(default=False, verbose_name=_('The team is/was working on it'))
+
+    class Meta:
+        verbose_name = _('Project')
+        verbose_name_plural = _('Projects')
+
+    def __str__(self):
+        return self.title
+
+    def save(self, *args, **kwargs):
+        self.date = timezone.now()
+        super().save(*args, **kwargs)
+
+
+class ProjectFocusRecord(models.Model):
+    """Marks one skill that the project focuses on.
+    """
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    skill = models.ForeignKey(Skill, on_delete=models.CASCADE)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=('project', 'skill'), name='unique_skill_in_project')
+        ]
+        verbose_name = _('Project focus record')
+        verbose_name_plural = _('Project focus records')
+
+    def __str__(self):
+        return _('{project} → {skill}').format(project=self.project.title, skill=self.skill.name)

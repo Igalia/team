@@ -1,0 +1,71 @@
+{% extends "skills/base.html" %}
+
+{% block content %}
+<h1>Demand vs. team knowledge</h1>
+
+<div class="t-row">
+    <div class="t-cell t-header skills-row-header"><em>How to read this?  See <a href="#howto">below</a>.</em></div>
+    <div class="t-cell t-header skills-column-header skills-cell-right">← Demand</div>
+    <div class="t-cell t-header skills-column-header">Team knowledge →</div>
+</div>
+{% for skill in skills %}
+    {% if skill.category_title %}
+        <hr>
+        <h2>{{ skill.category_title }}</h2>
+    {% endif %}
+    <div class="t-row">
+        <div class="t-cell t-header skills-row-header"><a href="{% url 'skills:skill' skill.skill %}">{{ skill.title }}</a></div>
+        {% if skill.bar_length %}
+            <div class="t-cell skills-cell-right">
+                <div class="t-cell skills-demand-bar" style="width: {{ skill.bar_length }}%">&nbsp;{{ skill.count }}</div>
+            </div>
+            <div class="t-cell skills-cell-left">
+                {% for level in skill.knowledge %}
+                    {% if level %}
+                        <div class="t-cell skills-knowledge-{{ forloop.counter }} skills-cell-narrow">{{ level }}</div>
+                    {% else %}
+                        <div class="t-cell skills-cell-narrow">&nbsp;</div>
+                    {% endif %}
+                {% endfor %}
+                {% if skill.star_knowledge %}
+                    <div class="t-cell skills-cell-narrow">&star;</div>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+{% endfor %}
+
+<hr>
+
+<h2 id="howto">How to read this page</h2>
+
+<h3>Bricks and bars</h3>
+
+<p>This page shows the identified market demand against knowledge data aggregated for the entire team.</p>
+
+<p>Demand is red and grows to the left, and knowledge is blue and grows to the right.  The demand bars are solid and just have length proportional to the number of projects that focused on this area of knowledge.  The knowledge bars are divided into bricks that correspond to levels from 1 to 4, and number in each brick shows how many people rated themselves at that level.  Areas that do not have demand are not shown.</p>
+
+<p>Here is the example.</p>
+
+<div class="t-row">
+    <div class="t-cell skills-row-header"><u>Django framework</u></div>
+    <div class="t-cell skills-cell-right">
+        <div class="t-cell skills-demand-bar" style="width: 65%">&nbsp;5</div>
+    </div>
+    <div class="t-cell skills-cell-left">
+        <div class="t-cell skills-knowledge-1 skills-cell-narrow">1</div>
+        <div class="t-cell skills-knowledge-2 skills-cell-narrow">2</div>
+        <div class="t-cell skills-knowledge-3 skills-cell-narrow">1</div>
+        <div class="t-cell skills-cell-narrow">&nbsp;</div>
+    </div>
+</div>
+
+<p>The red (left) half is demand; it grows from right to left.  5 means that five projects that have been ever evaluated by our team had or have Django as their main focus.</p>
+
+<p>The blue (right) half is knowledge, and it grows from left to right.  One person in the team has minimal knowledge in Django (level 1), two more teammate know it better (level 2), and one person has decent knowledge (level 3).</p>
+
+<h3>Stars</h3>
+
+<p>Some areas may have star marks near their knowledge bars, which means "good knowledge".  The criteria is that the team has minimal number of people at certain levels: at least {{ high_knowledge_threshold }} people rated their knowledge at level 3, or at least {{ expert_knowledge_threshold }} people rated their knowledge at level 4 (the highest).</p>
+
+{% endblock %}

@@ -1,6 +1,6 @@
 from django import forms
 
-from .models import Measurement
+from .models import Measurement, Project, ProjectFocusRecord
 
 
 class MeasurementForm(forms.ModelForm):
@@ -19,3 +19,35 @@ class MeasurementForm(forms.ModelForm):
         model = Measurement
         fields = ('skill', 'knowledge', 'interest')
         widgets = {'skill': forms.HiddenInput}
+
+
+class ProjectFocusRecordForm(forms.ModelForm):
+    """
+    Records entry of skill into the project focus.
+
+    This form is used by the skills.assess_project view to render one line of the assessment form.
+    """
+    selected = forms.BooleanField(required=False)
+
+    def __init__(self, *args, **kwargs):
+        if 'initial' in kwargs:
+            for field in ('title', 'category_title'):
+                if field in kwargs['initial']:
+                    setattr(self, field, kwargs['initial'][field])
+        super().__init__(*args, **kwargs)
+
+    class Meta:
+        model = ProjectFocusRecord
+        fields = ('skill', 'selected')
+        widgets = {'skill': forms.HiddenInput}
+
+
+class ProjectForm(forms.ModelForm):
+    """
+    Records data on the project.
+
+    This form is used by the skills.assess_project view to render the project fields.
+    """
+    class Meta:
+        model = Project
+        fields = ('title', 'description', 'active')

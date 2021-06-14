@@ -36,4 +36,9 @@ a:hover {
 .t-cell > input, .t-cell > textarea, .t-cell > select {
     width: 100%;
     box-sizing: border-box;
+    resize: vertical;
+}
+
+.t-header {
+    font-weight: bolder;
 }

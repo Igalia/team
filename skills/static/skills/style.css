@@ -1,21 +1,35 @@
-.skills-assess-form-label {
+.skills-assess-form-label, .skills-assess-project-form-label, .skills-project-row-header, .skills-column-header,
+.skills-cell-right, .skills-cell-left{
     width: 30%;
 }
 
-.skills-assess-form-field {
+.skills-assess-form-field, .skills-project-skill-knowledge-cell, .skills-project-skill-knowledge-header,
+ .skills-row-header {
     width: 35%;
 }
 
-.skills-row-header {
-    width: 35%;
+.skills-project-skills-cell, .skills-project-skills-column-header {
+    width: 60%;
 }
 
-.skills-column-header {
-    width: 30%;
+.skills-assess-project-form-field {
+    width: 70%;
 }
 
-.skills-row-header, .skills-column-header {
-    font-weight: bolder;
+.skills-project-skills-cell {
+    line-height: 180%;
+}
+
+.skills-project-status-cell, .skills-project-status-column-header {
+    width: 10%;
+    text-align: center;
+}
+
+.skills-project-skill {
+    border: 1px solid black;
+    padding: 0px 3px 0px 3px;
+    border-radius: 5px;
+    white-space: nowrap;
 }
 
 .skills-cell-right {
@@ -26,12 +40,19 @@
     text-align: left;
 }
 
-.skills-cell-right, .skills-cell-left {
-    width: 30%;
-}
-
 .skills-cell-comment {
     width: 20%;
+}
+
+.skills-demand-bar {
+    float: right;
+    padding: 0px 5px 0px 0px;
+    border-radius: 5px 0 0 5px;
+    font-weight: bolder;
+    /* Material Red A400 */
+    background-color: #FF1744;
+    color: white;
+    text-align: right;
 }
 
 .skills-interest, .skills-interest-1, .skills-interest-2, .skills-interest-3, .skills-interest-4 {
