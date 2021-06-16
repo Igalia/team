@@ -5,6 +5,7 @@ from django.http.response import Http404, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
 from django.utils import timezone
+from django.utils.translation import ugettext_lazy as _
 
 from common.auth import get_user_login
 from people.models import Person
@@ -168,16 +169,22 @@ def person(request, login):
                    'skills': skills_data})
 
 
-def project_assess(request):
-    """Shows and handles the project assessment form.
+def project_create_edit(request, project_id):
+    """Shows the actual project form.
     """
+
+    existing_project = Project.objects.get(pk=project_id) if project_id > 0 else None
 
     # noinspection PyPep8Naming
     MeasurementFormSet = formset_factory(forms.ProjectFocusRecordForm, extra=0)
 
     skills, index = enumerate_skills()
 
-    project_form = ProjectForm(request.POST or None)
+    if existing_project:
+        for focus_record in ProjectFocusRecord.objects.filter(project=existing_project):
+            skills[index[focus_record.skill.pk]]['selected'] = True
+
+    project_form = ProjectForm(request.POST or None, instance=existing_project if existing_project else None)
     formset = MeasurementFormSet(request.POST or None, initial=skills)
 
     if request.method == 'POST':
@@ -185,21 +192,30 @@ def project_assess(request):
             # Our form doesn't have fields that could contain invalid values, so if we are here, something is seriously
             # broken.  Terminate.
             raise Exception('Oops')
-        project = project_form.save()
+        saved_project = project_form.save()
+        ProjectFocusRecord.objects.filter(project=saved_project).delete()
         for form in formset:
             if form.cleaned_data['selected']:
-                print(form.cleaned_data)
-                focus_record = ProjectFocusRecord(project=project, skill=form.cleaned_data['skill'])
+                focus_record = ProjectFocusRecord(project=saved_project, skill=form.cleaned_data['skill'])
                 focus_record.save()
-        return HttpResponseRedirect(reverse('skills:project-assess-done'))
+        return HttpResponseRedirect(reverse('skills:project', args=[saved_project.pk]))
 
     return render(request,
-                  'skills/project-assess.html',
-                  {'page_title': 'Project assessment', 'project_form': project_form, 'formset': formset})
+                  'skills/project.html',
+                  {'page_title': 'Project assessment', 'project_form': project_form,
+                   'project_title': existing_project.title if existing_project else _('<New>'), 'formset': formset})
 
 
-def project_assess_done(request):
-    return render(request, 'skills/project-assess-done.html', {'page_title': 'Saved!'})
+def project_new(request):
+    """Shows the form to create a new project.
+    """
+    return project_create_edit(request, 0)
+
+
+def project(request, project_id):
+    """Shows the form to edit an existing project.
+    """
+    return project_create_edit(request, project_id)
 
 
 def projects(request):

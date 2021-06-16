@@ -1,8 +1,7 @@
 {% extends "skills/base.html" %}
-{% load static %}
 
 {% block content %}
-    <h1>Project focus</h1>
+    <h1><a href="{% url 'skills:projects' %}">Our projects</a> &rarr; {{ project_title }}</h1>
     <form method="post">
         {% csrf_token %}
 
