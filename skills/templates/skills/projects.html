@@ -3,14 +3,19 @@
 {% block content %}
 <h1>Our projects</h1>
 
+<p><a href="{% url 'skills:project-new' %}">Add new…</a></p>
+
 <div class="t-row">
     <div class="t-cell t-header skills-project-row-header">Project</div>
     <div class="t-cell t-header skills-project-skills-column-header">Skills</div>
     <div class="t-cell t-header skills-project-status-column-header">Active</div>
 </div>
+<hr>
 {% for project in projects %}
     <div class="t-row">
-        <div class="t-cell t-header skills-project-row-header"><a href="#">{{ project.project.title }}</a></div>
+        <div class="t-cell t-header skills-project-row-header">
+            <a href="{% url 'skills:project' project.project.pk %}">{{ project.project.title }}</a>
+        </div>
         <div class="t-cell skills-project-skills-cell">
             {% for skill in project.skills %}
                 <span class="skills-project-skill">{{ skill.name }}</span>
