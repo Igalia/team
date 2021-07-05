@@ -46,21 +46,26 @@ def demand_vs_knowledge(request):
 
     project_index = {all_projects[i]['project']: i for i in range(len(all_projects))}
 
-    skills_data, skills_index = enumerate_skills({'knowledge': [0 for i in Measurement.KNOWLEDGE_CHOICES]})
+    skills_data, skills_index = enumerate_skills({'knowledge': [0 for i in Measurement.KNOWLEDGE_CHOICES],
+                                                  'interest': [0 for i in Measurement.INTEREST_CHOICES]})
 
     latest_assessments = [a for a in PersonAssessment.objects.filter(latest=True)]
 
     for measurement in Measurement.objects.filter(assessment__in=latest_assessments):
         skill = skills_data[skills_index[measurement.skill.pk]]
         skill['knowledge'][measurement.knowledge] += 1
+        skill['interest'][measurement.interest] += 1
 
     assessment_count = len(latest_assessments)
     expert_threshold = assessment_count * EXPERT_KNOWLEDGE_THRESHOLD
     high_threshold = assessment_count * HIGH_KNOWLEDGE_THRESHOLD
+    interest_threshold = assessment_count * NOTABLE_INTEREST_THRESHOLD
     for skill in skills_data:
         skill['star_knowledge'] = (skill['knowledge'][Measurement.KNOWLEDGE_EXPERT] >= expert_threshold or
                                    skill['knowledge'][Measurement.KNOWLEDGE_HIGH] >= high_threshold)
         skill['knowledge'] = skill['knowledge'][1:]
+        skill['star_interest'] = skill['interest'][Measurement.INTEREST_EXTREME] >= interest_threshold
+        skill['interest'] = skill['interest'][1:]
 
     max_count = 0
     for focus_record in all_focus_records:
@@ -82,6 +87,7 @@ def demand_vs_knowledge(request):
                                  'skills': all_projects[project_index[p['project']]]['skills']}
                                 for p in all_projects],
                    'skills': skills_data,
+                   'notable_interest_threshold': format(NOTABLE_INTEREST_THRESHOLD, ".0%"),
                    'expert_knowledge_threshold': format(EXPERT_KNOWLEDGE_THRESHOLD, ".0%"),
                    'high_knowledge_threshold': format(HIGH_KNOWLEDGE_THRESHOLD, ".0%")})
 

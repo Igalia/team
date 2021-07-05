@@ -62,17 +62,18 @@
     font-weight: bolder;
 }
 
-.skills-knowledge-1, .skills-knowledge-2, .skills-knowledge-3, .skills-knowledge-4 {
+.skills-knowledge-1, .skills-knowledge-2, .skills-knowledge-3, .skills-knowledge-4,
+.skills-interest-right-1, .skills-interest-right-2, .skills-interest-right-3, .skills-interest-right-4 {
     border-radius: 0 5px 5px 0;
     padding: 0px 0px 0px 5px;
     font-weight: bolder;
 }
 
-.skills-interest-1, .skills-knowledge-1 {
+.skills-interest-1, .skills-knowledge-1, .skills-interest-right-1 {
     width: 20%;
 }
 
-.skills-interest-1 {
+.skills-interest-1, .skills-interest-right-1 {
     /* Material Orange A100 */
     background-color: #FFD180;
 }
@@ -82,11 +83,11 @@
     background-color: #82B1FF;
 }
 
-.skills-interest-2, .skills-knowledge-2 {
+.skills-interest-2, .skills-knowledge-2, .skills-interest-right-2 {
     width: 40%;
 }
 
-.skills-interest-2 {
+.skills-interest-2, .skills-interest-right-2 {
     /* Material Orange A200 */
     background-color: #FFAB40;
 }
@@ -96,11 +97,11 @@
     background-color: #448AFF;
 }
 
-.skills-interest-3, .skills-knowledge-3 {
+.skills-interest-3, .skills-knowledge-3, .skills-interest-right-3 {
     width: 60%;
 }
 
-.skills-interest-3 {
+.skills-interest-3, .skills-interest-right-3 {
     /* Material Orange A400 */
     background-color: #FF9100;
 }
@@ -110,11 +111,11 @@
     background-color: #2979FF;
 }
 
-.skills-interest-4, .skills-knowledge-4 {
+.skills-interest-4, .skills-knowledge-4, .skills-interest-right-4 {
     width: 80%;
 }
 
-.skills-interest-4 {
+.skills-interest-4, .skills-interest-right-4 {
     /* Material Orange A700 */
     background-color: #FF6D00;
     color: white;
@@ -129,4 +130,8 @@
 .skills-cell-narrow {
     width: 20%;
     padding: 0px 5px 0px 5px;
+}
+
+.skills-thin-bar {
+    font-size: xx-small;
 }
