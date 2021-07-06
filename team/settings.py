@@ -29,6 +29,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'markdownify',
+    'menu_generator',
+    # Team apps go below.
     'ballots',
     'people',
     'skills',
