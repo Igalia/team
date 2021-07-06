@@ -10,6 +10,11 @@ a {
     color: black;
 }
 
+h1 a.right {
+    float: right;
+    font-size: initial;
+}
+
 a:hover {
     color: blue;
 }
@@ -40,5 +45,33 @@ a:hover {
 }
 
 .t-header {
+    font-weight: bolder;
+}
+
+.menu  {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.menu li {
+    float: left;
+}
+
+.menu li a {
+    display: block;
+    text-align: center;
+    padding: 14px 16px;
+}
+
+.menu li a:hover:not(.active) {
+}
+
+.menu li a.active {
+    float: right;
+}
+
+.active {
     font-weight: bolder;
 }

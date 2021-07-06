@@ -1,4 +1,4 @@
-<!DOCTYPE html>{% load static %}
+<!DOCTYPE html>{% load static %}{% load menu_generator %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -8,6 +8,23 @@
 </head>
 <body>
     <div class="main-content">
+        <div class="menu">
+            {% get_menu "NAV_MENU_TOP" as top_menu %}
+            {% for item in top_menu %}
+                <li class="{% if item.selected %} active {% endif %}">
+                    <a href="{{ item.url }}"> <i class="{{ item.icon_class }}"></i> {{ item.name }}</a>
+                </li>
+                {% if item.submenu %}
+                    <ul>
+                        {% for menu in item.submenu %}
+                            <li class="{% if menu.selected %} active {% endif %}">
+                                <a href="{{ menu.url }}">{{ menu.name }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endfor %}
+        </div>
         {% block content %}{% endblock %}
     </div>
 </body>
