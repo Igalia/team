@@ -10,11 +10,6 @@ a {
     color: black;
 }
 
-h1 a.right {
-    float: right;
-    font-size: initial;
-}
-
 a:hover {
     color: blue;
 }
@@ -24,6 +19,14 @@ a:hover {
     margin-left: auto;
     margin-right: auto;
     clear: both;
+}
+
+/* Flex container for the main title and an optional item at the right. */
+.main-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
 }
 
 /* Forms and tables are rendered using DIVs. */
@@ -38,16 +41,19 @@ a:hover {
     box-sizing: border-box;
 }
 
+/* Inputs take all available horizontal space. */
 .t-cell > input, .t-cell > textarea, .t-cell > select {
     width: 100%;
     box-sizing: border-box;
     resize: vertical;
 }
 
+/* A 'header' cell, either for the row or for the column. */
 .t-header {
     font-weight: bolder;
 }
 
+/* Menu classes.  Based on the sample given in docs for django-menu-generator. */
 .menu  {
     list-style-type: none;
     margin: 0;
@@ -63,9 +69,6 @@ a:hover {
     display: block;
     text-align: center;
     padding: 14px 16px;
-}
-
-.menu li a:hover:not(.active) {
 }
 
 .menu li a.active {

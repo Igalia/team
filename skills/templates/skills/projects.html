@@ -1,7 +1,10 @@
 {% extends "skills/base.html" %}
 
+{% block title %}Our projects{% endblock %}
+
+{% block quick_link %}<a href="{% url 'skills:project-new' %}">Add new…</a>{% endblock %}
+
 {% block content %}
-<h1>Our projects<a href="{% url 'skills:project-new' %}" class="right">Add new…</a></h1>
 
 <div class="t-row">
     <div class="t-cell t-header skills-project-row-header">Project</div>
