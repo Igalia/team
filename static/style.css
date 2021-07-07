@@ -54,7 +54,7 @@ a:hover {
 }
 
 /* Menu classes.  Based on the sample given in docs for django-menu-generator. */
-.menu  {
+.menu {
     list-style-type: none;
     margin: 0;
     padding: 0;
@@ -77,4 +77,21 @@ a:hover {
 
 .active {
     font-weight: bolder;
+}
+
+/* Message classes. */
+.messages {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.messages li {
+    padding: 3px 10px 3px 10px;
+}
+
+.messages li.success {
+    /* Material Green A400 */
+    background-color: #00E676;
 }

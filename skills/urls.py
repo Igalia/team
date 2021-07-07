@@ -13,7 +13,6 @@ urlpatterns = [
     path('project/<int:project_id>/', views.project, name='project'),
     path('projects/', views.projects, name='projects'),
     path('self-assess/', views.self_assess, name='self-assess'),
-    path('self-assess-done/', views.self_assess_done, name='self-assess-done'),
-    path('person/<str:login>/', views.person, name='person'),
-    path('skill/<int:skill_id>/', views.skill, name='skill'),
+    path('person/<str:login>/', views.render_person, name='person'),
+    path('skill/<int:skill_id>/', views.render_skill, name='skill'),
 ]
