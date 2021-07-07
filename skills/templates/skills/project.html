@@ -1,44 +1,50 @@
 {% extends "skills/base.html" %}
 
+{% block title %}<a href="{% url 'skills:projects' %}">Our projects</a> &rarr; {{ project_title }}{% endblock %}
+
 {% block content %}
-    <h1><a href="{% url 'skills:projects' %}">Our projects</a> &rarr; {{ project_title }}</h1>
-    <form method="post">
-        {% csrf_token %}
 
-        <div class="t-row">
-            <div class="t-cell skills-assess-project-form-label">Name:</div>
-            <div class="t-cell skills-assess-project-form-field">{{ project_form.title }}</div>
-        </div>
-        <div class="t-row">
-            <div class="t-cell skills-assess-project-form-label">Description:</div>
-            <div class="t-cell skills-assess-project-form-field" id="description">{{ project_form.description }}</div>
-        </div>
-        <div class="t-row">
-            <div class="t-cell skills-assess-project-form-label">Active:</div>
-            <div class="t-cell skills-assess-project-form-field" id="active">{{ project_form.active }}</div>
-        </div>
+<form method="post">
+    {% csrf_token %}
 
-        {{ formset.management_form }}
-            {% for form in formset %}
-                {% for field in form.hidden_fields %}
+    <div class="t-row">
+        <div class="t-cell skills-assess-project-form-label">Name:</div>
+        <div class="t-cell skills-assess-project-form-field">{{ project_form.title }}</div>
+    </div>
+    <div class="t-row">
+        <div class="t-cell skills-assess-project-form-label">Description:</div>
+        <div class="t-cell skills-assess-project-form-field" id="description">{{ project_form.description }}</div>
+    </div>
+    <div class="t-row">
+        <div class="t-cell skills-assess-project-form-label">Active:</div>
+        <div class="t-cell skills-assess-project-form-field" id="active">{{ project_form.active }}</div>
+    </div>
+
+    {{ formset.management_form }}
+
+    {% for form in formset %}
+        {% for field in form.hidden_fields %}
+            {{ field }}
+        {% endfor %}
+        {% if form.category_title %}
+            <hr>
+            <h2>{{ form.category_title }}</h2>
+        {% endif %}
+        <div class="t-row">
+            <div class="t-cell skills-assess-form-label">{{ form.title }}</div>
+            {% for field in form.visible_fields %}
+                <div class="t-cell skills-assess-form-field">
                     {{ field }}
-                {% endfor %}
-                {% if form.category_title %}
-                    <hr>
-                    <h2>{{ form.category_title }}</h2>
-                {% endif %}
-                <div class="t-row">
-                    <div class="t-cell skills-assess-form-label">{{ form.title }}</div>
-                    {% for field in form.visible_fields %}
-                        <div class="t-cell skills-assess-form-field">
-                            {{ field }}
-                        </div>
-                    {% endfor %}
                 </div>
             {% endfor %}
-        <hr>
-        <div class="t-row">
-            <div class="t-cell"><button type="submit">Submit</button></div>
         </div>
-    </form>
+    {% endfor %}
+
+    <hr>
+
+    <div class="t-row">
+        <div class="t-cell"><button type="submit">Submit</button></div>
+    </div>
+</form>
+
 {% endblock %}

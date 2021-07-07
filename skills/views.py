@@ -1,5 +1,6 @@
 import copy
 
+from django.contrib import messages
 from django.forms import formset_factory
 from django.http.response import Http404, HttpResponseRedirect
 from django.shortcuts import render
@@ -16,7 +17,11 @@ from .models import Measurement, PersonAssessment, Project, ProjectFocusRecord, 
     EXPERT_KNOWLEDGE_THRESHOLD, HIGH_KNOWLEDGE_THRESHOLD, NOTABLE_INTEREST_THRESHOLD
 
 
-def enumerate_skills(additional_fields={}):
+# noinspection PyUnresolvedReferences
+def enumerate_skills(additional_fields=None):
+    if additional_fields is None:
+        additional_fields = {}
+
     def describe(skill):
         nonlocal current_category
         description = {'skill': skill.pk, 'title': skill.name}
@@ -40,14 +45,15 @@ def enumerate_skills(additional_fields={}):
 # ======================================================================================================================
 
 
+# noinspection PyUnresolvedReferences
 def demand_vs_knowledge(request):
     all_projects = [{'project': p, 'skills': []} for p in Project.objects.all()]
     all_focus_records = [r for r in ProjectFocusRecord.objects.all()]
 
     project_index = {all_projects[i]['project']: i for i in range(len(all_projects))}
 
-    skills_data, skills_index = enumerate_skills({'knowledge': [0 for i in Measurement.KNOWLEDGE_CHOICES],
-                                                  'interest': [0 for i in Measurement.INTEREST_CHOICES]})
+    skills_data, skills_index = enumerate_skills({'knowledge': [0 for _ in Measurement.KNOWLEDGE_CHOICES],
+                                                  'interest': [0 for _ in Measurement.INTEREST_CHOICES]})
 
     latest_assessments = [a for a in PersonAssessment.objects.filter(latest=True)]
 
@@ -92,12 +98,13 @@ def demand_vs_knowledge(request):
                    'high_knowledge_threshold': format(HIGH_KNOWLEDGE_THRESHOLD, ".0%")})
 
 
+# noinspection PyUnresolvedReferences
 def home(request):
     """Shows the current team stats on all skills.
     """
 
-    skills_data, skills_index = enumerate_skills({'knowledge': [0 for i in Measurement.KNOWLEDGE_CHOICES],
-                                                  'interest': [0 for i in Measurement.INTEREST_CHOICES]})
+    skills_data, skills_index = enumerate_skills({'knowledge': [0 for _ in Measurement.KNOWLEDGE_CHOICES],
+                                                  'interest': [0 for _ in Measurement.INTEREST_CHOICES]})
 
     latest_assessments = [a for a in PersonAssessment.objects.filter(latest=True)]
 
@@ -126,7 +133,8 @@ def home(request):
                    'high_knowledge_threshold': format(HIGH_KNOWLEDGE_THRESHOLD, ".0%")})
 
 
-def skill(request, skill_id):
+# noinspection PyUnresolvedReferences
+def render_skill(request, skill_id):
     """Shows details for the single skill.
     """
 
@@ -147,7 +155,8 @@ def skill(request, skill_id):
                   {'page_title': 'Skill: {}'.format(skill.name), 'skill': skill, 'people': people})
 
 
-def person(request, login):
+# noinspection PyUnresolvedReferences
+def render_person(request, login):
     """Shows details for the single person.
     """
 
@@ -175,6 +184,7 @@ def person(request, login):
                    'skills': skills_data})
 
 
+# noinspection PyUnresolvedReferences
 def project_create_edit(request, project_id):
     """Shows the actual project form.
     """
@@ -204,6 +214,7 @@ def project_create_edit(request, project_id):
             if form.cleaned_data['selected']:
                 focus_record = ProjectFocusRecord(project=saved_project, skill=form.cleaned_data['skill'])
                 focus_record.save()
+        messages.success(request, 'Project saved')
         return HttpResponseRedirect(reverse('skills:project', args=[saved_project.pk]))
 
     return render(request,
@@ -224,6 +235,7 @@ def project(request, project_id):
     return project_create_edit(request, project_id)
 
 
+# noinspection PyUnresolvedReferences
 def projects(request):
     all_projects = [{'project': p, 'skills': []} for p in Project.objects.all()]
     all_focus_records = [r for r in ProjectFocusRecord.objects.all()]
@@ -241,6 +253,7 @@ def projects(request):
                                 for p in all_projects]})
 
 
+# noinspection PyUnresolvedReferences
 def self_assess(request):
     """Shows and handles the person self assessment form.
     """
@@ -285,7 +298,8 @@ def self_assess(request):
                                       interest=form.cleaned_data['interest'])
             if measurement.knowledge != Measurement.KNOWLEDGE_NONE or measurement.interest != Measurement.INTEREST_NONE:
                 measurement.save()
-        return HttpResponseRedirect(reverse('skills:self-assess-done'))
+        messages.success(request, 'Thank you for your input!')
+        return HttpResponseRedirect(reverse('skills:home'))
     else:
         skills, index = enumerate_skills()
 
@@ -303,7 +317,3 @@ def self_assess(request):
                       'skills/self-assess.html',
                       {'page_title': 'Self assessment', 'user_login': person.login, 'formset': formset,
                        'latest_assessment': latest_assessment})
-
-
-def self_assess_done(request):
-    return render(request, 'skills/self-assess-done.html', {'page_title': 'Saved!'})

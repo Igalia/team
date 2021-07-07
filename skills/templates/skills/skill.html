@@ -1,8 +1,9 @@
 {% extends "skills/base.html" %}
 {% load markdownify %}
 
+{% block title %}<a href="{% url 'skills:home' %}">Our skills</a> &rarr; {{ skill.name }}{% endblock %}
+
 {% block content %}
-<h1><a href="{% url 'skills:home' %}">Our skills</a> &rarr; {{ skill.name }}</h1>
 
 <div class="t-row">
     <div class="t-cell skills-row-header"></div>

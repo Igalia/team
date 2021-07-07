@@ -1,7 +1,10 @@
 {% extends "skills/base.html" %}
 
+{% block title %}Our skills{% endblock %}
+
+{% block quick_link %}<a href="{% url 'skills:self-assess' %}">Assess yourself…</a>{% endblock %}
+
 {% block content %}
-<h1>Our skills<a href="{% url 'skills:self-assess' %}" class="right">Assess yourself…</a></h1>
 
 <div class="t-row">
     <div class="t-cell t-header skills-row-header"><em>How to read this?  See <a href="#howto">below</a>.</em></div>
