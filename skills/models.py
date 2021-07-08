@@ -3,8 +3,7 @@ from django.db.models import Q
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 
-from people.models import Person
-
+from people.models import Person, Team
 
 NOTABLE_INTEREST_THRESHOLD = 0.3
 EXPERT_KNOWLEDGE_THRESHOLD = 0.2
@@ -12,7 +11,10 @@ HIGH_KNOWLEDGE_THRESHOLD = 0.4
 
 
 class Category(models.Model):
-    name = models.CharField(max_length=50)
+    # Arbitrary name of the category.
+    name = models.CharField(max_length=50, unique=True)
+    # Which teams this category is defined for.
+    teams = models.ManyToManyField(Team)
 
     class Meta:
         verbose_name = _('Category')
@@ -23,12 +25,17 @@ class Category(models.Model):
 
 
 class Skill(models.Model):
+    # Arbitrary name of the skill.
     name = models.CharField(max_length=50)
+    # A skill belongs to the single Category.
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     # Arbitrary text explaining the skill.
     description = models.TextField(default='')
 
     class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=('name', 'category'), name='skill_name_unique_in_category'),
+        ]
         verbose_name = _('Skill')
         verbose_name_plural = _('Skills')
 
@@ -105,6 +112,8 @@ class Project(models.Model):
     date = models.DateField(verbose_name=_('Last assessment'))
     # Whether this project has been worked on by the team.
     active = models.BooleanField(default=False, verbose_name=_('The team is/was working on it'))
+    # Which teams this project is driven by.
+    teams = models.ManyToManyField(Team)
 
     class Meta:
         verbose_name = _('Project')
