@@ -35,6 +35,10 @@ a:hover {
     display: table;
 }
 
+.t-row-even {
+    background-color: #f8f8f8;
+}
+
 .t-cell {
     float: left;
     padding: 3px 10px 3px 10px;

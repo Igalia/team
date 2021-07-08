@@ -13,7 +13,7 @@
 </div>
 <hr>
 {% for project in projects %}
-    <div class="t-row">
+    <div class="t-row{% cycle '' ' t-row-even' %}">
         <div class="t-cell t-header skills-project-row-header">
             <a href="{% url 'skills:project' project.project.pk %}">{{ project.project.name }}</a>
         </div>

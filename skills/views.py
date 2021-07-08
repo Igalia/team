@@ -237,7 +237,7 @@ def project(request, project_id):
 
 # noinspection PyUnresolvedReferences
 def projects(request):
-    all_projects = [{'project': p, 'skills': []} for p in Project.objects.all()]
+    all_projects = [{'project': p, 'skills': []} for p in Project.objects.order_by('name')]
     all_focus_records = [r for r in ProjectFocusRecord.objects.all()]
 
     project_index = {all_projects[i]['project']: i for i in range(len(all_projects))}
