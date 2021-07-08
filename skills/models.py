@@ -105,7 +105,7 @@ class Project(models.Model):
     """
 
     # Project name.
-    title = models.CharField(max_length=50, verbose_name=_('Title'))
+    title = models.CharField(max_length=50, verbose_name=_('Title'), unique=True)
     # Arbitrary text explaining the project.
     description = models.TextField(default='', verbose_name=_('Description'))
     # Date of the most recent evaluation.
