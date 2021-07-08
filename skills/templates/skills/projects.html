@@ -15,7 +15,7 @@
 {% for project in projects %}
     <div class="t-row">
         <div class="t-cell t-header skills-project-row-header">
-            <a href="{% url 'skills:project' project.project.pk %}">{{ project.project.title }}</a>
+            <a href="{% url 'skills:project' project.project.pk %}">{{ project.project.name }}</a>
         </div>
         <div class="t-cell skills-project-skills-cell">
             {% for skill in project.skills %}

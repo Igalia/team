@@ -21,7 +21,7 @@ class PersonAssessmentAdmin(admin.ModelAdmin):
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
     list_display = ('__str__', 'date', 'active')
-    ordering = ('-date', 'title')
+    ordering = ('-date', 'name')
     formfield_overrides = {
         models.ManyToManyField: {'widget': CheckboxSelectMultiple},
     }
@@ -29,7 +29,7 @@ class ProjectAdmin(admin.ModelAdmin):
 
 @admin.register(ProjectFocusRecord)
 class ProjectAdmin(admin.ModelAdmin):
-    ordering = ('project__title', 'skill__name')
+    ordering = ('project__name', 'skill__name')
 
 
 @admin.register(Skill)

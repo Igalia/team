@@ -105,7 +105,7 @@ class Project(models.Model):
     """
 
     # Project name.
-    title = models.CharField(max_length=50, verbose_name=_('Title'), unique=True)
+    name = models.CharField(max_length=50, verbose_name=_('Name'), unique=True)
     # Arbitrary text explaining the project.
     description = models.TextField(default='', verbose_name=_('Description'))
     # Date of the most recent evaluation.
@@ -120,7 +120,7 @@ class Project(models.Model):
         verbose_name_plural = _('Projects')
 
     def __str__(self):
-        return self.title
+        return self.name
 
     def save(self, *args, **kwargs):
         self.date = timezone.now()
@@ -141,4 +141,4 @@ class ProjectFocusRecord(models.Model):
         verbose_name_plural = _('Project focus records')
 
     def __str__(self):
-        return _('{project} → {skill}').format(project=self.project.title, skill=self.skill.name)
+        return _('{project} → {skill}').format(project=self.project.name, skill=self.skill.name)

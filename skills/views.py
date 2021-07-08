@@ -220,7 +220,7 @@ def project_create_edit(request, project_id):
     return render(request,
                   'skills/project.html',
                   {'page_title': 'Project assessment', 'project_form': project_form,
-                   'project_title': existing_project.title if existing_project else _('<New>'), 'formset': formset})
+                   'project_title': existing_project.name if existing_project else _('<New>'), 'formset': formset})
 
 
 def project_new(request):
