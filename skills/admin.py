@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.db import models
+from django.forms.widgets import CheckboxSelectMultiple
 
 from skills.models import Category, PersonAssessment, Project, ProjectFocusRecord, Skill
 
@@ -6,6 +8,9 @@ from skills.models import Category, PersonAssessment, Project, ProjectFocusRecor
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
     ordering = ('name', )
+    formfield_overrides = {
+        models.ManyToManyField: {'widget': CheckboxSelectMultiple},
+    }
 
 
 @admin.register(PersonAssessment)
@@ -17,6 +22,9 @@ class PersonAssessmentAdmin(admin.ModelAdmin):
 class ProjectAdmin(admin.ModelAdmin):
     list_display = ('__str__', 'date', 'active')
     ordering = ('-date', 'title')
+    formfield_overrides = {
+        models.ManyToManyField: {'widget': CheckboxSelectMultiple},
+    }
 
 
 @admin.register(ProjectFocusRecord)

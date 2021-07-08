@@ -1,4 +1,7 @@
 from django.contrib import admin
+from django.db import models
+from django.forms.widgets import CheckboxSelectMultiple
+
 from people.models import Level, Person, Team
 
 
@@ -6,6 +9,9 @@ from people.models import Level, Person, Team
 class PersonAdmin(admin.ModelAdmin):
     list_display = ('__str__', 'level',)
     ordering = ('login', )
+    formfield_overrides = {
+        models.ManyToManyField: {'widget': CheckboxSelectMultiple},
+    }
 
 
 @admin.register(Level)

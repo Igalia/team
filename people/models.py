@@ -22,6 +22,10 @@ class Person(models.Model):
 
     teams = models.ManyToManyField('Team')
 
+    class Meta:
+        verbose_name = _('Person')
+        verbose_name_plural = _('People')
+
     def __str__(self):
         return self.login
 
