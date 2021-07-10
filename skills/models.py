@@ -30,7 +30,7 @@ class Skill(models.Model):
     # A skill belongs to the single Category.
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     # Arbitrary text explaining the skill.
-    description = models.TextField(default='')
+    description = models.TextField(default='', blank=True)
 
     class Meta:
         constraints = [

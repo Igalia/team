@@ -10,7 +10,6 @@ from django.utils.translation import ugettext_lazy as _
 
 from common.auth import get_user_login
 from people.models import Person
-
 from . import forms, models
 from .forms import ProjectForm
 from .models import Measurement, PersonAssessment, Project, ProjectFocusRecord, Skill, \
@@ -18,7 +17,7 @@ from .models import Measurement, PersonAssessment, Project, ProjectFocusRecord, 
 
 
 # noinspection PyUnresolvedReferences
-def enumerate_skills(additional_fields=None):
+def enumerate_skills(teams, additional_fields=None):
     if additional_fields is None:
         additional_fields = {}
 
@@ -35,7 +34,8 @@ def enumerate_skills(additional_fields=None):
     # Holds status for describe().
     current_category = None
 
-    form_data = [describe(s) for s in models.Skill.objects.order_by('category__name', 'name')]
+    form_data = [describe(s) for s in
+                 models.Skill.objects.filter(category__teams__in=teams).order_by('category__name', 'name')]
     skills_index = {form_data[i]['skill']: i for i in range(len(form_data))}
     return form_data, skills_index
 
@@ -52,8 +52,18 @@ def demand_vs_knowledge(request):
 
     project_index = {all_projects[i]['project']: i for i in range(len(all_projects))}
 
-    skills_data, skills_index = enumerate_skills({'knowledge': [0 for _ in Measurement.KNOWLEDGE_CHOICES],
+    user_login = get_user_login(request)
+    try:
+        person = Person.objects.get(login=user_login)
+    except Person.DoesNotExist:
+        person = Person(login=user_login)
+    skills_data, skills_index = enumerate_skills(person.teams.all(),
+                                                 {'knowledge': [0 for _ in Measurement.KNOWLEDGE_CHOICES],
                                                   'interest': [0 for _ in Measurement.INTEREST_CHOICES]})
+
+    if not skills_data:
+        return render(request, 'skills/empty.html',
+                      {'page_title': 'Nothing to see :-('})
 
     latest_assessments = [a for a in PersonAssessment.objects.filter(latest=True)]
 
@@ -103,12 +113,24 @@ def home(request):
     """Shows the current team stats on all skills.
     """
 
-    skills_data, skills_index = enumerate_skills({'knowledge': [0 for _ in Measurement.KNOWLEDGE_CHOICES],
+    user_login = get_user_login(request)
+    try:
+        person = Person.objects.get(login=user_login)
+    except Person.DoesNotExist:
+        person = Person(login=user_login)
+    skills_data, skills_index = enumerate_skills(person.teams.all(),
+                                                 {'knowledge': [0 for _ in Measurement.KNOWLEDGE_CHOICES],
                                                   'interest': [0 for _ in Measurement.INTEREST_CHOICES]})
+
+    if not skills_data:
+        return render(request, 'skills/empty.html',
+                      {'page_title': 'Nothing to see :-('})
 
     latest_assessments = [a for a in PersonAssessment.objects.filter(latest=True)]
 
     for measurement in Measurement.objects.filter(assessment__in=latest_assessments):
+        if measurement.skill.pk not in skills_index:
+            continue
         skill = skills_data[skills_index[measurement.skill.pk]]
         skill['knowledge'][measurement.knowledge] += 1
         skill['interest'][measurement.interest] += 1
@@ -170,7 +192,7 @@ def render_person(request, login):
     except PersonAssessment.DoesNotExist:
         latest_assessment = None
 
-    skills_data, skills_index = enumerate_skills()
+    skills_data, skills_index = enumerate_skills(person.teams.all())
 
     if latest_assessment is not None:
         for measurement in Measurement.objects.filter(assessment=latest_assessment):
@@ -194,7 +216,12 @@ def project_create_edit(request, project_id):
     # noinspection PyPep8Naming
     MeasurementFormSet = formset_factory(forms.ProjectFocusRecordForm, extra=0)
 
-    skills, index = enumerate_skills()
+    user_login = get_user_login(request)
+    try:
+        person = Person.objects.get(login=user_login)
+    except Person.DoesNotExist:
+        person = Person(login=user_login)
+    skills, index = enumerate_skills(person.teams.all())
 
     if existing_project:
         for focus_record in ProjectFocusRecord.objects.filter(project=existing_project):
@@ -237,8 +264,18 @@ def project(request, project_id):
 
 # noinspection PyUnresolvedReferences
 def projects(request):
-    all_projects = [{'project': p, 'skills': []} for p in Project.objects.order_by('name')]
-    all_focus_records = [r for r in ProjectFocusRecord.objects.all()]
+    user_login = get_user_login(request)
+    try:
+        person = Person.objects.get(login=user_login)
+    except Person.DoesNotExist:
+        person = Person(login=user_login)
+
+    all_projects = [{'project': p, 'skills': []} for p in Project.objects.filter(teams__in=person.teams.all()).order_by('name')]
+    if not all_projects:
+        return render(request, 'skills/empty.html',
+                      {'page_title': 'Nothing to see :-('})
+
+    all_focus_records = [r for r in ProjectFocusRecord.objects.filter(project__teams__in=person.teams.all())]
 
     project_index = {all_projects[i]['project']: i for i in range(len(all_projects))}
 
@@ -301,7 +338,7 @@ def self_assess(request):
         messages.success(request, 'Thank you for your input!')
         return HttpResponseRedirect(reverse('skills:home'))
     else:
-        skills, index = enumerate_skills()
+        skills, index = enumerate_skills(person.teams.all())
 
         try:
             latest_assessment = PersonAssessment.objects.get(person=person, latest=True)

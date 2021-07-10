@@ -27,7 +27,7 @@
         </div>
 
         <div class="main-header">
-            <h1>{% block title %}{% endblock %}</h1>{% block quick_link %}{% endblock %}
+            <h1>{% block title %}{{ page_title }}{% endblock %}</h1>{% block quick_link %}{% endblock %}
         </div>
 
         {% if messages %}
