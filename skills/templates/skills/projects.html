@@ -6,12 +6,16 @@
 
 {% block content %}
 
-<div class="t-row">
-    <div class="t-cell t-header skills-project-row-header">Project</div>
-    <div class="t-cell t-header skills-project-skills-column-header">Skills</div>
-    <div class="t-cell t-header skills-project-status-column-header">Active</div>
-</div>
-<hr>
+{% if projects %}
+    <div class="t-row">
+        <div class="t-cell t-header skills-project-row-header">Project</div>
+        <div class="t-cell t-header skills-project-skills-column-header">Skills</div>
+        <div class="t-cell t-header skills-project-status-column-header">Active</div>
+    </div>
+
+    <hr>
+{% endif %}
+
 {% for project in projects %}
     <div class="t-row{% cycle '' ' t-row-even' %}">
         <div class="t-cell t-header skills-project-row-header">
@@ -24,6 +28,8 @@
         </div>
         <div class="t-cell skills-project-status-cell">{% if project.project.active %}&#x2714;{% endif %}</div>
     </div>
+{% empty %}
+    <p>No projects registered for teams you are in.</p>
 {% endfor %}
 
 {% endblock %}

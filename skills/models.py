@@ -14,7 +14,7 @@ class Category(models.Model):
     # Arbitrary name of the category.
     name = models.CharField(max_length=50, unique=True)
     # Which teams this category is defined for.
-    teams = models.ManyToManyField(Team)
+    teams = models.ManyToManyField(Team, blank=True)
 
     class Meta:
         verbose_name = _('Category')
@@ -113,7 +113,7 @@ class Project(models.Model):
     # Whether this project has been worked on by the team.
     active = models.BooleanField(default=False, verbose_name=_('The team is/was working on it'))
     # Which teams this project is driven by.
-    teams = models.ManyToManyField(Team)
+    teams = models.ManyToManyField(Team, blank=True)
 
     class Meta:
         verbose_name = _('Project')

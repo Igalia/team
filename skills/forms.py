@@ -1,5 +1,6 @@
 from django import forms
 
+from people.models import Team
 from .models import Measurement, Project, ProjectFocusRecord
 
 
@@ -51,3 +52,23 @@ class ProjectForm(forms.ModelForm):
     class Meta:
         model = Project
         fields = ('name', 'description', 'active')
+
+
+class PickTeamForm(forms.ModelForm):
+    """
+    Records selection of a team.
+
+    This form is used by the skills.pick_teams view to render one line of the form.
+    """
+    selected = forms.BooleanField(required=False)
+
+    def __init__(self, *args, **kwargs):
+        if 'initial' in kwargs:
+            for field in ('id', 'name', 'team'):
+                if field in kwargs['initial']:
+                    setattr(self, field, kwargs['initial'][field])
+        super().__init__(*args, **kwargs)
+
+    class Meta:
+        model = Team
+        fields = ('selected', )

@@ -20,6 +20,19 @@
         <div class="t-cell skills-assess-project-form-field" id="active">{{ project_form.active }}</div>
     </div>
 
+    {% if teams_formset %}
+        {{ teams_formset.management_form }}
+
+        {% for form in teams_formset %}
+            <div class="t-row">
+                <div class="t-cell skills-assess-project-form-label">{{ form.name }}</div>
+                {% for field in form.visible_fields %}
+                    <div class="t-cell skills-assess-project-form-field">{{ field }}</div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    {% endif %}
+
     {{ formset.management_form }}
 
     {% for form in formset %}
@@ -40,11 +53,12 @@
         </div>
     {% endfor %}
 
-    <hr>
-
-    <div class="t-row">
-        <div class="t-cell"><button type="submit">Submit</button></div>
-    </div>
+    {% if not readonly %}
+        <hr>
+        <div class="t-row">
+            <div class="t-cell"><button type="submit">Submit</button></div>
+        </div>
+    {% endif %}
 </form>
 
 {% endblock %}

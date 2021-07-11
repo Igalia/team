@@ -99,3 +99,7 @@ a:hover {
     /* Material Green A400 */
     background-color: #00E676;
 }
+
+.permanent-message {
+    font-size: smaller;
+}

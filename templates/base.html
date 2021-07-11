@@ -26,16 +26,20 @@
             {% endfor %}
         </div>
 
-        <div class="main-header">
-            <h1>{% block title %}{{ page_title }}{% endblock %}</h1>{% block quick_link %}{% endblock %}
-        </div>
-
         {% if messages %}
             <ul class="messages">
                 {% for message in messages %}
                     <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
                 {% endfor %}
             </ul>
+        {% endif %}
+
+        <div class="main-header">
+            <h1>{% block title %}{{ page_title }}{% endblock %}</h1>{% block quick_link %}{% endblock %}
+        </div>
+
+        {% if permanent_message %}
+            <p class="permanent-message">{{ permanent_message }}</p>
         {% endif %}
 
         {% block content %}{% endblock %}
