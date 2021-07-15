@@ -20,7 +20,7 @@ class Person(models.Model):
     # Level in the company hierarchy.
     level = models.ForeignKey(Level, on_delete=models.PROTECT, null=True)
 
-    teams = models.ManyToManyField('Team')
+    teams = models.ManyToManyField('Team', blank=True)
 
     class Meta:
         verbose_name = _('Person')

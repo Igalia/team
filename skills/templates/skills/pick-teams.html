@@ -1,0 +1,35 @@
+{% extends "skills/base.html" %}
+
+{% block content %}
+
+<p>Hi there, {{ person.login }}!  You are trying to open a page that only works if you are member of some team, but you are not in any!  Please pick your team below.</p>
+
+<form method="post">
+    {% csrf_token %}
+
+    <input type="hidden" name="redirect_url" value="{{ redirect_url }}">
+
+    {{ formset.management_form }}
+
+    {% for form in formset %}
+    {% endfor %}
+
+    {% for form in formset %}
+        <div class="t-row">
+            <div class="t-cell skills-assess-form-label">{{ form.name }}</div>
+            {% for field in form.visible_fields %}
+                <div class="t-cell skills-assess-form-field">
+                    {{ field }}
+                </div>
+            {% endfor %}
+        </div>
+    {% endfor %}
+
+    <hr>
+
+    <div class="t-row">
+        <div class="t-cell"><button type="submit">Submit</button></div>
+    </div>
+</form>
+
+{% endblock %}
