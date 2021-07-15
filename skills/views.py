@@ -125,7 +125,7 @@ def demand_vs_knowledge(request):
 
     return render(request,
                   'skills/demand-vs-knowledge.html',
-                  {'page_title': 'Demand versus knowledge',
+                  {'page_title': 'Market demand versus knowledge',
                    'projects': [{'project': p['project'],
                                  'skills': all_projects[project_index[p['project']]]['skills']}
                                 for p in all_projects],
@@ -135,9 +135,13 @@ def demand_vs_knowledge(request):
                    'high_knowledge_threshold': format(HIGH_KNOWLEDGE_THRESHOLD, ".0%")})
 
 
+def home(request):
+    return HttpResponseRedirect(reverse('skills:interest-vs-knowledge'))
+
+
 # noinspection PyUnresolvedReferences
 @user_must_be_in_some_teams
-def home(request):
+def interest_vs_knowledge(request):
     """Shows the current team stats on all skills.
     """
 
@@ -176,8 +180,8 @@ def home(request):
         skill['interest'] = skill['interest'][1:]
 
     return render(request,
-                  'skills/home.html',
-                  {'page_title': 'Our skills', 'skills': skills_data,
+                  'skills/interest-vs-knowledge.html',
+                  {'page_title': 'Interest versus knowledge in the team', 'skills': skills_data,
                    'notable_interest_threshold': format(NOTABLE_INTEREST_THRESHOLD, ".0%"),
                    'expert_knowledge_threshold': format(EXPERT_KNOWLEDGE_THRESHOLD, ".0%"),
                    'high_knowledge_threshold': format(HIGH_KNOWLEDGE_THRESHOLD, ".0%")})
@@ -193,11 +197,15 @@ def render_skill(request, skill_id):
     except Skill.DoesNotExist:
         raise Http404("Skill does not exist")
 
+    skill_teams = set(t for t in skill.category.teams.all())
+
     latest_assessments = [a for a in PersonAssessment.objects.filter(latest=True).order_by('person__login')]
-    people = [{'person': assessment.person} for assessment in latest_assessments]
+    people = [{'person': p} for p in Person.objects.filter(teams__in=skill_teams)]
     people_index = {people[i]['person'].login: i for i in range(len(people))}
     measurements = Measurement.objects.filter(assessment__in=latest_assessments, skill=skill)
     for measurement in measurements:
+        if measurement.assessment.person.login not in people_index:
+            continue
         people[people_index[measurement.assessment.person.login]]['measurement'] = measurement
 
     return render(request,

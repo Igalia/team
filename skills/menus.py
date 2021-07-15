@@ -1,8 +1,8 @@
 MENUS = {
     'NAV_MENU_TOP': [
         {
-            "name": "Skills",
-            "url": "skills:home"
+            "name": "Interest vs. Knowledge",
+            "url": "skills:interest-vs-knowledge"
         },
         {
             "name": "Projects",

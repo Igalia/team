@@ -9,6 +9,7 @@ app_name = 'skills'
 urlpatterns = [
     # Views that require the user to be in some team.
     path('', views.home, name='home'),
+    path('interest-vs-knowledge/', views.interest_vs_knowledge, name='interest-vs-knowledge'),
     path('demand-vs-knowledge/', views.demand_vs_knowledge, name='demand-vs-knowledge'),
     path('project-new/', views.project_new, name='project-new'),
     path('projects/', views.projects, name='projects'),
