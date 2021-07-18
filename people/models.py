@@ -40,6 +40,7 @@ class Team(models.Model):
     The name may be confusing because it clashes with the name of this entire project.  Sorry.
     """
 
+    slug = models.SlugField(max_length=50, unique=True)
     # Arbitrary name of the team; however, it has some constraints.
     name = models.CharField(max_length=50, unique=True)
     # Arbitrary text describing the team.

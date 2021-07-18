@@ -1,11 +1,10 @@
 {% extends "skills/base.html" %}
 {% load static %}
 
-{% block title %}Self assessment of skills{% endblock %}
-
 {% block content %}
 
-<p>Hi there, {{ user_login }}.  {% if latest_assessment %}Your latest record is {{ latest_assessment.date }}.{% else %}We have no records for you.{% endif %}</p>
+<p>Hi there, {{ user_login }}!  Please fill in and submit the form below.  {% if latest_assessment %}The current data is taken from your most recent record ({{ latest_assessment.date }}).{% else %}This will be your first record.{% endif %}</p>
+<hr>
 
 <form method="post">
     {% csrf_token %}
@@ -15,7 +14,6 @@
                 {{ field }}
             {% endfor %}
             {% if form.category_title %}
-                <hr>
                 <h2>{{ form.category_title }}</h2>
             {% endif %}
             <div class="t-row">

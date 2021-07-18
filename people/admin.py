@@ -21,5 +21,6 @@ class LevelAdmin(admin.ModelAdmin):
 
 @admin.register(Team)
 class LevelAdmin(admin.ModelAdmin):
-    list_display = ('__str__',)
+    list_display = ('__str__', 'slug')
+    prepopulated_fields = {'slug': ('name', )}
     ordering = ('name', )
