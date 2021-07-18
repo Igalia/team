@@ -85,9 +85,11 @@ def render_demand_vs_knowledge(request, teams):
                                                  {'knowledge': [0 for _ in Measurement.KNOWLEDGE_CHOICES],
                                                   'interest': [0 for _ in Measurement.INTEREST_CHOICES]})
 
+    page_title = 'Market demand versus knowledge: all your teams' if len(teams) > 1 \
+        else 'Market demand versus knowledge: {team} team'.format(team=teams[0].name)
+
     if not skills_data:
-        return render(request, 'skills/empty.html',
-                      {'page_title': 'Demand versus knowledge: no data'})
+        return render(request, 'skills/empty.html', {'page_title': page_title})
 
     # noinspection PyUnresolvedReferences
     latest_assessments = [a for a in PersonAssessment.objects.filter(latest=True)]
@@ -128,8 +130,7 @@ def render_demand_vs_knowledge(request, teams):
 
     return render(request,
                   'skills/demand-vs-knowledge.html',
-                  {'page_title': 'Market demand versus knowledge: all your teams' if len(teams) > 1
-                                 else 'Market demand versus knowledge: {team} team'.format(team=teams[0].name),
+                  {'page_title': page_title,
                    'projects': [{'project': p['project'],
                                  'skills': all_projects[project_index[p['project']]]['skills']}
                                 for p in all_projects],
@@ -148,9 +149,11 @@ def render_interest_vs_knowledge(request, teams):
                                                  {'knowledge': [0 for _ in Measurement.KNOWLEDGE_CHOICES],
                                                   'interest': [0 for _ in Measurement.INTEREST_CHOICES]})
 
+    page_title = 'Interest versus knowledge: all your teams' if len(teams) > 1 \
+        else 'Interest versus knowledge: {team} team'.format(team=teams[0].name)
+
     if not skills_data:
-        return render(request, 'skills/empty.html',
-                      {'page_title': 'Our skills: no data'})
+        return render(request, 'skills/empty.html', {'page_title': page_title})
 
     # noinspection PyUnresolvedReferences
     latest_assessments = [a for a in PersonAssessment.objects.filter(latest=True)]
@@ -177,8 +180,7 @@ def render_interest_vs_knowledge(request, teams):
 
     return render(request,
                   'skills/interest-vs-knowledge.html',
-                  {'page_title': 'Interest versus knowledge: all your teams' if len(teams) > 1
-                                 else 'Interest versus knowledge: {team} team'.format(team=teams[0].name),
+                  {'page_title': page_title,
                    'skills': skills_data,
                    'notable_interest_threshold': format(NOTABLE_INTEREST_THRESHOLD, ".0%"),
                    'expert_knowledge_threshold': format(EXPERT_KNOWLEDGE_THRESHOLD, ".0%"),
