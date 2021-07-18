@@ -21,6 +21,10 @@
     </div>
 
     {% if teams_formset %}
+        <hr>
+
+        <h2>Teams</h2>
+
         {{ teams_formset.management_form }}
 
         {% for form in teams_formset %}
@@ -33,6 +37,10 @@
         {% endfor %}
     {% endif %}
 
+    <hr>
+
+    <h2>Skills</h2>
+
     {{ formset.management_form }}
 
     {% for form in formset %}
@@ -40,8 +48,7 @@
             {{ field }}
         {% endfor %}
         {% if form.category_title %}
-            <hr>
-            <h2>{{ form.category_title }}</h2>
+            <h3>{{ form.category_title }}</h3>
         {% endif %}
         <div class="t-row">
             <div class="t-cell skills-assess-form-label">{{ form.title }}</div>

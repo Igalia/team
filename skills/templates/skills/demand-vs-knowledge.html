@@ -7,9 +7,9 @@
     <div class="t-cell t-header skills-column-header skills-cell-right">← Demand</div>
     <div class="t-cell t-header skills-column-header">Team knowledge and interest →</div>
 </div>
+<hr>
 {% for skill in skills %}
     {% if skill.category_title %}
-        <hr>
         <h2>{{ skill.category_title }}</h2>
     {% endif %}
     <div class="t-row">
@@ -87,6 +87,11 @@
 
 <h3>Stars</h3>
 
-<p>Some areas may have star marks near their knowledge bars, which means "good knowledge".  The criteria is that the team has minimal number of people at certain levels: at least {{ high_knowledge_threshold }} people rated their knowledge at level 3, or at least {{ expert_knowledge_threshold }} people rated their knowledge at level 4 (the highest).</p>
+<p>Some areas have star marks; these stars mean "notable interest" if appear on the interest side or "good knowledge" otherwise.  The criteria is that the team has minimal number of people at certain levels:</p>
+
+<ul>
+    <li><em>Notable interest</em> means that {{ notable_interest_threshold }} people rated their interest at level 4 (the highest).</li>
+    <li><em>Good knowledge</em> means that at least {{ high_knowledge_threshold }} people rated their knowledge at level 3, or at least {{ expert_knowledge_threshold }} people rated their knowledge at level 4 (the highest).</li>
+</ul>
 
 {% endblock %}

@@ -10,13 +10,15 @@ from django.utils.translation import ugettext_lazy as _
 
 from common.auth import get_user_login
 from people.models import Person, Team
-from . import forms, models
+from . import forms
 from .forms import ProjectForm
 from .models import Measurement, PersonAssessment, Project, ProjectFocusRecord, Skill, \
     EXPERT_KNOWLEDGE_THRESHOLD, HIGH_KNOWLEDGE_THRESHOLD, NOTABLE_INTEREST_THRESHOLD
 
 
 def user_must_be_in_some_teams(function):
+    """Decorator for views that ensures that the current user belongs to at least one team.
+    """
     # noinspection PyUnresolvedReferences
     def _function(request, *args, **kwargs):
         user_login = get_user_login(request)
@@ -27,11 +29,14 @@ def user_must_be_in_some_teams(function):
 
         if not person.teams.all().exists():
             return render_pick_teams(request, person=person)
-        return function(request, *args, **kwargs)
+
+        return function(request, person=person, *args, **kwargs)
     return _function
 
 
 def make_readonly(form):
+    """Sets the disabled attribute for all fields in the form.
+    """
     for field_name in form.fields:
         field = getattr(form, 'fields')[field_name]
         field.disabled = True
@@ -39,7 +44,6 @@ def make_readonly(form):
 
 # noinspection PyUnresolvedReferences
 def enumerate_skills(teams, additional_fields=None):
-    print(teams)
     if additional_fields is None:
         additional_fields = {}
 
@@ -57,30 +61,27 @@ def enumerate_skills(teams, additional_fields=None):
     current_category = None
 
     form_data = [describe(s) for s in
-                 models.Skill.objects.filter(category__teams__in=teams).order_by('category__name', 'name')]
+                 Skill.objects.filter(category__teams__in=teams).distinct().order_by('category__name', 'name')]
     skills_index = {form_data[i]['skill']: i for i in range(len(form_data))}
     return form_data, skills_index
 
 
 # ======================================================================================================================
-# Views
+# Rendering functions
 # ======================================================================================================================
 
 
-# noinspection PyUnresolvedReferences
-@user_must_be_in_some_teams
-def demand_vs_knowledge(request):
+def render_demand_vs_knowledge(request, teams):
+    assert len(teams) > 0, 'At least one team is needed to show this!'
+
+    # noinspection PyUnresolvedReferences
     all_projects = [{'project': p, 'skills': []} for p in Project.objects.all()]
+    # noinspection PyUnresolvedReferences
     all_focus_records = [r for r in ProjectFocusRecord.objects.all()]
 
     project_index = {all_projects[i]['project']: i for i in range(len(all_projects))}
 
-    user_login = get_user_login(request)
-    try:
-        person = Person.objects.get(login=user_login)
-    except Person.DoesNotExist:
-        person = Person(login=user_login)
-    skills_data, skills_index = enumerate_skills(person.teams.all(),
+    skills_data, skills_index = enumerate_skills(teams,
                                                  {'knowledge': [0 for _ in Measurement.KNOWLEDGE_CHOICES],
                                                   'interest': [0 for _ in Measurement.INTEREST_CHOICES]})
 
@@ -88,8 +89,10 @@ def demand_vs_knowledge(request):
         return render(request, 'skills/empty.html',
                       {'page_title': 'Demand versus knowledge: no data'})
 
+    # noinspection PyUnresolvedReferences
     latest_assessments = [a for a in PersonAssessment.objects.filter(latest=True)]
 
+    # noinspection PyUnresolvedReferences
     for measurement in Measurement.objects.filter(assessment__in=latest_assessments):
         if measurement.skill.pk not in skills_index:
             continue
@@ -125,7 +128,8 @@ def demand_vs_knowledge(request):
 
     return render(request,
                   'skills/demand-vs-knowledge.html',
-                  {'page_title': 'Market demand versus knowledge',
+                  {'page_title': 'Market demand versus knowledge: all your teams' if len(teams) > 1
+                                 else 'Market demand versus knowledge: {team} team'.format(team=teams[0].name),
                    'projects': [{'project': p['project'],
                                  'skills': all_projects[project_index[p['project']]]['skills']}
                                 for p in all_projects],
@@ -135,22 +139,12 @@ def demand_vs_knowledge(request):
                    'high_knowledge_threshold': format(HIGH_KNOWLEDGE_THRESHOLD, ".0%")})
 
 
-def home(request):
-    return HttpResponseRedirect(reverse('skills:interest-vs-knowledge'))
-
-
-# noinspection PyUnresolvedReferences
-@user_must_be_in_some_teams
-def interest_vs_knowledge(request):
+def render_interest_vs_knowledge(request, teams):
     """Shows the current team stats on all skills.
     """
+    assert len(teams) > 0, 'At least one team is needed to show this!'
 
-    user_login = get_user_login(request)
-    try:
-        person = Person.objects.get(login=user_login)
-    except Person.DoesNotExist:
-        person = Person(login=user_login)
-    skills_data, skills_index = enumerate_skills(person.teams.all(),
+    skills_data, skills_index = enumerate_skills(teams,
                                                  {'knowledge': [0 for _ in Measurement.KNOWLEDGE_CHOICES],
                                                   'interest': [0 for _ in Measurement.INTEREST_CHOICES]})
 
@@ -158,8 +152,10 @@ def interest_vs_knowledge(request):
         return render(request, 'skills/empty.html',
                       {'page_title': 'Our skills: no data'})
 
+    # noinspection PyUnresolvedReferences
     latest_assessments = [a for a in PersonAssessment.objects.filter(latest=True)]
 
+    # noinspection PyUnresolvedReferences
     for measurement in Measurement.objects.filter(assessment__in=latest_assessments):
         if measurement.skill.pk not in skills_index:
             continue
@@ -181,10 +177,75 @@ def interest_vs_knowledge(request):
 
     return render(request,
                   'skills/interest-vs-knowledge.html',
-                  {'page_title': 'Interest versus knowledge in the team', 'skills': skills_data,
+                  {'page_title': 'Interest versus knowledge: all your teams' if len(teams) > 1
+                                 else 'Interest versus knowledge: {team} team'.format(team=teams[0].name),
+                   'skills': skills_data,
                    'notable_interest_threshold': format(NOTABLE_INTEREST_THRESHOLD, ".0%"),
                    'expert_knowledge_threshold': format(EXPERT_KNOWLEDGE_THRESHOLD, ".0%"),
                    'high_knowledge_threshold': format(HIGH_KNOWLEDGE_THRESHOLD, ".0%")})
+
+
+def render_projects(request, teams):
+    assert len(teams) > 0, 'At least one team is needed to show this!'
+
+    # noinspection PyUnresolvedReferences
+    all_projects = [{'project': p, 'skills': []}
+                    for p in Project.objects.filter(teams__in=teams).distinct().order_by('name')]
+    # noinspection PyUnresolvedReferences
+    all_focus_records = [r for r in ProjectFocusRecord.objects.filter(project__teams__in=teams).distinct()]
+
+    project_index = {all_projects[i]['project']: i for i in range(len(all_projects))}
+
+    for focus_record in all_focus_records:
+        all_projects[project_index[focus_record.project]]['skills'].append(focus_record.skill)
+
+    return render(request,
+                  'skills/projects.html',
+                  {'page_title': 'Projects: all your teams' if len(teams) > 1
+                                 else 'Projects: {team} team'.format(team=teams[0].name),
+                   'projects': [{'project': p['project'],
+                                 'skills': all_projects[project_index[p['project']]]['skills']}
+                                for p in all_projects]})
+
+
+# ======================================================================================================================
+# Views
+# ======================================================================================================================
+
+
+# noinspection PyUnusedLocal
+def home(request):
+    return HttpResponseRedirect(reverse('skills:interest-vs-knowledge'))
+
+
+# noinspection PyUnresolvedReferences
+@user_must_be_in_some_teams
+def demand_vs_knowledge(request, person):
+    return render_demand_vs_knowledge(request, person.teams.all())
+
+
+# noinspection PyUnresolvedReferences
+def demand_vs_knowledge_for_team(request, team_slug):
+    try:
+        team = Team.objects.get(slug=team_slug)
+        return render_demand_vs_knowledge(request, (team, ))
+    except Team.DoesNotExist:
+        raise Http404("Team does not exist")
+
+
+# noinspection PyUnresolvedReferences
+@user_must_be_in_some_teams
+def interest_vs_knowledge(request, person):
+    return render_interest_vs_knowledge(request, person.teams.all())
+
+
+# noinspection PyUnresolvedReferences
+def interest_vs_knowledge_for_team(request, team_slug):
+    try:
+        team = Team.objects.get(slug=team_slug)
+        return render_interest_vs_knowledge(request, (team, ))
+    except Team.DoesNotExist:
+        raise Http404("Team does not exist")
 
 
 # noinspection PyUnresolvedReferences
@@ -277,7 +338,7 @@ def render_pick_teams(request, **kwargs):
 
 
 # noinspection PyUnresolvedReferences
-def project_create_edit(request, project_id):
+def project_create_edit(request, person, project_id):
     """
     Shows the actual project form.
 
@@ -301,30 +362,26 @@ def project_create_edit(request, project_id):
     # noinspection PyPep8Naming
     TeamFormSet = formset_factory(forms.PickTeamForm, extra=0)
 
-    user_login = get_user_login(request)
-    try:
-        person = Person.objects.get(login=user_login)
-    except Person.DoesNotExist:
-        person = Person(login=user_login)
-    person_teams = set(t for t in person.teams.all())
-
-    if not person_teams and not existing_project:
+    person_teams = set(t for t in person.teams.all()) if person else set()
+    if not existing_project and not person_teams:
         # This cannot be.  Creating a new project requires being in at least one team.
         raise Exception('Oops')
 
-    skills = None
-    project_teams = set()
     if existing_project:
-        # Check if teams of the project and of the current user intersect.  If not, this page should be read only.
         project_teams = set(t for t in existing_project.teams.all())
+    else:
+        # When creating a new project, allow to pick any teams from ones the user is in.
+        project_teams = person_teams
 
-        # Load skills for all teams the project belongs to.
-        skills, index = enumerate_skills(existing_project.teams.all())
-        for focus_record in ProjectFocusRecord.objects.filter(project=existing_project):
-            if focus_record.skill.pk in index:
-                skills[index[focus_record.skill.pk]]['selected'] = True
+    # For the existing project, check if teams of the project and of the current user intersect.
+    # If not, this page should be read only.
+    readonly = existing_project and not (project_teams & person_teams)
 
-    readonly = not project_teams & person_teams
+    # Load skills for all teams the project belongs to.
+    skills, index = enumerate_skills(project_teams)
+    for focus_record in ProjectFocusRecord.objects.filter(project=existing_project):
+        if focus_record.skill.pk in index:
+            skills[index[focus_record.skill.pk]]['selected'] = True
 
     project_form = ProjectForm(request.POST or None, instance=existing_project if existing_project else None)
     if project_form and readonly:
@@ -344,7 +401,8 @@ def project_create_edit(request, project_id):
                                     initial=[{'id': t.pk,
                                               'name': t.name,
                                               'selected': t in project_teams,
-                                              'team': t} for t in project_teams],
+                                              'team': t}
+                                             for t in (project_teams if existing_project else person_teams)],
                                     prefix='teams')
         for form in teams_formset:
             if form.team not in person_teams:
@@ -358,12 +416,6 @@ def project_create_edit(request, project_id):
             # broken.  Terminate.
             raise Exception('Oops')
         saved_project = project_form.save()
-        ProjectFocusRecord.objects.filter(project=saved_project).delete()
-        if skills:
-            for form in skills_formset:
-                if form.cleaned_data['selected']:
-                    focus_record = ProjectFocusRecord(project=saved_project, skill=form.cleaned_data['skill'])
-                    focus_record.save()
 
         if len(person_teams) == 1 and not existing_project:
             # Adding the new project to the only team that the current user is in.
@@ -377,6 +429,13 @@ def project_create_edit(request, project_id):
                 else:
                     saved_project.teams.remove(form.id)
             saved_project.save()
+
+        ProjectFocusRecord.objects.filter(project=saved_project).delete()
+        if skills:
+            for form in skills_formset:
+                if form.cleaned_data['selected']:
+                    focus_record = ProjectFocusRecord(project=saved_project, skill=form.cleaned_data['skill'])
+                    focus_record.save()
 
         messages.success(request, 'Project saved')
         return HttpResponseRedirect(reverse('skills:project', args=[saved_project.pk]))
@@ -393,58 +452,50 @@ def project_create_edit(request, project_id):
 
 
 @user_must_be_in_some_teams
-def project_new(request):
+def project_new(request, person):
     """Shows the form to create a new project.
     """
-    return project_create_edit(request, 0)
+    return project_create_edit(request, person, 0)
 
 
 def project(request, project_id):
     """Shows the form to edit an existing project.
     """
-    return project_create_edit(request, project_id)
-
-
-# noinspection PyUnresolvedReferences
-@user_must_be_in_some_teams
-def projects(request):
+    # Take the login from the basic auth header.
     user_login = get_user_login(request)
+
+    # noinspection PyUnresolvedReferences
     try:
+        # noinspection PyUnresolvedReferences
         person = Person.objects.get(login=user_login)
     except Person.DoesNotExist:
         person = Person(login=user_login)
 
-    all_projects = [{'project': p, 'skills': []} for p in Project.objects.filter(teams__in=person.teams.all()).order_by('name')]
-    all_focus_records = [r for r in ProjectFocusRecord.objects.filter(project__teams__in=person.teams.all())]
+    return project_create_edit(request, person, project_id)
 
-    project_index = {all_projects[i]['project']: i for i in range(len(all_projects))}
 
-    for focus_record in all_focus_records:
-        all_projects[project_index[focus_record.project]]['skills'].append(focus_record.skill)
-
-    return render(request,
-                  'skills/projects.html',
-                  {'page_title': 'Our projects',
-                   'projects': [{'project': p['project'],
-                                 'skills': all_projects[project_index[p['project']]]['skills']}
-                                for p in all_projects]})
+@user_must_be_in_some_teams
+def projects(request, person):
+    return render_projects(request, person.teams.all())
 
 
 # noinspection PyUnresolvedReferences
-def self_assess(request):
+def projects_for_team(request, team_slug):
+    try:
+        team = Team.objects.get(slug=team_slug)
+        return render_projects(request, (team, ))
+    except Team.DoesNotExist:
+        raise Http404("Team does not exist")
+
+
+# noinspection PyUnresolvedReferences
+@user_must_be_in_some_teams
+def self_assess(request, person):
     """Shows and handles the person self assessment form.
     """
 
     # noinspection PyPep8Naming
     MeasurementFormSet = formset_factory(forms.MeasurementForm, extra=0)
-
-    # Take the login from the basic auth header.
-    user_login = get_user_login(request)
-
-    try:
-        person = Person.objects.get(login=user_login)
-    except Person.DoesNotExist:
-        person = Person(login=user_login)
 
     if request.method == 'POST':
         formset = MeasurementFormSet(request.POST)

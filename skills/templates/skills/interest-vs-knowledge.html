@@ -9,9 +9,9 @@
     <div class="t-cell t-header skills-column-header skills-cell-right">← Interest</div>
     <div class="t-cell t-header skills-column-header">Knowledge →</div>
 </div>
+<hr>
 {% for skill in skills %}
     {% if skill.category_title %}
-        <hr>
         <h2>{{ skill.category_title }}</h2>
     {% endif %}
     <div class="t-row">
