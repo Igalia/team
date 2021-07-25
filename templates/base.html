@@ -8,23 +8,27 @@
 </head>
 <body>
     <div class="main-content">
-        <div class="menu">
-            {% get_menu "NAV_MENU_TOP" as top_menu %}
-            {% for item in top_menu %}
-                <li class="{% if item.selected %} active {% endif %}">
-                    <a href="{{ item.url }}"> <i class="{{ item.icon_class }}"></i> {{ item.name }}</a>
-                </li>
-                {% if item.submenu %}
-                    <ul>
-                        {% for menu in item.submenu %}
-                            <li class="{% if menu.selected %} active {% endif %}">
-                                <a href="{{ menu.url }}">{{ menu.name }}</a>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                {% endif %}
-            {% endfor %}
-        </div>
+        {% block first_level_menu %}
+            <div class="menu">
+                {% get_menu "NAV_MENU_1ST_LEVEL" as menu %}
+                {% for item in menu %}
+                    <li class="{% if item.selected %} active {% endif %}">
+                        <a href="{{ item.url }}"> <i class="{{ item.icon_class }}"></i> {{ item.name }}</a>
+                    </li>
+                    {% if item.submenu %}
+                        <ul>
+                            {% for menu in item.submenu %}
+                                <li class="{% if menu.selected %} active {% endif %}">
+                                    <a href="{{ menu.url }}">{{ menu.name }}</a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        {% endblock %}
+
+        {% block second_level_menu %}{% endblock %}
 
         {% if messages %}
             <ul class="messages">

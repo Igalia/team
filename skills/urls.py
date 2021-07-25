@@ -21,7 +21,11 @@ urlpatterns = [
     path('person/<str:login>/', views.render_person, name='person'),
     path('skill/<int:skill_id>/', views.render_skill, name='skill'),
 
-    path('interest-vs-knowledge/<str:team_slug>/', views.interest_vs_knowledge_for_team, name='interest-vs-knowledge-for-team'),
-    path('demand-vs-knowledge/<str:team_slug>/', views.demand_vs_knowledge_for_team, name='demand-vs-knowledge-for-team'),
+    path('interest-vs-knowledge/<str:team_slug>/', views.interest_vs_knowledge_for_team,
+         name='interest-vs-knowledge-for-team'),
+    path('demand-vs-knowledge/<str:team_slug>/', views.demand_vs_knowledge_for_team,
+         name='demand-vs-knowledge-for-team'),
     path('projects/<str:team_slug>/', views.projects_for_team, name='projects-for-team'),
+
+    path('set-current-team/<str:team_slug>/', views.set_current_team, name='set-current-team'),
 ]

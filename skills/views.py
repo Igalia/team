@@ -27,7 +27,7 @@ def user_must_be_in_some_teams(function):
         except Person.DoesNotExist:
             person = Person(login=user_login)
 
-        if not person.teams.all().exists():
+        if 'current_team_slug' not in request.session and not person.teams.all().exists():
             return render_pick_teams(request, person=person)
 
         return function(request, person=person, *args, **kwargs)
@@ -221,8 +221,27 @@ def home(request):
 
 
 # noinspection PyUnresolvedReferences
+def set_current_team(request, team_slug):
+    if team_slug:
+        try:
+            Team.objects.get(slug=team_slug)
+            request.session['current_team_slug'] = team_slug
+            if 'current_view' in request.session:
+                print(request.session['current_view'])
+                return HttpResponseRedirect(reverse(request.session['current_view'], args=[team_slug]))
+            return HttpResponseRedirect(reverse('skills:home'))
+        except Team.DoesNotExist:
+            raise Http404("Team does not exist")
+    request.session['current_team_slug'] = ''
+    return HttpResponseRedirect(reverse('skills:home'))
+
+
+# noinspection PyUnresolvedReferences
 @user_must_be_in_some_teams
 def demand_vs_knowledge(request, person):
+    if request.session['current_team_slug']:
+        return HttpResponseRedirect(reverse('skills:demand-vs-knowledge-for-team',
+                                            args=[request.session['current_team_slug']]))
     return render_demand_vs_knowledge(request, person.teams.all())
 
 
@@ -230,7 +249,27 @@ def demand_vs_knowledge(request, person):
 def demand_vs_knowledge_for_team(request, team_slug):
     try:
         team = Team.objects.get(slug=team_slug)
+        request.session['current_view'] = 'skills:demand-vs-knowledge-for-team'
+        print('Set the current view to {}'.format(request.session['current_view']))
         return render_demand_vs_knowledge(request, (team, ))
+    except Team.DoesNotExist:
+        raise Http404("Team does not exist")
+
+
+@user_must_be_in_some_teams
+def projects(request, person):
+    if request.session['current_team_slug']:
+        return HttpResponseRedirect(reverse('skills:projects-for-team', args=[request.session['current_team_slug']]))
+    return render_projects(request, person.teams.all())
+
+
+# noinspection PyUnresolvedReferences
+def projects_for_team(request, team_slug):
+    try:
+        team = Team.objects.get(slug=team_slug)
+        request.session['current_view'] = 'skills:projects-for-team'
+        print('Set the current view to {}'.format(request.session['current_view']))
+        return render_projects(request, (team, ))
     except Team.DoesNotExist:
         raise Http404("Team does not exist")
 
@@ -238,6 +277,9 @@ def demand_vs_knowledge_for_team(request, team_slug):
 # noinspection PyUnresolvedReferences
 @user_must_be_in_some_teams
 def interest_vs_knowledge(request, person):
+    if request.session['current_team_slug']:
+        return HttpResponseRedirect(reverse('skills:interest-vs-knowledge-for-team',
+                                            args=[request.session['current_team_slug']]))
     return render_interest_vs_knowledge(request, person.teams.all())
 
 
@@ -245,6 +287,8 @@ def interest_vs_knowledge(request, person):
 def interest_vs_knowledge_for_team(request, team_slug):
     try:
         team = Team.objects.get(slug=team_slug)
+        request.session['current_view'] = 'skills:interest-vs-knowledge-for-team'
+        print('Set the current view to {}'.format(request.session['current_view']))
         return render_interest_vs_knowledge(request, (team, ))
     except Team.DoesNotExist:
         raise Http404("Team does not exist")
@@ -474,20 +518,6 @@ def project(request, project_id):
         person = Person(login=user_login)
 
     return project_create_edit(request, person, project_id)
-
-
-@user_must_be_in_some_teams
-def projects(request, person):
-    return render_projects(request, person.teams.all())
-
-
-# noinspection PyUnresolvedReferences
-def projects_for_team(request, team_slug):
-    try:
-        team = Team.objects.get(slug=team_slug)
-        return render_projects(request, (team, ))
-    except Team.DoesNotExist:
-        raise Http404("Team does not exist")
 
 
 # noinspection PyUnresolvedReferences
