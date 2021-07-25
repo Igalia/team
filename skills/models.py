@@ -51,8 +51,12 @@ class PersonAssessment(models.Model):
     a set of questions like 'do you know it? would you like to know it?' asked to the person as a block (e.g., in form
     of a survey).
     """
+
+    # When this assessment has been recorded.
     date = models.DateField()
+    # Who is this assessment recorded for.
     person = models.ForeignKey(Person, on_delete=models.CASCADE)
+    # Whether this is the most recent assessment.  Simplifies the logic of loading the team profile.
     latest = models.BooleanField(default=False)
 
     class Meta:
@@ -64,10 +68,18 @@ class PersonAssessment(models.Model):
         verbose_name_plural = _('Assessments')
 
     def __str__(self):
-        return '{person} at {date}'.format(person=self.person, date=self.date)
+        return _('{person} at {date}').format(person=self.person, date=self.date)
 
 
 class Measurement(models.Model):
+    """
+    Records one pair of knowledge and interest of a person in a particular area.
+
+    Represents a single answer to a question: "Regarding skill X, how good are you in it, and how much would you like to
+    use it in your work?"  The answer consists of two values: the perceived level of knowledge and the desire to use or
+    learn that skill.  Several measurements for different skills are grouped in an instance of the PersonAssessment
+    model.
+    """
     KNOWLEDGE_NONE = 0
     KNOWLEDGE_LOW = 1
     KNOWLEDGE_MEDIUM = 2

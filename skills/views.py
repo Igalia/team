@@ -16,22 +16,41 @@ from .models import Measurement, PersonAssessment, Project, ProjectFocusRecord, 
     EXPERT_KNOWLEDGE_THRESHOLD, HIGH_KNOWLEDGE_THRESHOLD, NOTABLE_INTEREST_THRESHOLD
 
 
-def user_must_be_in_some_teams(function):
-    """Decorator for views that ensures that the current user belongs to at least one team.
+def user_should_be_in_some_teams(strict):
     """
-    # noinspection PyUnresolvedReferences
-    def _function(request, *args, **kwargs):
-        user_login = get_user_login(request)
-        try:
-            person = Person.objects.get(login=user_login)
-        except Person.DoesNotExist:
-            person = Person(login=user_login)
+    Decorator for views that ensures that the current user belongs to at least one team.
 
-        if 'current_team_slug' not in request.session and not person.teams.all().exists():
-            return render_pick_teams(request, person=person)
+    Some views do not have a team selector in their URL; they use user's teams instead.  Thus, they imply that the user
+    belongs to at least one team.  For some of them, however, the 'current team' selected in the session is a valid
+    substitute; for others, it is not.  Team diagrams are in the former group (anyone can browse data for any team), and
+    assessment forms, both for people and for projects, are in the latter one: skills are bound to teams, therefore one
+    cannot assess themselves if they do not belong to any team.
 
-        return function(request, person=person, *args, **kwargs)
-    return _function
+    This decorator wraps the view with logic that loads the current person and checks whether they belong to any teams.
+    It also checks whether the current team is set in the session.  Depending on these checks and on the value of the
+    |strict| parameter, it calls either the wrapped view or render_pick_teams().
+
+    :param strict: whether the selection is required even if the current team is set in the session.
+    :return: a decorated view that will show the team selection form instead of the requested view, if necessary.
+    """
+    def user_must_be_in_some_teams(function):
+        def _function(request, *args, **kwargs):
+            user_login = get_user_login(request)
+            # noinspection PyUnresolvedReferences
+            try:
+                # noinspection PyUnresolvedReferences
+                person = Person.objects.get(login=user_login)
+            except Person.DoesNotExist:
+                person = Person(login=user_login)
+
+            if (strict or 'current_team_slug' not in request.session) and not person.teams.all().exists():
+                return render_pick_teams(request, person=person)
+
+            return function(request, person=person, *args, **kwargs)
+
+        return _function
+
+    return user_must_be_in_some_teams
 
 
 def make_readonly(form):
@@ -237,7 +256,7 @@ def set_current_team(request, team_slug):
 
 
 # noinspection PyUnresolvedReferences
-@user_must_be_in_some_teams
+@user_should_be_in_some_teams(False)
 def demand_vs_knowledge(request, person):
     if request.session['current_team_slug']:
         return HttpResponseRedirect(reverse('skills:demand-vs-knowledge-for-team',
@@ -256,7 +275,7 @@ def demand_vs_knowledge_for_team(request, team_slug):
         raise Http404("Team does not exist")
 
 
-@user_must_be_in_some_teams
+@user_should_be_in_some_teams(False)
 def projects(request, person):
     if request.session['current_team_slug']:
         return HttpResponseRedirect(reverse('skills:projects-for-team', args=[request.session['current_team_slug']]))
@@ -275,7 +294,7 @@ def projects_for_team(request, team_slug):
 
 
 # noinspection PyUnresolvedReferences
-@user_must_be_in_some_teams
+@user_should_be_in_some_teams(False)
 def interest_vs_knowledge(request, person):
     if request.session['current_team_slug']:
         return HttpResponseRedirect(reverse('skills:interest-vs-knowledge-for-team',
@@ -497,7 +516,7 @@ def project_create_edit(request, person, project_id):
                    'teams_formset': teams_formset})
 
 
-@user_must_be_in_some_teams
+@user_should_be_in_some_teams(True)
 def project_new(request, person):
     """Shows the form to create a new project.
     """
@@ -521,7 +540,7 @@ def project(request, project_id):
 
 
 # noinspection PyUnresolvedReferences
-@user_must_be_in_some_teams
+@user_should_be_in_some_teams(True)
 def self_assess(request, person):
     """Shows and handles the person self assessment form.
     """
