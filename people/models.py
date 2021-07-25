@@ -34,8 +34,7 @@ class Team(models.Model):
     """
     Team inside a company.
 
-    Groups people and projects.  Relations are many-to-many both times because it is possible for a person to be a
-    member of more than a single team, and projects can be cross-team as well.
+    Groups various things within the company, primarily people, but not only people.
 
     The name may be confusing because it clashes with the name of this entire project.  Sorry.
     """
