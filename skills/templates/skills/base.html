@@ -5,33 +5,44 @@
     <link rel="stylesheet" type="text/css" href="{% static 'skills/style.css' %}">
 {% endblock %}
 
-{% block first_level_menu %}
-    <div class="menu">
-        {% get_menu "NAV_MENU_1ST_LEVEL" as menu %}
-        {% for item in menu %}
-            <li class="{% if item.team_slug == request.session.current_team_slug %} active {% endif %}">
-                <a href="{{ item.url }}"> <i class="{{ item.icon_class }}"></i> {{ item.name }}</a>
-            </li>
-        {% endfor %}
-    </div>
-{% endblock %}
-
 {% block second_level_menu %}
-    <div class="menu">
-        {% get_menu "NAV_MENU_2ND_LEVEL" as menu %}
-        {% for item in menu %}
-            <li class="{% if item.selected %} active {% endif %}">
-                <a href="{{ item.url }}"> <i class="{{ item.icon_class }}"></i> {{ item.name }}</a>
-            </li>
-            {% if item.submenu %}
-                <ul>
-                    {% for menu in item.submenu %}
-                        <li class="{% if menu.selected %} active {% endif %}">
-                            <a href="{{ menu.url }}">{{ menu.name }}</a>
-                        </li>
+    <div class="menu-bar">
+        <div class="menu">
+            {% get_menu "NAV_MENU_2ND_LEVEL" as menu %}
+            {% for item in menu %}
+                <li class="{% if item.selected %} active {% endif %}">
+                    <a href="{{ item.url }}"> <i class="{{ item.icon_class }}"></i> {{ item.name }}</a>
+                </li>
+                {% if item.submenu %}
+                    <ul>
+                        {% for menu in item.submenu %}
+                            <li class="{% if menu.selected %} active {% endif %}">
+                                <a href="{{ menu.url }}">{{ menu.name }}</a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        {% if show_team_selector %}
+            <div>
+                <script>
+                    function selectTeam(team_slug) {
+                        if (team_slug.length > 0)
+                            window.location = '{% url 'skills:set-current-team' '*' %}'.replace('*', team_slug);
+                    }
+                </script>
+                <select onchange="selectTeam(this.options[this.selectedIndex].value);">
+                    <option value="">Select team…</option>
+                    {% get_menu "NAV_MENU_TEAM_SELECTOR" as menu %}
+                    {% for item in menu %}
+                        <option value="{{ item.team_slug }}"{% if item.team_slug == request.session.current_team_slug %} selected{% endif %}>
+                            {{ item.name }}
+                        </option>
                     {% endfor %}
-                </ul>
-            {% endif %}
-        {% endfor %}
+                </select>
+            </div>
+        {% endif %}
     </div>
 {% endblock %}

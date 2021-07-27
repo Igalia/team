@@ -150,6 +150,7 @@ def render_demand_vs_knowledge(request, teams):
     return render(request,
                   'skills/demand-vs-knowledge.html',
                   {'page_title': page_title,
+                   'show_team_selector': True,
                    'projects': [{'project': p['project'],
                                  'skills': all_projects[project_index[p['project']]]['skills']}
                                 for p in all_projects],
@@ -200,6 +201,7 @@ def render_interest_vs_knowledge(request, teams):
     return render(request,
                   'skills/interest-vs-knowledge.html',
                   {'page_title': page_title,
+                   'show_team_selector': True,
                    'skills': skills_data,
                    'notable_interest_threshold': format(NOTABLE_INTEREST_THRESHOLD, ".0%"),
                    'expert_knowledge_threshold': format(EXPERT_KNOWLEDGE_THRESHOLD, ".0%"),
@@ -226,7 +228,8 @@ def render_projects(request, teams):
                                  else 'Projects: {team} team'.format(team=teams[0].name),
                    'projects': [{'project': p['project'],
                                  'skills': all_projects[project_index[p['project']]]['skills']}
-                                for p in all_projects]})
+                                for p in all_projects],
+                   'show_team_selector': True})
 
 
 # ======================================================================================================================
@@ -246,7 +249,6 @@ def set_current_team(request, team_slug):
             Team.objects.get(slug=team_slug)
             request.session['current_team_slug'] = team_slug
             if 'current_view' in request.session:
-                print(request.session['current_view'])
                 return HttpResponseRedirect(reverse(request.session['current_view'], args=[team_slug]))
             return HttpResponseRedirect(reverse('skills:home'))
         except Team.DoesNotExist:

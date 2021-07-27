@@ -21,8 +21,8 @@ a:hover {
     clear: both;
 }
 
-/* Flex container for the main title and an optional item at the right. */
-.main-header {
+/* Flex containers for putting optional items at the right. */
+.main-header, .menu-bar {
     display: flex;
     flex-direction: row;
     align-items: center;

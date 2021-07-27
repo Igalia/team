@@ -8,4 +8,4 @@ The whole area of expertise is divided into a set of sub-areas, or _skills_.  Ea
 
 Additionally, projects that the team works on or is interested in are assessed the similar way, using the same set of skills: for each project, the team identifies a selection of skills that the project focuses on.  This way the team builds knowledge on what the market requires in their field, and can then decide if its expertise matches the market demand.
 
-The application supports multiple teams (see [People](../people/README.md) application), and allows different teams to have different sets of skills.
+The application supports multiple teams (see [People](../people) application), and allows different teams to have different sets of skills.
