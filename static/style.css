@@ -100,6 +100,22 @@ a:hover {
     background-color: #00E676;
 }
 
+.messages li.warning {
+    /* Material Orange A400 */
+    background-color: #FF9100;
+}
+
 .permanent-message {
+    font-size: smaller;
+}
+
+/* Form validation. */
+
+ul.errorlist {
+    margin: 0;
+}
+
+.errorlist li {
+    list-style-type: none;
     font-size: smaller;
 }

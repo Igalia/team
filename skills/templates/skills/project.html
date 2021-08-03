@@ -11,6 +11,12 @@
         <div class="t-cell skills-assess-project-form-label">Name:</div>
         <div class="t-cell skills-assess-project-form-field">{{ project_form.name }}</div>
     </div>
+    {% if project_form.name.errors %}
+        <div class="t-row">
+            <div class="t-cell skills-assess-project-form-label">&nbsp;</div>
+            <div class="t-cell skills-assess-project-form-field">{{ project_form.name.errors }}</div>
+        </div>
+    {% endif %}
     <div class="t-row">
         <div class="t-cell skills-assess-project-form-label">Description:</div>
         <div class="t-cell skills-assess-project-form-field" id="description">{{ project_form.description }}</div>
