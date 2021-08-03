@@ -486,7 +486,7 @@ def project_create_edit(request, person, project_id):
 
         if len(person_teams) == 1 and not existing_project:
             # Adding the new project to the only team that the current user is in.
-            saved_project.teams.add(person_teams[0])
+            saved_project.teams.add(list(person_teams)[0])
             saved_project.save()
         elif len(person_teams) > 1:
             # Update the project teams.
