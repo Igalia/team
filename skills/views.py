@@ -476,12 +476,15 @@ def project_create_edit(request, person, project_id):
                 make_readonly(form)
 
     if not readonly and request.method == 'POST':
-        if not project_form.is_valid() \
-                or (skills_formset and not skills_formset.is_valid()) \
-                or (teams_formset and not teams_formset.is_valid()):
-            # Our form doesn't have fields that could contain invalid values, so if we are here, something is seriously
-            # broken.  Terminate.
-            raise Exception('Oops')
+        # Our forms don't have fields that could contain invalid values, so if any of these checks fail, something is
+        # seriously broken.  Terminate.
+        if not project_form.is_valid():
+            raise Exception('Oops.  Project form corrupted.')
+        if skills_formset and not skills_formset.is_valid():
+            raise Exception('Oops.  Skills form corrupted.')
+        if teams_formset and not teams_formset.is_valid():
+            raise Exception('Oops.  Teams form corrupted.')
+
         saved_project = project_form.save()
 
         if len(person_teams) == 1 and not existing_project:
