@@ -253,14 +253,15 @@ def set_current_team(request, team_slug):
             return HttpResponseRedirect(reverse('skills:home'))
         except Team.DoesNotExist:
             raise Http404("Team does not exist")
-    request.session['current_team_slug'] = ''
+    if 'current_team_slug' in request.session:
+        del request.session['current_team_slug']
     return HttpResponseRedirect(reverse('skills:home'))
 
 
 # noinspection PyUnresolvedReferences
 @user_should_be_in_some_teams(False)
 def demand_vs_knowledge(request, person):
-    if request.session['current_team_slug']:
+    if request.session.get('current_team_slug'):
         return HttpResponseRedirect(reverse('skills:demand-vs-knowledge-for-team',
                                             args=[request.session['current_team_slug']]))
     return render_demand_vs_knowledge(request, person.teams.all())
@@ -278,7 +279,7 @@ def demand_vs_knowledge_for_team(request, team_slug):
 
 @user_should_be_in_some_teams(False)
 def projects(request, person):
-    if request.session['current_team_slug']:
+    if request.session.get('current_team_slug'):
         return HttpResponseRedirect(reverse('skills:projects-for-team', args=[request.session['current_team_slug']]))
     return render_projects(request, person.teams.all())
 
@@ -296,7 +297,7 @@ def projects_for_team(request, team_slug):
 # noinspection PyUnresolvedReferences
 @user_should_be_in_some_teams(False)
 def interest_vs_knowledge(request, person):
-    if request.session['current_team_slug']:
+    if request.session.get('current_team_slug'):
         return HttpResponseRedirect(reverse('skills:interest-vs-knowledge-for-team',
                                             args=[request.session['current_team_slug']]))
     return render_interest_vs_knowledge(request, person.teams.all())
