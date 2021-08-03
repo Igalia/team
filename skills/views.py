@@ -271,7 +271,6 @@ def demand_vs_knowledge_for_team(request, team_slug):
     try:
         team = Team.objects.get(slug=team_slug)
         request.session['current_view'] = 'skills:demand-vs-knowledge-for-team'
-        print('Set the current view to {}'.format(request.session['current_view']))
         return render_demand_vs_knowledge(request, (team, ))
     except Team.DoesNotExist:
         raise Http404("Team does not exist")
@@ -289,7 +288,6 @@ def projects_for_team(request, team_slug):
     try:
         team = Team.objects.get(slug=team_slug)
         request.session['current_view'] = 'skills:projects-for-team'
-        print('Set the current view to {}'.format(request.session['current_view']))
         return render_projects(request, (team, ))
     except Team.DoesNotExist:
         raise Http404("Team does not exist")
@@ -309,7 +307,6 @@ def interest_vs_knowledge_for_team(request, team_slug):
     try:
         team = Team.objects.get(slug=team_slug)
         request.session['current_view'] = 'skills:interest-vs-knowledge-for-team'
-        print('Set the current view to {}'.format(request.session['current_view']))
         return render_interest_vs_knowledge(request, (team, ))
     except Team.DoesNotExist:
         raise Http404("Team does not exist")
@@ -476,39 +473,40 @@ def project_create_edit(request, person, project_id):
                 make_readonly(form)
 
     if not readonly and request.method == 'POST':
-        # Our forms don't have fields that could contain invalid values, so if any of these checks fail, something is
-        # seriously broken.  Terminate.
         if not project_form.is_valid():
-            raise Exception('Oops.  Project form corrupted.')
-        if skills_formset and not skills_formset.is_valid():
-            raise Exception('Oops.  Skills form corrupted.')
-        if teams_formset and not teams_formset.is_valid():
-            raise Exception('Oops.  Teams form corrupted.')
+            messages.warning(request, 'Please fix the data!')
+        else:
+            # Forms that show selection of teams and skills don't have fields that could contain invalid values, so if
+            # any of these checks fail, something is seriously broken.  Terminate.
+            if skills_formset and not skills_formset.is_valid():
+                raise Exception('Oops.  Skills form corrupted.')
+            if teams_formset and not teams_formset.is_valid():
+                raise Exception('Oops.  Teams form corrupted.')
 
-        saved_project = project_form.save()
+            saved_project = project_form.save()
 
-        if len(person_teams) == 1 and not existing_project:
-            # Adding the new project to the only team that the current user is in.
-            saved_project.teams.add(list(person_teams)[0])
-            saved_project.save()
-        elif len(person_teams) > 1:
-            # Update the project teams.
-            for form in teams_formset:
-                if form.cleaned_data['selected']:
-                    saved_project.teams.add(form.id)
-                else:
-                    saved_project.teams.remove(form.id)
-            saved_project.save()
+            if len(person_teams) == 1 and not existing_project:
+                # Adding the new project to the only team that the current user is in.
+                saved_project.teams.add(list(person_teams)[0])
+                saved_project.save()
+            elif len(person_teams) > 1:
+                # Update the project teams.
+                for form in teams_formset:
+                    if form.cleaned_data['selected']:
+                        saved_project.teams.add(form.id)
+                    else:
+                        saved_project.teams.remove(form.id)
+                saved_project.save()
 
-        ProjectFocusRecord.objects.filter(project=saved_project).delete()
-        if skills:
-            for form in skills_formset:
-                if form.cleaned_data['selected']:
-                    focus_record = ProjectFocusRecord(project=saved_project, skill=form.cleaned_data['skill'])
-                    focus_record.save()
+            ProjectFocusRecord.objects.filter(project=saved_project).delete()
+            if skills:
+                for form in skills_formset:
+                    if form.cleaned_data['selected']:
+                        focus_record = ProjectFocusRecord(project=saved_project, skill=form.cleaned_data['skill'])
+                        focus_record.save()
 
-        messages.success(request, 'Project saved')
-        return HttpResponseRedirect(reverse('skills:project', args=[saved_project.pk]))
+            messages.success(request, 'Project saved')
+            return HttpResponseRedirect(reverse('skills:project', args=[saved_project.pk]))
 
     return render(request,
                   'skills/project.html',
