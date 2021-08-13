@@ -111,7 +111,7 @@ def render_demand_vs_knowledge(request, teams):
         return render(request, 'skills/empty.html', {'page_title': page_title, 'show_team_selector': True})
 
     # noinspection PyUnresolvedReferences
-    latest_assessments = [a for a in PersonAssessment.objects.filter(latest=True)]
+    latest_assessments = [a for a in PersonAssessment.objects.filter(latest=True, person__teams__in=teams)]
 
     # noinspection PyUnresolvedReferences
     for measurement in Measurement.objects.filter(assessment__in=latest_assessments):
@@ -176,7 +176,7 @@ def render_interest_vs_knowledge(request, teams):
         return render(request, 'skills/empty.html', {'page_title': page_title, 'show_team_selector': True})
 
     # noinspection PyUnresolvedReferences
-    latest_assessments = [a for a in PersonAssessment.objects.filter(latest=True)]
+    latest_assessments = [a for a in PersonAssessment.objects.filter(latest=True, person__teams__in=teams)]
 
     # noinspection PyUnresolvedReferences
     for measurement in Measurement.objects.filter(assessment__in=latest_assessments):
