@@ -14,10 +14,18 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.http.response import HttpResponseRedirect
+from django.urls import path, reverse
 from django.conf.urls import include
 
+
+# noinspection PyUnusedLocal
+def home(request):
+    return HttpResponseRedirect(reverse('skills:home'))
+
+
 urlpatterns = [
+    path('', home),
     path('admin/', admin.site.urls),
     path('ballots/', include('ballots.urls', namespace='ballots')),
     path('skills/', include('skills.urls', namespace='skills')),
