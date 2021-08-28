@@ -42,6 +42,7 @@ def user_should_be_in_some_teams(strict):
                 person = Person.objects.get(login=user_login)
             except Person.DoesNotExist:
                 person = Person(login=user_login)
+                person.save()
 
             if (strict or 'current_team_slug' not in request.session) and not person.teams.all().exists():
                 return render_pick_teams(request, person=person)
