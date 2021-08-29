@@ -30,6 +30,8 @@ class SkillsViewTest(TestCase):
 
 
 class SelfAssessmentViewTest(SkillsViewTest):
+    VIEW_URL = reverse('skills:self-assess')
+
     # noinspection PyUnresolvedReferences
     def test_new_user_sees_pick_teams_page(self):
         """
@@ -37,7 +39,7 @@ class SelfAssessmentViewTest(SkillsViewTest):
         """
         with self.assertRaises(Person.DoesNotExist):
             Person.objects.get(login=self.LOGIN)
-        self.assert_pick_team_page(self.client.get(reverse('skills:self-assess')))
+        self.assert_pick_team_page(self.client.get(self.VIEW_URL))
         Person.objects.get(login=self.LOGIN)
 
     def test_existing_user_without_team_sees_self_assessment_page(self):
@@ -47,7 +49,7 @@ class SelfAssessmentViewTest(SkillsViewTest):
         person = Person(login=self.LOGIN)
         person.save()
 
-        self.assert_pick_team_page(self.client.get(reverse('skills:self-assess')))
+        self.assert_pick_team_page(self.client.get(self.VIEW_URL))
 
     def test_existing_user_with_team_sees_self_assessment_page(self):
         """
@@ -61,7 +63,7 @@ class SelfAssessmentViewTest(SkillsViewTest):
         person.teams.add(team)
         person.save()
 
-        response = self.client.get(reverse('skills:self-assess'))
+        response = self.client.get(self.VIEW_URL)
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, 'Hi there, {user_login}!'.format(user_login=self.LOGIN))
         self.assertContains(response, 'Please fill in and submit the form below.')
