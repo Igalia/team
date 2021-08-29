@@ -35,7 +35,7 @@ class SelfAssessmentViewTest(SkillsViewTest):
     # noinspection PyUnresolvedReferences
     def test_new_user_sees_pick_teams_page(self):
         """
-        A fresh user should be asked to pick a team.
+        A fresh user should be asked to pick a team.  The user record should be saved to the database.
         """
         with self.assertRaises(Person.DoesNotExist):
             Person.objects.get(login=self.LOGIN)
