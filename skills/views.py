@@ -127,10 +127,12 @@ def render_demand_vs_knowledge(request, teams):
     high_threshold = assessment_count * HIGH_KNOWLEDGE_THRESHOLD
     interest_threshold = assessment_count * NOTABLE_INTEREST_THRESHOLD
     for skill in skills_data:
-        skill['star_knowledge'] = (skill['knowledge'][Measurement.KNOWLEDGE_EXPERT] >= expert_threshold or
-                                   skill['knowledge'][Measurement.KNOWLEDGE_HIGH] >= high_threshold)
+        skill['star_knowledge'] = assessment_count > 0 and (
+                    skill['knowledge'][Measurement.KNOWLEDGE_EXPERT] >= expert_threshold or
+                    skill['knowledge'][Measurement.KNOWLEDGE_HIGH] >= high_threshold)
         skill['knowledge'] = skill['knowledge'][1:]
-        skill['star_interest'] = skill['interest'][Measurement.INTEREST_EXTREME] >= interest_threshold
+        skill['star_interest'] = assessment_count > 0 and skill['interest'][
+            Measurement.INTEREST_EXTREME] >= interest_threshold
         skill['interest'] = skill['interest'][1:]
 
     max_count = 0
@@ -192,9 +194,11 @@ def render_interest_vs_knowledge(request, teams):
     high_threshold = assessment_count * HIGH_KNOWLEDGE_THRESHOLD
     interest_threshold = assessment_count * NOTABLE_INTEREST_THRESHOLD
     for skill in skills_data:
-        skill['star_knowledge'] = (skill['knowledge'][Measurement.KNOWLEDGE_EXPERT] >= expert_threshold or
-                                   skill['knowledge'][Measurement.KNOWLEDGE_HIGH] >= high_threshold)
-        skill['star_interest'] = skill['interest'][Measurement.INTEREST_EXTREME] >= interest_threshold
+        skill['star_knowledge'] = assessment_count > 0 and (
+                    skill['knowledge'][Measurement.KNOWLEDGE_EXPERT] >= expert_threshold or
+                    skill['knowledge'][Measurement.KNOWLEDGE_HIGH] >= high_threshold)
+        skill['star_interest'] = assessment_count > 0 and skill['interest'][
+            Measurement.INTEREST_EXTREME] >= interest_threshold
 
         skill['knowledge'] = skill['knowledge'][1:]
         skill['interest'] = skill['interest'][1:]
