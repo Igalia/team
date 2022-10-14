@@ -30,12 +30,13 @@ a:hover {
 }
 
 /* Forms and tables are rendered using DIVs. */
-.t-row {
+
+.t-row, .t-row-off {
     width: 100%;
     display: table;
 }
 
-.t-row-even {
+.t-row:nth-child(even) {
     background-color: #f8f8f8;
 }
 
