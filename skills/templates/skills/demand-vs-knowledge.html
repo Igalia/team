@@ -2,7 +2,7 @@
 
 {% block content %}
 
-<div class="t-row">
+<div class="t-row-off">
     <div class="t-cell t-header skills-row-header"><em>How to read this?  See <a href="#howto">below</a>.</em></div>
     <div class="t-cell t-header skills-column-header skills-cell-right">← Demand</div>
     <div class="t-cell t-header skills-column-header">Team knowledge and interest →</div>
@@ -19,7 +19,7 @@
                 <div class="t-cell skills-demand-bar" style="width: {{ skill.bar_length }}%">&nbsp;{{ skill.count }}</div>
             </div>
             <div class="t-cell skills-cell-left">
-                <div class="t-row">
+                <div class="t-row-off">
                     {% for level in skill.knowledge %}
                         {% if level %}
                             <div class="t-cell skills-knowledge-{{ forloop.counter }} skills-cell-narrow skills-thin-bar">{{ level }}</div>
@@ -31,7 +31,7 @@
                         <div class="t-cell skills-cell-narrow skills-thin-bar">&star;</div>
                     {% endif %}
                 </div>
-                <div class="t-row">
+                <div class="t-row-off">
                     {% for level in skill.interest %}
                         {% if level %}
                             <div class="t-cell skills-interest-right-{{ forloop.counter }} skills-cell-narrow skills-thin-bar">{{ level }}</div>
@@ -60,7 +60,7 @@
 
 <p>Here is the example.</p>
 
-<div class="t-row">
+<div class="t-row-off">
     <div class="t-cell t-header skills-row-header"><u>Django framework</u></div>
     <div class="t-cell skills-cell-right">
         <div class="t-cell skills-demand-bar" style="width: 65%">&nbsp;5</div>

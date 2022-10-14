@@ -5,7 +5,7 @@
 {% block content %}
 
 {% if projects %}
-    <div class="t-row">
+    <div class="t-row-off">
         <div class="t-cell t-header skills-project-row-header">Project</div>
         <div class="t-cell t-header skills-project-skills-column-header">Skills</div>
         <div class="t-cell t-header skills-project-status-column-header">Active</div>
@@ -15,7 +15,7 @@
 {% endif %}
 
 {% for project in projects %}
-    <div class="t-row{% cycle '' ' t-row-even' %}">
+    <div class="t-row">
         <div class="t-cell t-header skills-project-row-header">
             <a href="{% url 'skills:project' project.project.pk %}">{{ project.project.name }}</a>
         </div>
