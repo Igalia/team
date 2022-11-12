@@ -1,0 +1,20 @@
+{% extends "people/base.html" %}
+
+{% block title %}{{ person.login }}{% endblock %}
+
+{% block content %}
+
+<form method="post">
+    {% csrf_token %}
+
+    <div class="t-row">
+        <div class="t-cell">{{ search_form.login }}</div>
+    </div>
+</form>
+
+<div class="t-row">
+    <div class="t-cell">Level:</div>
+    <div class="t-cell">{{ person.level }}</div>
+</div>
+
+{% endblock %}
