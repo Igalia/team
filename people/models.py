@@ -31,7 +31,7 @@ class Person(models.Model):
         verbose_name_plural = _('People')
 
     def __str__(self):
-        return self.login
+        return '{login}@ {name}'.format(login=self.login, name=self.full_name)
 
 
 class Team(models.Model):

@@ -1,6 +1,6 @@
 {% extends "people/base.html" %}
 
-{% block title %}{{ person.login }}{% endblock %}
+{% block title %}{{ person }}{% endblock %}
 
 {% block content %}
 
@@ -13,8 +13,18 @@
 </form>
 
 <div class="t-row">
+    <div class="t-cell">Joined:</div>
+    <div class="t-cell">{{ person.join_date }}</div>
+</div>
+
+<div class="t-row">
     <div class="t-cell">Level:</div>
     <div class="t-cell">{{ person.level }}</div>
+</div>
+
+<div class="t-row">
+    <div class="t-cell">Teams:</div>
+    <div class="t-cell">{% for team in person.teams.all %}{{ team }}{% endfor %}</div>
 </div>
 
 <script language="JavaScript">
@@ -22,15 +32,35 @@
     function setAutocomplete(text_input) {
         var data = [
             {% for person in people %}
-            { "login": "{{ person.login }}", "name": "{{ person.full_name}}" },{% endfor %}
+            { "login": "{{ person.login }}", "name": "{{ person.full_name }}" },{% endfor %}
         ];
         var currentFocus = -1;
+
+        function matchesLogin(value, login) {
+        }
 
         function matches(value, index) {
             var login = data[index]["login"];
             var name = data[index]["name"];
-            return value.toLowerCase() == login.substr(0, value.length).toLowerCase() ||
-                name.toLowerCase().search(value.toLowerCase()) >= 0;
+
+            var login_match = "";
+            if (value.toLowerCase() == login.substr(0, value.length).toLowerCase())
+                login_match = "<strong>" + login.substr(0, value.length) + "</strong>" + login.substr(value.length);
+
+            var name_match = "";
+            var name_found_index = name.toLowerCase().search(value.toLowerCase());
+            if (name_found_index >= 0) {
+                name_match = name.substr(0, name_found_index)
+                                + "<strong>"
+                                + name.substr(name_found_index, value.length)
+                                + "</strong>"
+                                + name.substr(name_found_index + value.length);
+            }
+
+            if (!login_match && !name_match)
+                return false;
+
+            return (login_match ? login_match : login) + "@ " + (name_match ? name_match : name);
         }
 
         text_input.addEventListener("input", function(e) {
@@ -51,21 +81,18 @@
             // Append the DIV element as a child of the autocomplete container:
             this.parentNode.appendChild(a);
             for (var i = 0; i < data.length; i++) {
-                if (!matches(value, i))
+                match = matches(value, i);
+                if (!match)
                     continue;
-
-                var login = data[i]["login"];
-                var name = data[i]["name"];
 
                 /*create a DIV element for each matching element:*/
                 var b = document.createElement("DIV");
 
                 /*make the matching letters bold:*/
-                b.innerHTML = "<strong>" + login.substr(0, value.length) + "</strong>";
-                b.innerHTML += login.substr(value.length);
+                b.innerHTML = match;
 
                 /*insert a input field that will hold the current array item's value:*/
-                b.innerHTML += "<input type='hidden' value='" + login + "'>";
+                b.innerHTML += "<input type='hidden' value='" + data[i]["login"] + "'>";
 
                 /*execute a function when someone clicks on the item value (DIV element):*/
                 b.addEventListener("click", function(e) {
