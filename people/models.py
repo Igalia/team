@@ -17,6 +17,10 @@ class Level(models.Model):
 class Person(models.Model):
     # Unique ID of the person in the system.
     login = models.CharField(max_length=30, unique=True)
+    # Full name.
+    full_name = models.CharField(max_length=100, null=True)
+    # Date when this person joined the company.
+    join_date = models.DateField(null=True)
     # Level in the company hierarchy.
     level = models.ForeignKey(Level, on_delete=models.PROTECT, null=True)
 
