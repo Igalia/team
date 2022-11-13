@@ -1,16 +1,16 @@
 {% extends "people/base.html" %}
 
-{% block title %}{{ person }}{% endblock %}
-
-{% block content %}
-
+{% block second_level_menu %}
 <form method="post" autocomplete="off" id="id_search_form">
     {% csrf_token %}
 
-    <div class="t-row">
-        <div class="t-cell autocomplete">{{ search_form.login }}</div>
-    </div>
+    <div class="people-autocomplete">{{ search_form.login }}</div>
 </form>
+{% endblock %}
+
+{% block title %}{{ person }}{% endblock %}
+
+{% block content %}
 
 <div class="t-row">
     <div class="t-cell">Joined:</div>
@@ -36,31 +36,33 @@
         ];
         var currentFocus = -1;
 
-        function matchesLogin(value, login) {
-        }
-
-        function matches(value, index) {
+        // Looks for matches of |value| in data[index], which is a dictionary that has login and name fields.
+        // Login and name are matched using different rules (see comments in the code below).
+        // If there are matches, returns a user-friendly string that shows the match, otherwise returns false.
+        function findMatches(value, index) {
             var login = data[index]["login"];
             var name = data[index]["name"];
 
-            var login_match = "";
+            // Login matches if it begins with the value.
+            var loginMatch = false;
             if (value.toLowerCase() == login.substr(0, value.length).toLowerCase())
-                login_match = "<strong>" + login.substr(0, value.length) + "</strong>" + login.substr(value.length);
+                loginMatch = "<strong>" + login.substr(0, value.length) + "</strong>" + login.substr(value.length);
 
-            var name_match = "";
+            // Name matches if it contains the value.
+            var nameMatch = false;
             var name_found_index = name.toLowerCase().search(value.toLowerCase());
             if (name_found_index >= 0) {
-                name_match = name.substr(0, name_found_index)
+                nameMatch = name.substr(0, name_found_index)
                                 + "<strong>"
                                 + name.substr(name_found_index, value.length)
                                 + "</strong>"
                                 + name.substr(name_found_index + value.length);
             }
 
-            if (!login_match && !name_match)
+            if (!loginMatch && !nameMatch)
                 return false;
 
-            return (login_match ? login_match : login) + "@ " + (name_match ? name_match : name);
+            return (loginMatch ? loginMatch : login) + "@ " + (nameMatch ? nameMatch : name);
         }
 
         text_input.addEventListener("input", function(e) {
@@ -73,36 +75,28 @@
 
             currentFocus = -1;
 
-            // Create a DIV element that will contain the items (values):
-            var a = document.createElement("DIV");
-            a.setAttribute("id", this.id + "autocomplete-list");
-            a.setAttribute("class", "autocomplete-items");
+            var dropDownList = document.createElement("DIV");
+            dropDownList.setAttribute("id", this.id + "autocomplete-list");
+            dropDownList.setAttribute("class", "people-autocomplete-items");
 
             // Append the DIV element as a child of the autocomplete container:
-            this.parentNode.appendChild(a);
+            this.parentNode.appendChild(dropDownList);
             for (var i = 0; i < data.length; i++) {
-                match = matches(value, i);
+                match = findMatches(value, i);
                 if (!match)
                     continue;
 
-                /*create a DIV element for each matching element:*/
-                var b = document.createElement("DIV");
+                var listItem = document.createElement("DIV");
+                listItem.innerHTML = match;
+                listItem.innerHTML += "<input type='hidden' value='" + data[i]["login"] + "'>";
 
-                /*make the matching letters bold:*/
-                b.innerHTML = match;
-
-                /*insert a input field that will hold the current array item's value:*/
-                b.innerHTML += "<input type='hidden' value='" + data[i]["login"] + "'>";
-
-                /*execute a function when someone clicks on the item value (DIV element):*/
-                b.addEventListener("click", function(e) {
-                    /*insert the value for the autocomplete text field:*/
+                // On click, take the value stored in the item and submit the form.
+                listItem.addEventListener("click", function(e) {
                     text_input.value = this.getElementsByTagName("input")[0].value;
-
                     closeAllLists();
                     document.getElementById("id_search_form").submit();
                 });
-                a.appendChild(b);
+                dropDownList.appendChild(listItem);
             }
         });
 
@@ -111,62 +105,60 @@
             if (x)
                 x = x.getElementsByTagName("div");
 
-            if (e.keyCode == 40) {  // Down.
+            switch (e.keyCode) {
+            case 40:  // Down.
                 ++currentFocus;
                 addActive(x);
-            } else if (e.keyCode == 38) {  // Up.
+                e.preventDefault();
+                break;
+            case 38:  // Up.
                 --currentFocus;
                 addActive(x);
-            } else if (e.keyCode == 13) {  // Enter.
+                e.preventDefault();
+                break;
+            case 13:  // Enter.
                 if (currentFocus > -1) {
                     if (x)
                         x[currentFocus].click();
                 } else {
-                    var login_exists = false;
+                    var loginExists = false;
                     for (i = 0; i < data.length; i++) {
                         if (text_input.value == data[i]["login"]) {
-                            login_exists = true;
+                            loginExists = true;
                             break;
                         }
                     }
-                    if (!login_exists)
+                    if (!loginExists)
                         e.preventDefault();
                 }
+                break;
             }
         });
 
         function addActive(x) {
-            /*a function to classify an item as "active":*/
             if (!x)
-                return false;
-            /*start by removing the "active" class on all items:*/
-            removeActive(x);
+                return;
+
+            for (var i = 0; i < x.length; i++)
+                x[i].classList.remove("people-autocomplete-active");
 
             if (currentFocus >= x.length)
                 currentFocus = 0;
             if (currentFocus < 0)
                 currentFocus = (x.length - 1);
 
-            /*add class "autocomplete-active":*/
-            x[currentFocus].classList.add("autocomplete-active");
+            x[currentFocus].classList.add("people-autocomplete-active");
         }
 
-        function removeActive(x) {
-            /*a function to remove the "active" class from all autocomplete items:*/
-            for (var i = 0; i < x.length; i++)
-                x[i].classList.remove("autocomplete-active");
-        }
-
-        function closeAllLists(elmnt) {
+        function closeAllLists(exceptThis) {
             // Close all autocomplete lists in the document, except the one passed as an argument:
-            var x = document.getElementsByClassName("autocomplete-items");
-            for (var i = 0; i < x.length; i++) {
-                if (elmnt != x[i] && elmnt != text_input)
-                    x[i].parentNode.removeChild(x[i]);
+            var autocompleteLists = document.getElementsByClassName("people-autocomplete-items");
+            for (var i = 0; i < autocompleteLists.length; i++) {
+                if (autocompleteLists[i] != exceptThis && exceptThis != text_input)
+                    autocompleteLists[i].parentNode.removeChild(autocompleteLists[i]);
             }
         }
 
-        /*execute a function when someone clicks in the document:*/
         document.addEventListener("click", function (e) {
             closeAllLists(e.target);
         });

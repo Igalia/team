@@ -6,7 +6,7 @@ class SearchForm(forms.Form):
 
     This form is used by the people.person view to search people.
     """
-    login = forms.CharField()
+    login = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Type to search'}))
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

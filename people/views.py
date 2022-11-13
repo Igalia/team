@@ -14,7 +14,7 @@ def person(request, login):
             return HttpResponseRedirect(reverse('people:person', args=[search_form.cleaned_data['login']]))
 
         person = Person.objects.get(login=login)
-        people = Person.objects.all()
+        people = Person.objects.order_by('login')
         return render(request,
                       'people/person.html',
                       {'person': person,
