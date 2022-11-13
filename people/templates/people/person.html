@@ -1,4 +1,5 @@
 {% extends "people/base.html" %}
+{% load menu_generator %}{% load static %}
 
 {% block second_level_menu %}
 <form method="post" autocomplete="off" id="id_search_form">
@@ -13,18 +14,39 @@
 {% block content %}
 
 <div class="t-row">
-    <div class="t-cell">Joined:</div>
-    <div class="t-cell">{{ person.join_date }}</div>
-</div>
+    <div class="t-cell">
+        <img src="{% static 'people/stub-avatar.png' %}" width="200" height="200">
+    </div>
+    <div class="t-cell">
+        <div class="t-cell t-header">
+            Company data
+        </div>
 
-<div class="t-row">
-    <div class="t-cell">Level:</div>
-    <div class="t-cell">{{ person.level }}</div>
-</div>
+        <div class="t-row">
+            <div class="t-cell">Joined:</div>
+            <div class="t-cell">{{ person.join_date }}</div>
+        </div>
 
-<div class="t-row">
-    <div class="t-cell">Teams:</div>
-    <div class="t-cell">{% for team in person.teams.all %}{{ team }}{% endfor %}</div>
+        <div class="t-row">
+            <div class="t-cell">Level:</div>
+            <div class="t-cell">{{ person.level }}</div>
+        </div>
+
+        <div class="t-row">
+            <div class="t-cell">Teams:</div>
+            <div class="t-cell">{% for team in person.teams.all %}{{ team }}{% endfor %}</div>
+        </div>
+
+        <div class="t-row">
+            <div class="t-cell">Location:</div>
+            <div class="t-cell">{{ person.location }}, {{ person.time_zone }} time zone, local time is {{ person.local_time }}.</div>
+        </div>
+
+        <div class="t-row">
+            <div class="t-cell">Working hours:</div>
+            <div class="t-cell">{{ person.working_hours }}</div>
+        </div>
+    </div>
 </div>
 
 <script language="JavaScript">
