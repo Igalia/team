@@ -28,12 +28,13 @@
 </div>
 
 <script language="JavaScript">
+    var peopleData = [
+        {% for person in people %}
+        { "login": "{{ person.login }}", "name": "{{ person.full_name }}" },{% endfor %}
+    ];
+
     // Autocompletion input.  Inspired by https://www.w3schools.com/howto/howto_js_autocomplete.asp
-    function setAutocomplete(text_input) {
-        var data = [
-            {% for person in people %}
-            { "login": "{{ person.login }}", "name": "{{ person.full_name }}" },{% endfor %}
-        ];
+    function setAutocomplete(textInput, data) {
         var currentFocus = -1;
 
         // Looks for matches of |value| in data[index], which is a dictionary that has login and name fields.
@@ -65,7 +66,7 @@
             return (loginMatch ? loginMatch : login) + "@ " + (nameMatch ? nameMatch : name);
         }
 
-        text_input.addEventListener("input", function(e) {
+        textInput.addEventListener("input", function(e) {
             var value = this.value;
             // Close any already open lists of autocompleted values.
             closeAllLists();
@@ -75,7 +76,7 @@
 
             currentFocus = -1;
 
-            var dropDownList = document.createElement("DIV");
+            const dropDownList = document.createElement("DIV");
             dropDownList.setAttribute("id", this.id + "autocomplete-list");
             dropDownList.setAttribute("class", "people-autocomplete-items");
 
@@ -86,13 +87,13 @@
                 if (!match)
                     continue;
 
-                var listItem = document.createElement("DIV");
+                const listItem = document.createElement("DIV");
                 listItem.innerHTML = match;
                 listItem.innerHTML += "<input type='hidden' value='" + data[i]["login"] + "'>";
 
                 // On click, take the value stored in the item and submit the form.
                 listItem.addEventListener("click", function(e) {
-                    text_input.value = this.getElementsByTagName("input")[0].value;
+                    textInput.value = this.getElementsByTagName("input")[0].value;
                     closeAllLists();
                     document.getElementById("id_search_form").submit();
                 });
@@ -100,30 +101,32 @@
             }
         });
 
-        text_input.addEventListener("keydown", function(e) {
-            var x = document.getElementById(this.id + "autocomplete-list");
-            if (x)
-                x = x.getElementsByTagName("div");
+        textInput.addEventListener("keydown", function(e) {
+            const dropDownList = document.getElementById(this.id + "autocomplete-list");
+            if (!dropDownList)
+                return;
+            const items = dropDownList.getElementsByTagName("div");
+            if (items.length == 0)
+                return;
 
-            switch (e.keyCode) {
-            case 40:  // Down.
+            switch (e.key) {
+            case "ArrowDown":
                 ++currentFocus;
-                addActive(x);
+                updateActive(items);
                 e.preventDefault();
                 break;
-            case 38:  // Up.
+            case "ArrowUp":  // Up.
                 --currentFocus;
-                addActive(x);
+                updateActive(items);
                 e.preventDefault();
                 break;
-            case 13:  // Enter.
+            case "Enter":  // Enter.
                 if (currentFocus > -1) {
-                    if (x)
-                        x[currentFocus].click();
+                    items[currentFocus].click();
                 } else {
                     var loginExists = false;
                     for (i = 0; i < data.length; i++) {
-                        if (text_input.value == data[i]["login"]) {
+                        if (textInput.value == data[i]["login"]) {
                             loginExists = true;
                             break;
                         }
@@ -135,26 +138,25 @@
             }
         });
 
-        function addActive(x) {
-            if (!x)
-                return;
-
-            for (var i = 0; i < x.length; i++)
-                x[i].classList.remove("people-autocomplete-active");
-
-            if (currentFocus >= x.length)
+        function updateActive(items) {
+            if (currentFocus >= items.length)
                 currentFocus = 0;
             if (currentFocus < 0)
-                currentFocus = (x.length - 1);
+                currentFocus = (items.length - 1);
 
-            x[currentFocus].classList.add("people-autocomplete-active");
+            for (var i = 0; i < items.length; i++) {
+                if (i == currentFocus)
+                    items[i].classList.add("people-autocomplete-active");
+                else
+                    items[i].classList.remove("people-autocomplete-active");
+            }
         }
 
+        // Closes all autocomplete lists in the document, except the one passed as an argument.
         function closeAllLists(exceptThis) {
-            // Close all autocomplete lists in the document, except the one passed as an argument:
             var autocompleteLists = document.getElementsByClassName("people-autocomplete-items");
             for (var i = 0; i < autocompleteLists.length; i++) {
-                if (autocompleteLists[i] != exceptThis && exceptThis != text_input)
+                if (autocompleteLists[i] != exceptThis && exceptThis != textInput)
                     autocompleteLists[i].parentNode.removeChild(autocompleteLists[i]);
             }
         }
@@ -164,7 +166,7 @@
         });
     }
 
-    setAutocomplete(document.getElementById("id_login"));
+    setAutocomplete(document.getElementById("id_login"), peopleData);
     document.getElementById("id_login").focus();
 </script>
 
