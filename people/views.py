@@ -3,7 +3,7 @@ from django.http.response import Http404, HttpResponseRedirect
 from django.urls import reverse, resolve, Resolver404
 
 from .forms import SearchForm
-from .models import Person
+from .models import Person, PersonalData
 
 
 def person(request, login):
@@ -14,10 +14,16 @@ def person(request, login):
             return HttpResponseRedirect(reverse('people:person', args=[search_form.cleaned_data['login']]))
 
         person = Person.objects.get(login=login)
+        try:
+            personal_data = PersonalData.objects.get(person=person)
+        except PersonalData.DoesNotExist:
+            personal_data = PersonalData(person=person)
+            personal_data.save()
         people = Person.objects.order_by('login')
         return render(request,
                       'people/person.html',
                       {'person': person,
+                       'personal_data': personal_data,
                        'people': people,
                        'search_form': search_form})
     except Person.DoesNotExist:

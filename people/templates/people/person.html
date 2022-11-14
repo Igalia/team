@@ -36,15 +36,25 @@
             <div class="t-cell">Teams:</div>
             <div class="t-cell">{% for team in person.teams.all %}{{ team }}{% endfor %}</div>
         </div>
+    </div>
+    <div class="t-cell">
+        <div class="t-cell t-header">
+            Personal data
+        </div>
 
         <div class="t-row">
             <div class="t-cell">Location:</div>
-            <div class="t-cell">{{ person.location }}, {{ person.time_zone }} time zone, local time is {{ person.local_time }}.</div>
+            <div class="t-cell">{{ personal_data.location_query | default_if_none:"&mdash;" }}</div>
+        </div>
+
+        <div class="t-row">
+            <div class="t-cell">Time zone:</div>
+            <div class="t-cell">{{ personal_data.tz_name }}</div>
         </div>
 
         <div class="t-row">
             <div class="t-cell">Working hours:</div>
-            <div class="t-cell">{{ person.working_hours }}</div>
+            <div class="t-cell">{{ personal_data.work_begin_time }}&mdash;{{ personal_data.work_end_time }}</div>
         </div>
     </div>
 </div>
