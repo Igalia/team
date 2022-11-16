@@ -1,0 +1,205 @@
+{% extends "people/base.html" %}
+{% load menu_generator %}{% load static %}
+
+{% block second_level_menu %}
+<form method="post" autocomplete="off" id="id_search_form">
+    {% csrf_token %}
+
+    <div class="people-autocomplete">{{ search_form.login }}</div>
+</form>
+{% endblock %}
+
+{% block title %}{{ person }}{% endblock %}
+
+{% block content %}
+
+<div class="t-row">
+    <div class="t-cell">
+        <img src="{% static 'people/stub-avatar.png' %}" width="200" height="200">
+    </div>
+    <div class="t-cell">
+        <div class="t-cell t-header">
+            Company data
+        </div>
+
+        <div class="t-row">
+            <div class="t-cell">Joined:</div>
+            <div class="t-cell">{{ person.join_date }}</div>
+        </div>
+
+        <div class="t-row">
+            <div class="t-cell">Level:</div>
+            <div class="t-cell">{{ person.level }}</div>
+        </div>
+
+        <div class="t-row">
+            <div class="t-cell">Teams:</div>
+            <div class="t-cell">{% for team in person.teams.all %}{{ team }}{% endfor %}</div>
+        </div>
+    </div>
+    <div class="t-cell">
+        <div class="t-cell t-header">
+            Personal data
+        </div>
+
+        <div class="t-row">
+            <div class="t-cell">Location:</div>
+            <div class="t-cell">{{ personal_data.location_query | default_if_none:"&mdash;" }}</div>
+        </div>
+
+        <div class="t-row">
+            <div class="t-cell">Time zone:</div>
+            <div class="t-cell">{{ personal_data.tz_name }}</div>
+        </div>
+
+        <div class="t-row">
+            <div class="t-cell">Working hours:</div>
+            <div class="t-cell">{{ personal_data.work_begin_time }}&mdash;{{ personal_data.work_end_time }}</div>
+        </div>
+    </div>
+</div>
+
+<script language="JavaScript">
+    var peopleData = [
+        {% for person in people %}
+        { "login": "{{ person.login }}", "name": "{{ person.full_name }}" },{% endfor %}
+    ];
+
+    // Autocompletion input.  Inspired by https://www.w3schools.com/howto/howto_js_autocomplete.asp
+    function setAutocomplete(textInput, data) {
+        var currentFocus = -1;
+
+        // Looks for matches of |value| in data[index], which is a dictionary that has login and name fields.
+        // Login and name are matched using different rules (see comments in the code below).
+        // If there are matches, returns a user-friendly string that shows the match, otherwise returns false.
+        function findMatches(value, index) {
+            var login = data[index]["login"];
+            var name = data[index]["name"];
+
+            // Login matches if it begins with the value.
+            var loginMatch = false;
+            if (value.toLowerCase() == login.substr(0, value.length).toLowerCase())
+                loginMatch = "<strong>" + login.substr(0, value.length) + "</strong>" + login.substr(value.length);
+
+            // Name matches if it contains the value.
+            var nameMatch = false;
+            var name_found_index = name.toLowerCase().search(value.toLowerCase());
+            if (name_found_index >= 0) {
+                nameMatch = name.substr(0, name_found_index)
+                                + "<strong>"
+                                + name.substr(name_found_index, value.length)
+                                + "</strong>"
+                                + name.substr(name_found_index + value.length);
+            }
+
+            if (!loginMatch && !nameMatch)
+                return false;
+
+            return (loginMatch ? loginMatch : login) + "@ " + (nameMatch ? nameMatch : name);
+        }
+
+        textInput.addEventListener("input", function(e) {
+            var value = this.value;
+            // Close any already open lists of autocompleted values.
+            closeAllLists();
+
+            if (!value)
+                return false;
+
+            currentFocus = -1;
+
+            const dropDownList = document.createElement("DIV");
+            dropDownList.setAttribute("id", this.id + "autocomplete-list");
+            dropDownList.setAttribute("class", "people-autocomplete-items");
+
+            // Append the DIV element as a child of the autocomplete container:
+            this.parentNode.appendChild(dropDownList);
+            for (var i = 0; i < data.length; i++) {
+                match = findMatches(value, i);
+                if (!match)
+                    continue;
+
+                const listItem = document.createElement("DIV");
+                listItem.innerHTML = match;
+                listItem.innerHTML += "<input type='hidden' value='" + data[i]["login"] + "'>";
+
+                // On click, take the value stored in the item and submit the form.
+                listItem.addEventListener("click", function(e) {
+                    textInput.value = this.getElementsByTagName("input")[0].value;
+                    closeAllLists();
+                    document.getElementById("id_search_form").submit();
+                });
+                dropDownList.appendChild(listItem);
+            }
+        });
+
+        textInput.addEventListener("keydown", function(e) {
+            const dropDownList = document.getElementById(this.id + "autocomplete-list");
+            if (!dropDownList)
+                return;
+            const items = dropDownList.getElementsByTagName("div");
+            if (items.length == 0)
+                return;
+
+            switch (e.key) {
+            case "ArrowDown":
+                ++currentFocus;
+                updateActive(items);
+                e.preventDefault();
+                break;
+            case "ArrowUp":  // Up.
+                --currentFocus;
+                updateActive(items);
+                e.preventDefault();
+                break;
+            case "Enter":  // Enter.
+                if (currentFocus > -1) {
+                    items[currentFocus].click();
+                } else {
+                    var loginExists = false;
+                    for (i = 0; i < data.length; i++) {
+                        if (textInput.value == data[i]["login"]) {
+                            loginExists = true;
+                            break;
+                        }
+                    }
+                    if (!loginExists)
+                        e.preventDefault();
+                }
+                break;
+            }
+        });
+
+        function updateActive(items) {
+            if (currentFocus >= items.length)
+                currentFocus = 0;
+            if (currentFocus < 0)
+                currentFocus = (items.length - 1);
+
+            for (var i = 0; i < items.length; i++) {
+                if (i == currentFocus)
+                    items[i].classList.add("people-autocomplete-active");
+                else
+                    items[i].classList.remove("people-autocomplete-active");
+            }
+        }
+
+        // Closes all autocomplete lists in the document, except the one passed as an argument.
+        function closeAllLists(exceptThis) {
+            var autocompleteLists = document.getElementsByClassName("people-autocomplete-items");
+            for (var i = 0; i < autocompleteLists.length; i++) {
+                if (autocompleteLists[i] != exceptThis && exceptThis != textInput)
+                    autocompleteLists[i].parentNode.removeChild(autocompleteLists[i]);
+            }
+        }
+
+        document.addEventListener("click", function (e) {
+            closeAllLists(e.target);
+        });
+    }
+
+    setAutocomplete(document.getElementById("id_login"), peopleData);
+    document.getElementById("id_login").focus();
+</script>
+
+{% endblock %}
