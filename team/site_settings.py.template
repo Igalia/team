@@ -1,0 +1,42 @@
+"""
+Django settings for team project, specific for the site.
+
+This is a template for the real configuration file that your instance requires.  Copy this file to site_settings.py and
+edit as explained below
+"""
+from pathlib import Path
+
+# Quick-start development settings - unsuitable for production
+# See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
+
+# For the production service, use its real hostnames.  For your local instance at 127.0.0.1, leave this empty.
+ALLOWED_HOSTS = []
+
+# SECURITY WARNING: keep the secret key used in production secret!
+# To generate a new security key:
+# $ python
+# >>> from django.core.management.utils import get_random_secret_key
+# >>> get_random_secret_key()
+SECRET_KEY = '<replace this with your security key>'
+
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Database
+# https://docs.djangoproject.com/en/3.1/ref/settings/#databases
+# The below works for the dev DB in your local instance.
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+
+# The dev version does not need the below.
+# The production instance requires STATIC_ROOT where the assets are collected.
+# STATIC_ROOT = '<path to your assets>'
+
+# Change to True for your real service.
+USE_BASIC_AUTH = False
