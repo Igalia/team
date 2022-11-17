@@ -9,11 +9,11 @@
 </form>
 {% endblock %}
 
-{% block title %}{{ person }}{% endblock %}
+{% block title %}{{ person | default_if_none:"Person not found" }}{% endblock %}
 
 {% block content %}
 
-{% if found %}
+{% if person %}
 <div class="t-row">
     <div class="t-cell">
         <img src="{% static 'people/stub-avatar.png' %}" width="200" height="200">

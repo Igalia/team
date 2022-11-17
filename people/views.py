@@ -22,8 +22,7 @@ def person(request, login):
             personal_data.save()
         return render(request,
                       'people/person.html',
-                      {'found': True,
-                       'person': person,
+                      {'person': person,
                        'personal_data': personal_data,
                        'people': people,
                        'search_form': search_form})
@@ -35,6 +34,6 @@ def person(request, login):
         except Resolver404:
             pass
         return render(request, 'people/person.html', {
-            'person': 'User not found',
+            'person': None,
             'people': people,
             'search_form': search_form})
