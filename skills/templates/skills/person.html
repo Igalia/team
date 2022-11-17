@@ -15,7 +15,7 @@
         <hr>
         <h2>{{ skill.category_title }}</h2>
     {% endif %}
-    <div class="t-row">
+    <div class="t-row-nth">
         <div class="t-cell skills-row-header"><a href="{% url 'skills:skill' skill.skill %}">{{ skill.title }}</a></div>
         <div class="t-cell skills-cell-right">
             {% if skill.measurement.interest %}
