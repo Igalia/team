@@ -13,6 +13,7 @@
 
 {% block content %}
 
+{% if found %}
 <div class="t-row">
     <div class="t-cell">
         <img src="{% static 'people/stub-avatar.png' %}" width="200" height="200">
@@ -58,6 +59,9 @@
         </div>
     </div>
 </div>
+{% else %}
+<p>Use the search bar to find people.</p>
+{% endif %}
 
 <script language="JavaScript">
     var peopleData = [
