@@ -40,3 +40,27 @@
     background-color: #1E88E5 !important;
     color: white;
 }
+
+.people-person-block-photo {
+    width: 20%;
+}
+
+.people-person-block-company-data {
+    width: 30%;
+}
+
+.people-person-block-personal-data {
+    width: 50%;
+}
+
+.people-personal-data-label {
+    width: 35%;
+}
+
+.people-personal-data-view, .people-personal-data-field {
+    width: 65%;
+}
+
+.people-small-field {
+    width: 40%;
+}

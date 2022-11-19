@@ -15,12 +15,14 @@
 
 {% if person %}
 <div class="t-row">
-    <div class="t-cell">
+    <div class="t-cell people-person-block-photo">
         <img src="{% static 'people/stub-avatar.png' %}" width="200" height="200">
     </div>
-    <div class="t-cell">
-        <div class="t-cell t-header">
-            Company data
+    <div class="t-cell people-person-block-company-data">
+        <div class="t-row">
+            <div class="t-cell t-header">
+                Company data
+            </div>
         </div>
 
         <div class="t-row">
@@ -38,24 +40,54 @@
             <div class="t-cell">{% for team in person.teams.all %}{{ team }}{% endfor %}</div>
         </div>
     </div>
-    <div class="t-cell">
-        <div class="t-cell t-header">
-            Personal data
+    <div class="t-cell people-person-block-personal-data">
+        <div class="t-row">
+            <div class="t-cell t-header">
+                Personal data
+            </div>
+            {% if can_edit %}
+                <div class="t-cell"><button id="toggle-personal-data-form" value="edit">&#9997;&#65039; Edit️</button></div>
+            {% endif %}
         </div>
 
-        <div class="t-row">
-            <div class="t-cell">Location:</div>
-            <div class="t-cell">{{ personal_data.location_query | default_if_none:"&mdash;" }}</div>
-        </div>
+        <div id="personal-data-view">
+            <form method="post" autocomplete="off" id="personal-data-form">
+                {% csrf_token %}
+                <div class="t-row people-personal-data">
+                    <div class="t-cell people-personal-data-label">Location:</div>
+                    <div class="t-cell people-personal-data-view">{{ personal_data.location_query | default_if_none:"&mdash;" }}</div>
+                    <div class="t-cell people-personal-data-field" style="display: none">{{ personal_data_form.location_query }}</div>
+                </div>
 
-        <div class="t-row">
-            <div class="t-cell">Time zone:</div>
-            <div class="t-cell">{{ personal_data.tz_name }}</div>
-        </div>
+                <div class="t-row people-personal-data">
+                    <div class="t-cell people-personal-data-label">Time zone:</div>
+                    <div class="t-cell people-personal-data-view">{{ personal_data.tz_name }}</div>
+                    <div class="t-cell people-personal-data-field" style="display: none">{{ personal_data_form.tz_name }}</div>
+                </div>
 
-        <div class="t-row">
-            <div class="t-cell">Working hours:</div>
-            <div class="t-cell">{{ personal_data.work_begin_time }}&mdash;{{ personal_data.work_end_time }}</div>
+                <div class="t-row people-personal-data">
+                    <div class="t-cell people-personal-data-label">Working hours:</div>
+                    <div class="t-cell people-personal-data-view">
+                        <div class="t-row">
+                            <div class="t-cell people-small-field">{{ personal_data.work_begin_time }}</div>
+                            <div class="t-cell">&mdash;</div>
+                            <div class="t-cell people-small-field">{{ personal_data.work_end_time }}</div>
+                        </div>
+                    </div>
+                    <div class="t-cell people-personal-data-field" style="display: none">
+                        <div class="t-row">
+                            <div class="t-cell people-small-field">{{ personal_data_form.work_begin_time }}</div>
+                            <div class="t-cell">&mdash;</div>
+                            <div class="t-cell people-small-field">{{ personal_data_form.work_end_time }}</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="t-row people-personal-data">
+                    <div class="t-cell-right people-personal-data-view"></div>
+                    <div class="t-cell-right people-personal-data-field" style="display: none"><button type="submit">Save</button></div>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -204,6 +236,29 @@
 
     setAutocomplete(document.getElementById("id_login"), peopleData);
     document.getElementById("id_login").focus();
+
+{% if can_edit %}
+    function toggleEditForm(e) {
+        var personalDataRows = document.getElementsByClassName("people-personal-data");
+        for (var i = 0; i < personalDataRows.length; i++) {
+            const view = personalDataRows[i].getElementsByClassName("people-personal-data-view")[0];
+            const field = personalDataRows[i].getElementsByClassName("people-personal-data-field")[0];
+            [view.style.display, field.style.display] = [field.style.display, view.style.display];
+        }
+
+        var toggleButton = e.target;
+        if (toggleButton.value === "edit") {
+            toggleButton.innerHTML = "&#128683; Cancel";
+            toggleButton.value = "cancel"
+        } else {
+            toggleButton.innerHTML = "&#9997;&#65039; Edit";
+            toggleButton.value = "edit"
+            document.getElementById("personal-data-form").reset();
+        }
+    }
+
+    document.getElementById("toggle-personal-data-form").addEventListener("click", toggleEditForm);
+{% endif %}
 </script>
 
 {% endblock %}

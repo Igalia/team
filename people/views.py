@@ -1,4 +1,3 @@
-import pytz
 from django.http.response import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse, resolve, Resolver404
@@ -38,7 +37,6 @@ def person(request, login):
                        'search_form': search_form}
         if can_edit:
             context['personal_data_form'] = personal_data_form
-            context['timezones'] = pytz.common_timezones
 
         return render(request, 'people/person.html', context)
     except Person.DoesNotExist:
