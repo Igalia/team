@@ -1,5 +1,7 @@
 from django import forms
 
+from people.models import PersonalData
+
 
 class SearchForm(forms.Form):
     """Captures the login of a person to show.
@@ -13,3 +15,13 @@ class SearchForm(forms.Form):
 
     class Meta:
         fields = ('login',)
+
+
+class PersonalDataForm(forms.ModelForm):
+    """Allows to edit personal details.
+
+    Used by the people.person view.
+    """
+    class Meta:
+        model = PersonalData
+        fields = ('location_query', 'tz_name', 'work_begin_time', 'work_end_time')

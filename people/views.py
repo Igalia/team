@@ -2,7 +2,9 @@ from django.http.response import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse, resolve, Resolver404
 
-from .forms import SearchForm
+from common.auth import get_user_login
+
+from .forms import SearchForm, PersonalDataForm
 from .models import Person, PersonalData
 
 
@@ -20,12 +22,23 @@ def person(request, login):
         except PersonalData.DoesNotExist:
             personal_data = PersonalData(person=person)
             personal_data.save()
-        return render(request,
-                      'people/person.html',
-                      {'person': person,
+
+        can_edit = (login == get_user_login(request))
+        if can_edit:
+            personal_data_form = PersonalDataForm(request.POST or None, instance=personal_data)
+            if request.method == 'POST' and personal_data_form.is_valid():
+                personal_data_form.save()
+                return HttpResponseRedirect(reverse('people:person', args=[login]))
+
+        context = {'can_edit': can_edit,
+                       'person': person,
                        'personal_data': personal_data,
                        'people': people,
-                       'search_form': search_form})
+                       'search_form': search_form}
+        if can_edit:
+            context['personal_data_form'] = personal_data_form
+
+        return render(request, 'people/person.html', context)
     except Person.DoesNotExist:
         try:
             path = '/{login}/'.format(login=login)
