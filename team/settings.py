@@ -32,6 +32,7 @@ INSTALLED_APPS = [
     'menu_generator',
     # Team apps go below.
     'ballots',
+    'inventory',
     'people',
     'skills',
 ]
