@@ -9,4 +9,5 @@ pyparsing==2.4.7
 pytz==2020.1
 six==1.15.0
 sqlparse==0.4.1
+tox==3.27.1
 webencodings==0.5.1

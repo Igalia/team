@@ -5,4 +5,5 @@
 .idea
 site_settings.py
 venv
-
+.tox
+*.egg-info
