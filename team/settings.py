@@ -13,8 +13,6 @@ import os
 # noinspection PyUnresolvedReferences
 from pathlib import Path
 
-from .site_settings import *
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -146,3 +144,8 @@ def set_target_blank(attrs, new=False):
 
 MARKDOWNIFY_LINKIFY_CALLBACKS = [set_target_blank, ]
 MARKDOWNIFY_MARKDOWN_EXTENSIONS = ['markdown.extensions.extra',]
+
+try:
+    from .site_settings import *
+except ImportError:
+    pass
