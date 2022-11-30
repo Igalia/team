@@ -10,6 +10,8 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.1/ref/settings/
 """
 import os
+import logging
+
 # noinspection PyUnresolvedReferences
 from pathlib import Path
 
@@ -136,6 +138,7 @@ MARKDOWNIFY_WHITELIST_TAGS = [
     'ul'
 ]
 
+logger = logging.getLogger(__name__)
 
 def set_target_blank(attrs, new=False):
     attrs[(None, u'target')] = u'blank'
@@ -148,4 +151,5 @@ MARKDOWNIFY_MARKDOWN_EXTENSIONS = ['markdown.extensions.extra',]
 try:
     from .site_settings import *
 except ImportError:
+    logger.warning('Default settings are not good for the production environment')
     pass
