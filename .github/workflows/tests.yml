@@ -7,7 +7,7 @@ on:
     branches: ["main"]
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 4
@@ -27,3 +27,11 @@ jobs:
       - name: Run tests
         run: |
           python manage.py test --settings=team.test_settings
+      - name: Run flake8 check
+        run: |
+          tox -e flake8
+        continue-on-error: true
+      - name: Run black check
+        run: |
+          tox -e black
+        continue-on-error: true
