@@ -14,17 +14,11 @@ class DeviceType(models.Model):
         return self.name
 
 
-class Device(models.Model):
+class DeviceModel(models.Model):
     """
-    A single item in the inventory of the company.
-
     Defines the core properties that make sense for any device.
     """
-
     type = models.ForeignKey(DeviceType, null=True, blank=True, on_delete=models.SET_NULL)
-    # The device may be assigned to someone.
-    owner = models.ForeignKey(Person, null=True, blank=True, on_delete=models.SET_NULL)
-
     # Brand name (or "make"), such as "Dell" or "HP".
     brand = models.CharField(max_length=50)
     # Market model name, such as "XPS 15 9550" or "Pavilion 15".
@@ -33,10 +27,27 @@ class Device(models.Model):
     # The format depends on the manufacturer.
     model_code = models.CharField(max_length=50, null=True, blank=True)
 
-    # Serial number of this particular item.
-    serial_number = models.CharField(max_length=50, null=True, blank=True)
-    # Manufacture date.
-    manufacture_date = models.DateField(null=True, blank=True)
-
     def __str__(self):
         return "{brand} {name}".format(brand=self.brand, name=self.model_name)
+
+
+class Device(models.Model):
+    """
+    A single item in the inventory of the company.
+
+    Properties of particular devices should be stored in a separate model associated with the DeviceType instance.
+    """
+    model = models.ForeignKey(DeviceModel, on_delete=models.PROTECT)
+
+    # The device may be assigned to someone.
+    owner = models.ForeignKey(Person, null=True, blank=True, on_delete=models.SET_NULL)
+
+    serial_number = models.CharField(max_length=50, null=True, blank=True)
+    manufacture_year = models.IntegerField(null=True, blank=True)
+    location = models.CharField(max_length=100, null=True, blank=True)
+    comment = models.TextField(null=True, blank=True)
+
+    def __str__(self):
+        if self.owner:
+            return "{owner}'s {name}".format(owner=self.owner.login, name=str(self.model))
+        return str(self.model)
