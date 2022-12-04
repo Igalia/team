@@ -52,7 +52,19 @@ class Device(models.Model):
         (STATUS_STORED, "Stored"),
     ]
 
+    # Identity data of this device.  Once these fields are set, they should be immutable.
+
     model = models.ForeignKey(DeviceModel, on_delete=models.PROTECT)
+    manufacture_year = models.IntegerField(null=True, blank=True)
+    serial_number = models.CharField(max_length=50, null=True, blank=True)
+    # Date when the device was purchased (literally, when the invoice was issued).
+    purchase_date = models.DateField(blank=True, null=True)
+    # Date when the device was registered in the inventory.
+    creation_date = models.DateTimeField(auto_now_add=True, blank=True)
+
+    # Status
+
+    last_update_date = models.DateTimeField(auto_now=True, blank=True)
 
     assignee = models.ForeignKey(Person, null=True, blank=True, on_delete=models.SET_NULL)
     status = models.CharField(
@@ -60,10 +72,8 @@ class Device(models.Model):
         choices=STATUS_CHOICES,
         default=STATUS_ALLOCATED,
     )
-
-    serial_number = models.CharField(max_length=50, null=True, blank=True)
-    manufacture_year = models.IntegerField(null=True, blank=True)
     location = models.CharField(max_length=100, null=True, blank=True)
+
     comment = models.TextField(null=True, blank=True)
 
     def __str__(self):
