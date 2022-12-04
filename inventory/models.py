@@ -37,9 +37,29 @@ class Device(models.Model):
 
     Properties of particular devices should be stored in a separate model associated with the DeviceType instance.
     """
+    STATUS_ALLOCATED = "allocated"
+    STATUS_AVAILABLE = "available"
+    STATUS_BROKEN = "broken"
+    STATUS_DISCARDED = "discarded"
+    STATUS_RETURNED = "returned"
+    STATUS_STORED = "stored"
+    STATUS_CHOICES = [
+        (STATUS_ALLOCATED, "Allocated"),
+        (STATUS_AVAILABLE, "Available"),
+        (STATUS_BROKEN, "Broken"),
+        (STATUS_DISCARDED, "Discarded"),
+        (STATUS_RETURNED, "Returned to Customer"),
+        (STATUS_STORED, "Stored"),
+    ]
+
     model = models.ForeignKey(DeviceModel, on_delete=models.PROTECT)
 
     assignee = models.ForeignKey(Person, null=True, blank=True, on_delete=models.SET_NULL)
+    status = models.CharField(
+        max_length=max(len(x) for (x, _) in STATUS_CHOICES),
+        choices=STATUS_CHOICES,
+        default=STATUS_ALLOCATED,
+    )
 
     serial_number = models.CharField(max_length=50, null=True, blank=True)
     manufacture_year = models.IntegerField(null=True, blank=True)
