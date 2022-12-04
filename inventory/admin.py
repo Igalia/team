@@ -16,4 +16,4 @@ class DeviceAdmin(admin.ModelAdmin):
 
 @admin.register(Device)
 class DeviceAdmin(admin.ModelAdmin):
-    list_display = ('__str__', 'owner')
+    list_display = ('__str__', 'assignee')

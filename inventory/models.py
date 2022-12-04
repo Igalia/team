@@ -39,8 +39,7 @@ class Device(models.Model):
     """
     model = models.ForeignKey(DeviceModel, on_delete=models.PROTECT)
 
-    # The device may be assigned to someone.
-    owner = models.ForeignKey(Person, null=True, blank=True, on_delete=models.SET_NULL)
+    assignee = models.ForeignKey(Person, null=True, blank=True, on_delete=models.SET_NULL)
 
     serial_number = models.CharField(max_length=50, null=True, blank=True)
     manufacture_year = models.IntegerField(null=True, blank=True)
