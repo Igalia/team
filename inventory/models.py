@@ -77,6 +77,6 @@ class Device(models.Model):
     comment = models.TextField(null=True, blank=True)
 
     def __str__(self):
-        if self.owner:
-            return "{owner}'s {name}".format(owner=self.owner.login, name=str(self.model))
+        if self.assignee:
+            return "{assignee}'s {device}".format(assignee=self.assignee.login, device=str(self.model))
         return str(self.model)
