@@ -21,27 +21,28 @@
     <div class="t-cell people-person-block-data">
         <div class="t-row">
             <div class="t-cell people-person-block-company-data">
-        <div class="t-row">
-            <div class="t-cell t-header">
-                Company data
+                <div class="t-row">
+                    <div class="t-cell t-header">
+                        Company data
+                    </div>
+                </div>
+
+                <div class="t-row">
+                    <div class="t-cell">Joined:</div>
+                    <div class="t-cell">{{ person.join_date }}</div>
+                </div>
+
+                <div class="t-row">
+                    <div class="t-cell">Level:</div>
+                    <div class="t-cell">{{ person.level }}</div>
+                </div>
+
+                <div class="t-row">
+                    <div class="t-cell">Teams:</div>
+                    <div class="t-cell">{% for team in person.teams.all %}{{ team }}{% endfor %}</div>
+                </div>
             </div>
-        </div>
 
-        <div class="t-row">
-            <div class="t-cell">Joined:</div>
-            <div class="t-cell">{{ person.join_date }}</div>
-        </div>
-
-        <div class="t-row">
-            <div class="t-cell">Level:</div>
-            <div class="t-cell">{{ person.level }}</div>
-        </div>
-
-        <div class="t-row">
-            <div class="t-cell">Teams:</div>
-            <div class="t-cell">{% for team in person.teams.all %}{{ team }}{% endfor %}</div>
-        </div>
-    </div>
             <div class="t-cell people-person-block-personal-data">
                 <div class="t-row">
                     <div class="t-cell t-header">
