@@ -45,12 +45,16 @@
     width: 20%;
 }
 
+.people-person-block-data {
+    width: 80%;
+}
+
 .people-person-block-company-data {
-    width: 30%;
+    width: 40%;
 }
 
 .people-person-block-personal-data {
-    width: 50%;
+    width: 60%;
 }
 
 .people-personal-data-label {
