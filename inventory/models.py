@@ -80,3 +80,46 @@ class Device(models.Model):
         if self.assignee:
             return "{assignee}'s {device}".format(assignee=self.assignee.login, device=str(self.model))
         return str(self.model)
+
+
+class DeviceLaptop(models.Model):
+    """
+    Extends the generic Device with properties specific to laptops.
+    """
+
+    SIZE_13 = "13"
+    SIZE_14 = "14"
+    SIZE_15 = "15"
+    SIZE_16 = "16"
+    SIZE_17 = "17"
+    SIZE_CHOICES = [
+        (SIZE_13, "13\""),
+        (SIZE_14, "14\""),
+        (SIZE_15, "15\""),
+        (SIZE_16, "16\""),
+        (SIZE_17, "17\""),
+    ]
+
+    device = models.OneToOneField(Device, on_delete=models.PROTECT)
+
+    screen_diagonal_in = models.CharField(
+        max_length=max(len(x) for (x, _) in SIZE_CHOICES),
+        choices=SIZE_CHOICES)
+    screen_width_px = models.PositiveIntegerField()
+    screen_height_px = models.PositiveIntegerField()
+
+    cpu = models.CharField(verbose_name="CPU", max_length=100, blank=True)
+    ram = models.CharField(verbose_name="RAM", max_length=100, blank=True)
+    storage = models.CharField(max_length=100, blank=True)
+
+
+class DeviceWorkstation(models.Model):
+    """
+    Extends the generic Device with properties specific to workstations.
+    """
+
+    device = models.OneToOneField(Device, on_delete=models.PROTECT)
+
+    cpu = models.CharField(verbose_name="CPU", max_length=100, blank=True)
+    ram = models.CharField(verbose_name="RAM", max_length=100, blank=True)
+    storage = models.CharField(max_length=100, blank=True)
