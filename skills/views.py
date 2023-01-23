@@ -330,9 +330,10 @@ def render_skill(request, skill_id):
 
     skill_teams = set(t for t in skill.category.teams.all())
 
-    latest_assessments = [a for a in PersonAssessment.objects.filter(latest=True).order_by('person__login')]
-    people = [{'person': p} for p in Person.objects.filter(teams__in=skill_teams)]
+    # `people` is the dataset that will be used in the template.
+    people = [{'person': p} for p in Person.objects.filter(teams__in=skill_teams).order_by('login')]
     people_index = {people[i]['person'].login: i for i in range(len(people))}
+    latest_assessments = [a for a in PersonAssessment.objects.filter(latest=True).order_by('person__login')]
     measurements = Measurement.objects.filter(assessment__in=latest_assessments, skill=skill)
     for measurement in measurements:
         if measurement.assessment.person.login not in people_index:
