@@ -35,15 +35,18 @@ class Command(BaseCommand):
                 level = Level.objects.get(name=level_str)
                 join_date = datetime.datetime.strptime(join_date_str, '%Y-%m-%d').date()
 
-                try:
-                    person = Person.objects.get(login=login_str)
-                    if person.level == level and person.full_name == full_name_str and person.join_date == join_date:
-                        self.stdout.write(self.style.SUCCESS("Skipping {person}.".format(person=login_str)))
-                        continue
-                    self.stdout.write(self.style.SUCCESS("Updating {person}.".format(person=login_str)))
-                except Person.DoesNotExist:
+                person, created = Person.objects.get_or_create(login=login_str)
+                if not created \
+                        and person.level == level \
+                        and person.full_name == full_name_str \
+                        and person.join_date == join_date:
+                    self.stdout.write(self.style.SUCCESS("Skipping {person}.".format(person=login_str)))
+                    continue
+
+                if created:
                     self.stdout.write(self.style.SUCCESS("Creating {person}.".format(person=login_str)))
-                    person = Person(login=login_str)
+                else:
+                    self.stdout.write(self.style.SUCCESS("Updating {person}.".format(person=login_str)))
 
                 person.level = level
                 person.full_name = full_name_str
@@ -55,6 +58,5 @@ class Command(BaseCommand):
                     self.style.ERROR(
                         "Unknown level '{level}' specified for a person with login '{person}'!".format(
                             level=level_str, person=login_str)))
-                continue
 
         self.stdout.write(self.style.SUCCESS("Done."))
