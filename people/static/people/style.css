@@ -1,0 +1,84 @@
+.people-autocomplete {
+    position: relative;
+    display: inline-block;
+    width: 50%;
+}
+
+.people-autocomplete > input {
+    padding: 10px;
+    font-size: 16px;
+    width: 100%;
+}
+
+.people-autocomplete-items {
+    position: absolute;
+    /* Material Gray 300 */
+    border: 1px solid #E0E0E0;
+    border-bottom: none;
+    border-top: none;
+    z-index: 99;
+    top: 100%;
+    left: 0;
+    right: 0;
+}
+
+.people-autocomplete-items div {
+    padding: 10px;
+    cursor: pointer;
+    background-color: white;
+    /* Material Gray 300 */
+    border-bottom: 1px solid #E0E0E0;
+}
+
+.people-autocomplete-items div:hover {
+    /* Material Gray 500 */
+    background-color: #9E9E9E;
+}
+
+.people-autocomplete-active {
+    /* Material Blue 600 */
+    background-color: #1E88E5 !important;
+    color: white;
+}
+
+.people-person-block-photo {
+    width: 20%;
+}
+
+.people-person-block-data {
+    width: 80%;
+}
+
+.people-person-block-company-data {
+    width: 40%;
+}
+
+.people-person-block-personal-data {
+    width: 60%;
+}
+
+.people-personal-data-label {
+    width: 35%;
+}
+
+.people-personal-data-view, .people-personal-data-field {
+    width: 65%;
+}
+
+.people-small-field {
+    width: 40%;
+}
+
+.people-picker-list {
+    width: 40%;
+}
+
+.people-picker-pick {
+    width: 20%;
+    text-align: center;
+}
+
+.people-picker-list select {
+    width: 100%;
+    height: 300px;
+}
