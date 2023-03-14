@@ -6,7 +6,7 @@ from common.auth import get_user_login
 from inventory.models import Device
 
 from .forms import SearchForm, PersonalDataForm
-from .models import Person, PersonalData
+from .models import Person, PersonalData, Level
 
 
 def person(request, login):
@@ -52,3 +52,10 @@ def person(request, login):
             'person': None,
             'people': people,
             'search_form': search_form})
+
+
+def picker(request):
+    return render(request, 'people/picker.html', {
+        "levels": Level.objects.order_by("id"),
+        "people": Person.objects.order_by("login"),
+    })

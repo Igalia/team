@@ -1,0 +1,178 @@
+{% extends "people/base.html" %}
+{% load menu_generator %}{% load static %}
+
+{% block title %}{{ person | default_if_none:"Person not found" }}{% endblock %}
+
+{% block content %}
+
+<div class="t-row">
+    <div class="t-cell people-picker-list">
+        <h2>Available</h2>
+
+        <select multiple id="available-list" class="people-picker-list">
+            {% for person in people %}
+            <option value="{{ person.login }}">{{ person }}</option>
+            {% endfor %}
+        </select>
+
+        <button id="ignore-people-button">Ignore selected &downarrow;</button>
+        <button id="unignore-people-button">Unignore all &uparrow;</button>
+
+        <select multiple id="ignored-list" class="people-picker-list-short">
+        </select>
+    </div>
+    <div class="t-cell people-picker-pick">
+        <h2>Filter</h2>
+
+        {% for level in levels %}
+        <div>
+            <input type="checkbox" id="filter-level-{{ level.id }}-checkbox" checked><label for="filter-level-{{ level.id }}">{{ level }}</label>
+        </div>
+        {% endfor %}
+
+        <button id="pick-people-button">Pick random &rarr;</button>
+        <button id="unpick-people-button">&larr; Remove all</button>
+    </div>
+    <div class="t-cell people-picker-list">
+        <h2>Picked</h2>
+
+        <select multiple id="picked-list" class="people-picker-list">
+        </select>
+    </div>
+</div>
+
+<script language="JavaScript">
+var availableList = document.getElementById("available-list");
+var ignoredList = document.getElementById("ignored-list");
+var pickedList = document.getElementById("picked-list");
+
+var pickPeopleButton = document.getElementById("pick-people-button");
+var unpickPeopleButton = document.getElementById("unpick-people-button");
+var ignorePeopleButton = document.getElementById("ignore-people-button");
+var unignorePeopleButton = document.getElementById("unignore-people-button");
+{% for level in levels %}
+    var filterLevel{{ level.id }}Checkbox = document.getElementById("filter-level-{{ level.id }}-checkbox");
+{% endfor %}
+
+var people = {
+{% for person in people %}
+    "{{ person.login }}": {{ person.level.id }},
+{% endfor %}
+};
+
+var levelCheckboxes = {
+{% for level in levels %}
+    {{ level.id }}: filterLevel{{ level.id }}Checkbox,
+{% endfor %}
+};
+
+function availablePeopleCount() {
+    var result = 0;
+    for (const option of availableList.options) {
+        if (!option.hidden)
+            ++result;
+    }
+    return result;
+}
+
+function hasAvailablePeople() {
+    for (const option of availableList.options) {
+        if (!option.hidden)
+            return true;
+    }
+    return false;
+}
+
+function moveSelectedItems(fromList, toList) {
+    var options = [];
+    for (const option of fromList.selectedOptions)
+        options.push(option);
+    for (const option of options) {
+        fromList.removeChild(option);
+        toList.appendChild(option);
+        option.selected = false;
+   }
+
+   updateButtons();
+}
+
+function moveSelectedOrAllItems(fromList, toList) {
+    if (fromList.selectedIndex == -1) {
+        for (const option of fromList.options)
+            option.selected = true;
+    }
+    moveSelectedItems(fromList, toList);
+}
+
+function updateButtons() {
+    pickPeopleButton.disabled = !hasAvailablePeople();
+    ignorePeopleButton.disabled = (availableList.selectedIndex == -1);
+    unpickPeopleButton.disabled = (pickedList.length == 0);
+    unignorePeopleButton.disabled = (ignoredList.length == 0);
+
+    if (availableList.selectedIndex == -1)
+        pickPeopleButton.innerHTML = "Pick random &rarr;";
+    else
+        pickPeopleButton.innerHTML = "Pick selected &rarr;";
+
+    if (pickedList.selectedIndex == -1)
+        unpickPeopleButton.innerHTML = "&larr; Remove all";
+    else
+        unpickPeopleButton.innerHTML = "&larr; Remove selected";
+}
+
+function onFilterLevelCheckboxChange() {
+    availableList.selectedIndex = -1;
+    for (const option of availableList.options) {
+        option.hidden = !levelCheckboxes[people[option.value]].checked;
+    }
+    updateButtons();
+}
+
+function onPickPeopleButtonClick() {
+    if (availableList.selectedIndex == -1) {
+        var randomIndex = Math.floor(Math.random() * availablePeopleCount());
+        var i = 0;
+        for (const option of availableList.options) {
+            if (option.hidden)
+                continue;
+            if (i == randomIndex) {
+                option.selected = true;
+                break;
+            }
+            ++i;
+        }
+    }
+    moveSelectedItems(availableList, pickedList);
+
+    updateButtons();
+}
+
+function onUnpickPeopleButtonClick() {
+    moveSelectedOrAllItems(pickedList, availableList);
+}
+
+function onIgnorePeopleButtonClick() {
+    moveSelectedItems(availableList, ignoredList);
+}
+
+function onUnignorePeopleButtonClick() {
+    moveSelectedOrAllItems(ignoredList, availableList);
+}
+
+availableList.addEventListener("change", updateButtons);
+pickedList.addEventListener("change", updateButtons);
+ignoredList.addEventListener("change", updateButtons);
+
+pickPeopleButton.addEventListener("click", onPickPeopleButtonClick);
+unpickPeopleButton.addEventListener("click", onUnpickPeopleButtonClick);
+ignorePeopleButton.addEventListener("click", onIgnorePeopleButtonClick);
+unignorePeopleButton.addEventListener("click", onUnignorePeopleButtonClick);
+{% for level in levels %}
+    filterLevel{{ level.id }}Checkbox.addEventListener("change", onFilterLevelCheckboxChange);
+{% endfor %}
+
+updateButtons();
+</script>
+
+{% endblock %}
