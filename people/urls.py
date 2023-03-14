@@ -21,4 +21,6 @@ urlpatterns = [
     path('', home, name='home'),
     # Sets the current team (stores it in the session).
     path('<str:login>', views.person, name='person'),
+    # People picker.
+    path('picker/', views.picker, name='picker'),
 ]

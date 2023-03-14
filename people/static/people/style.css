@@ -68,3 +68,17 @@
 .people-small-field {
     width: 40%;
 }
+
+.people-picker-list {
+    width: 40%;
+}
+
+.people-picker-pick {
+    width: 20%;
+    text-align: center;
+}
+
+.people-picker-list select {
+    width: 100%;
+    height: 300px;
+}
