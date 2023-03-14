@@ -28,5 +28,6 @@ urlpatterns = [
     path('', home),
     path('admin/', admin.site.urls),
     path('ballots/', include('ballots.urls', namespace='ballots')),
+    path('people/', include('people.urls', namespace='people')),
     path('skills/', include('skills.urls', namespace='skills')),
 ]
