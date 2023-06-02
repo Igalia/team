@@ -1,5 +1,6 @@
 import copy
 
+from django.conf import settings
 from django.contrib import messages
 from django.forms import formset_factory
 from django.http.response import Http404, HttpResponseRedirect
@@ -14,6 +15,17 @@ from . import forms
 from .forms import ProjectForm
 from .models import Measurement, PersonAssessment, Project, ProjectFocusRecord, Skill, \
     EXPERT_KNOWLEDGE_THRESHOLD, HIGH_KNOWLEDGE_THRESHOLD, NOTABLE_INTEREST_THRESHOLD
+
+
+# noinspection PyUnusedLocal
+def enable_projects(request):
+    """
+    Feature switch for "projects" which may be disabled.
+
+    :param request: not used.
+    :return: Whether project-related functionality should be exposed.
+    """
+    return getattr(settings, "SKILLS_ENABLE_PROJECTS", False)
 
 
 def user_should_be_in_some_teams(strict):
