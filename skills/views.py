@@ -17,6 +17,14 @@ from .models import Measurement, PersonAssessment, Project, ProjectFocusRecord, 
     EXPERT_KNOWLEDGE_THRESHOLD, HIGH_KNOWLEDGE_THRESHOLD, NOTABLE_INTEREST_THRESHOLD
 
 
+# Virtual team selector that shows data for all teams that the current user is in.
+# Only recognised by the team selector view that redirects immediately.  Cannot be used as a fictive slug.
+MY_TEAMS = '-'
+# Virtual team selector that shows data for all teams in the company.
+# Recognised as a fictive team slug and can be used in permanent URLs to all views that accept team slug.
+ALL_TEAMS = '--'
+
+
 # noinspection PyUnusedLocal
 def enable_projects(request):
     """
@@ -98,6 +106,14 @@ def enumerate_skills(teams, additional_fields=None):
     return form_data, skills_index
 
 
+def get_team_selector_context():
+    return {
+        'ALL_TEAMS': ALL_TEAMS,
+        'MY_TEAMS': MY_TEAMS,
+        'show_team_selector': True,
+    }
+
+
 # ======================================================================================================================
 # Rendering functions
 # ======================================================================================================================
@@ -117,11 +133,10 @@ def render_demand_vs_knowledge(request, teams):
                                                  {'knowledge': [0 for _ in Measurement.KNOWLEDGE_CHOICES],
                                                   'interest': [0 for _ in Measurement.INTEREST_CHOICES]})
 
-    page_title = 'Market demand versus knowledge: all your teams' if len(teams) > 1 \
-        else 'Market demand versus knowledge: {team} team'.format(team=teams[0].name)
+    page_title = 'Market demand versus knowledge: {teams}'.format(teams=get_current_teams(request, teams))
 
     if not skills_data:
-        return render(request, 'skills/empty.html', {'page_title': page_title, 'show_team_selector': True})
+        return render(request, 'skills/empty.html', {'page_title': page_title} | get_team_selector_context())
 
     # noinspection PyUnresolvedReferences
     latest_assessments = [a for a in PersonAssessment.objects.filter(latest=True, person__teams__in=teams)]
@@ -165,14 +180,13 @@ def render_demand_vs_knowledge(request, teams):
     return render(request,
                   'skills/demand-vs-knowledge.html',
                   {'page_title': page_title,
-                   'show_team_selector': True,
                    'projects': [{'project': p['project'],
                                  'skills': all_projects[project_index[p['project']]]['skills']}
                                 for p in all_projects],
                    'skills': skills_data,
                    'notable_interest_threshold': format(NOTABLE_INTEREST_THRESHOLD, ".0%"),
                    'expert_knowledge_threshold': format(EXPERT_KNOWLEDGE_THRESHOLD, ".0%"),
-                   'high_knowledge_threshold': format(HIGH_KNOWLEDGE_THRESHOLD, ".0%")})
+                   'high_knowledge_threshold': format(HIGH_KNOWLEDGE_THRESHOLD, ".0%")} | get_team_selector_context())
 
 
 def render_interest_vs_knowledge(request, teams):
@@ -184,11 +198,10 @@ def render_interest_vs_knowledge(request, teams):
                                                  {'knowledge': [0 for _ in Measurement.KNOWLEDGE_CHOICES],
                                                   'interest': [0 for _ in Measurement.INTEREST_CHOICES]})
 
-    page_title = 'Interest versus knowledge: all your teams' if len(teams) > 1 \
-        else 'Interest versus knowledge: {team} team'.format(team=teams[0].name)
+    page_title = 'Interest versus knowledge: {teams}'.format(teams=get_current_teams(request, teams))
 
     if not skills_data:
-        return render(request, 'skills/empty.html', {'page_title': page_title, 'show_team_selector': True})
+        return render(request, 'skills/empty.html', {'page_title': page_title} | get_team_selector_context())
 
     # noinspection PyUnresolvedReferences
     latest_assessments = [a for a in PersonAssessment.objects.filter(latest=True, person__teams__in=teams)]
@@ -218,11 +231,10 @@ def render_interest_vs_knowledge(request, teams):
     return render(request,
                   'skills/interest-vs-knowledge.html',
                   {'page_title': page_title,
-                   'show_team_selector': True,
                    'skills': skills_data,
                    'notable_interest_threshold': format(NOTABLE_INTEREST_THRESHOLD, ".0%"),
                    'expert_knowledge_threshold': format(EXPERT_KNOWLEDGE_THRESHOLD, ".0%"),
-                   'high_knowledge_threshold': format(HIGH_KNOWLEDGE_THRESHOLD, ".0%")})
+                   'high_knowledge_threshold': format(HIGH_KNOWLEDGE_THRESHOLD, ".0%")} | get_team_selector_context())
 
 
 def render_projects(request, teams):
@@ -241,12 +253,10 @@ def render_projects(request, teams):
 
     return render(request,
                   'skills/projects.html',
-                  {'page_title': 'Projects: all your teams' if len(teams) > 1
-                                 else 'Projects: {team} team'.format(team=teams[0].name),
+                  {'page_title': 'Projects: {teams}'.format(teams=get_current_teams(request, teams)),
                    'projects': [{'project': p['project'],
                                  'skills': all_projects[project_index[p['project']]]['skills']}
-                                for p in all_projects],
-                   'show_team_selector': True})
+                                for p in all_projects]} | get_team_selector_context())
 
 
 # ======================================================================================================================
@@ -261,18 +271,41 @@ def home(request):
 
 # noinspection PyUnresolvedReferences
 def set_current_team(request, team_slug):
-    if team_slug:
+    if team_slug and team_slug != MY_TEAMS:
         try:
-            Team.objects.get(slug=team_slug)
+            if team_slug != ALL_TEAMS:
+                # Try to get the Team instance just to check that it exists.
+                Team.objects.get(slug=team_slug)
             request.session['current_team_slug'] = team_slug
             if 'current_view' in request.session:
                 return HttpResponseRedirect(reverse(request.session['current_view'], args=[team_slug]))
             return HttpResponseRedirect(reverse('skills:home'))
         except Team.DoesNotExist:
             raise Http404("Team does not exist")
+    # If either an empty team slug or MY_TEAMS comes, delete the current team selector and redirect to the default view.
     if 'current_team_slug' in request.session:
         del request.session['current_team_slug']
     return HttpResponseRedirect(reverse('skills:home'))
+
+
+# noinspection PyUnresolvedReferences
+def get_teams_by_slug(team_slug):
+    """Returns a team for the given slug, or a set of teams for virtual team selectors.
+
+    :raise Team.DoesNotExist if no team was found for a slug that is not a virtual team selector.
+    """
+
+    if team_slug == ALL_TEAMS:
+        return Team.objects.all()
+    return Team.objects.get(slug=team_slug),
+
+
+def get_current_teams(request, teams):
+    if len(teams) == 1:
+        return '{team} team'.format(team=teams[0].name)
+    if request.session.get('current_team_slug') and request.session['current_team_slug'] == ALL_TEAMS:
+        return 'whole company'
+    return 'all your teams'
 
 
 # noinspection PyUnresolvedReferences
@@ -287,9 +320,11 @@ def demand_vs_knowledge(request, person):
 # noinspection PyUnresolvedReferences
 def demand_vs_knowledge_for_team(request, team_slug):
     try:
-        team = Team.objects.get(slug=team_slug)
+        # Try to get the teams first.  It can raise en exception, and in that event we do not update `current_view`
+        # in the session.
+        teams = get_teams_by_slug(team_slug)
         request.session['current_view'] = 'skills:demand-vs-knowledge-for-team'
-        return render_demand_vs_knowledge(request, (team, ))
+        return render_demand_vs_knowledge(request, teams)
     except Team.DoesNotExist:
         raise Http404("Team does not exist")
 
@@ -304,9 +339,11 @@ def projects(request, person):
 # noinspection PyUnresolvedReferences
 def projects_for_team(request, team_slug):
     try:
-        team = Team.objects.get(slug=team_slug)
+        # Try to get the teams first.  It can raise en exception, and in that event we do not update `current_view`
+        # in the session.
+        teams = get_teams_by_slug(team_slug)
         request.session['current_view'] = 'skills:projects-for-team'
-        return render_projects(request, (team, ))
+        return render_projects(request, teams)
     except Team.DoesNotExist:
         raise Http404("Team does not exist")
 
@@ -323,9 +360,11 @@ def interest_vs_knowledge(request, person):
 # noinspection PyUnresolvedReferences
 def interest_vs_knowledge_for_team(request, team_slug):
     try:
-        team = Team.objects.get(slug=team_slug)
+        # Try to get the teams first.  It can raise en exception, and in that event we do not update `current_view`
+        # in the session.
+        teams = get_teams_by_slug(team_slug)
         request.session['current_view'] = 'skills:interest-vs-knowledge-for-team'
-        return render_interest_vs_knowledge(request, (team, ))
+        return render_interest_vs_knowledge(request, teams)
     except Team.DoesNotExist:
         raise Http404("Team does not exist")
 

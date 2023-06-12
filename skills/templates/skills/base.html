@@ -29,12 +29,13 @@
             <div>
                 <script>
                     function selectTeam(team_slug) {
-                        if (team_slug.length > 0)
-                            window.location = '{% url 'skills:set-current-team' '*' %}'.replace('*', team_slug);
+                        window.location = '{% url 'skills:set-current-team' '*' %}'.replace('*', team_slug);
                     }
                 </script>
                 <select onchange="selectTeam(this.options[this.selectedIndex].value);">
-                    <option value="">Select team…</option>
+                    <option value="{{ MY_TEAMS }}"{% if not request.session.current_team_slug %} selected{% endif %}>Your teams</option>
+                    <option value="{{ ALL_TEAMS }}"{% if request.session.current_team_slug == ALL_TEAMS %} selected{% endif %}>All teams</option>
+                    <option disabled>&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;&#x2500;</option>
                     {% get_menu "NAV_MENU_TEAM_SELECTOR" as menu %}
                     {% for item in menu %}
                         <option value="{{ item.team_slug }}"{% if item.team_slug == request.session.current_team_slug %} selected{% endif %}>
