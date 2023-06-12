@@ -16,13 +16,24 @@ from .forms import ProjectForm
 from .models import Measurement, PersonAssessment, Project, ProjectFocusRecord, Skill, \
     EXPERT_KNOWLEDGE_THRESHOLD, HIGH_KNOWLEDGE_THRESHOLD, NOTABLE_INTEREST_THRESHOLD
 
-
 # Virtual team selector that shows data for all teams that the current user is in.
 # Only recognised by the team selector view that redirects immediately.  Cannot be used as a fictive slug.
 MY_TEAMS = '-'
 # Virtual team selector that shows data for all teams in the company.
 # Recognised as a fictive team slug and can be used in permanent URLs to all views that accept team slug.
 ALL_TEAMS = '--'
+
+
+def merge(x, y):
+    """Compatibility function that merges two dictionaries.
+
+    :param x:
+    :param y:
+    :return:
+    """
+    z = x.copy()  # start with keys and values of x
+    z.update(y)  # modifies z with keys and values of y
+    return z
 
 
 # noinspection PyUnusedLocal
@@ -53,6 +64,7 @@ def user_should_be_in_some_teams(strict):
     :param strict: whether the selection is required even if the current team is set in the session.
     :return: a decorated view that will show the team selection form instead of the requested view, if necessary.
     """
+
     def user_must_be_in_some_teams(function):
         def _function(request, *args, **kwargs):
             user_login = get_user_login(request)
@@ -136,7 +148,7 @@ def render_demand_vs_knowledge(request, teams):
     page_title = 'Market demand versus knowledge: {teams}'.format(teams=get_current_teams(request, teams))
 
     if not skills_data:
-        return render(request, 'skills/empty.html', {'page_title': page_title} | get_team_selector_context())
+        return render(request, 'skills/empty.html', merge({'page_title': page_title}, get_team_selector_context()))
 
     # noinspection PyUnresolvedReferences
     latest_assessments = [a for a in PersonAssessment.objects.filter(latest=True, person__teams__in=teams)]
@@ -155,8 +167,8 @@ def render_demand_vs_knowledge(request, teams):
     interest_threshold = assessment_count * NOTABLE_INTEREST_THRESHOLD
     for skill in skills_data:
         skill['star_knowledge'] = assessment_count > 0 and (
-                    skill['knowledge'][Measurement.KNOWLEDGE_EXPERT] >= expert_threshold or
-                    skill['knowledge'][Measurement.KNOWLEDGE_HIGH] >= high_threshold)
+                skill['knowledge'][Measurement.KNOWLEDGE_EXPERT] >= expert_threshold or
+                skill['knowledge'][Measurement.KNOWLEDGE_HIGH] >= high_threshold)
         skill['knowledge'] = skill['knowledge'][1:]
         skill['star_interest'] = assessment_count > 0 and skill['interest'][
             Measurement.INTEREST_EXTREME] >= interest_threshold
@@ -179,14 +191,15 @@ def render_demand_vs_knowledge(request, teams):
 
     return render(request,
                   'skills/demand-vs-knowledge.html',
-                  {'page_title': page_title,
-                   'projects': [{'project': p['project'],
-                                 'skills': all_projects[project_index[p['project']]]['skills']}
-                                for p in all_projects],
-                   'skills': skills_data,
-                   'notable_interest_threshold': format(NOTABLE_INTEREST_THRESHOLD, ".0%"),
-                   'expert_knowledge_threshold': format(EXPERT_KNOWLEDGE_THRESHOLD, ".0%"),
-                   'high_knowledge_threshold': format(HIGH_KNOWLEDGE_THRESHOLD, ".0%")} | get_team_selector_context())
+                  merge({'page_title': page_title,
+                         'projects': [{'project': p['project'],
+                                       'skills': all_projects[project_index[p['project']]]['skills']}
+                                      for p in all_projects],
+                         'skills': skills_data,
+                         'notable_interest_threshold': format(NOTABLE_INTEREST_THRESHOLD, ".0%"),
+                         'expert_knowledge_threshold': format(EXPERT_KNOWLEDGE_THRESHOLD, ".0%"),
+                         'high_knowledge_threshold': format(HIGH_KNOWLEDGE_THRESHOLD, ".0%")},
+                        get_team_selector_context()))
 
 
 def render_interest_vs_knowledge(request, teams):
@@ -201,7 +214,7 @@ def render_interest_vs_knowledge(request, teams):
     page_title = 'Interest versus knowledge: {teams}'.format(teams=get_current_teams(request, teams))
 
     if not skills_data:
-        return render(request, 'skills/empty.html', {'page_title': page_title} | get_team_selector_context())
+        return render(request, 'skills/empty.html', merge({'page_title': page_title}, get_team_selector_context()))
 
     # noinspection PyUnresolvedReferences
     latest_assessments = [a for a in PersonAssessment.objects.filter(latest=True, person__teams__in=teams)]
@@ -220,8 +233,8 @@ def render_interest_vs_knowledge(request, teams):
     interest_threshold = assessment_count * NOTABLE_INTEREST_THRESHOLD
     for skill in skills_data:
         skill['star_knowledge'] = assessment_count > 0 and (
-                    skill['knowledge'][Measurement.KNOWLEDGE_EXPERT] >= expert_threshold or
-                    skill['knowledge'][Measurement.KNOWLEDGE_HIGH] >= high_threshold)
+                skill['knowledge'][Measurement.KNOWLEDGE_EXPERT] >= expert_threshold or
+                skill['knowledge'][Measurement.KNOWLEDGE_HIGH] >= high_threshold)
         skill['star_interest'] = assessment_count > 0 and skill['interest'][
             Measurement.INTEREST_EXTREME] >= interest_threshold
 
@@ -230,11 +243,12 @@ def render_interest_vs_knowledge(request, teams):
 
     return render(request,
                   'skills/interest-vs-knowledge.html',
-                  {'page_title': page_title,
-                   'skills': skills_data,
-                   'notable_interest_threshold': format(NOTABLE_INTEREST_THRESHOLD, ".0%"),
-                   'expert_knowledge_threshold': format(EXPERT_KNOWLEDGE_THRESHOLD, ".0%"),
-                   'high_knowledge_threshold': format(HIGH_KNOWLEDGE_THRESHOLD, ".0%")} | get_team_selector_context())
+                  merge({'page_title': page_title,
+                         'skills': skills_data,
+                         'notable_interest_threshold': format(NOTABLE_INTEREST_THRESHOLD, ".0%"),
+                         'expert_knowledge_threshold': format(EXPERT_KNOWLEDGE_THRESHOLD, ".0%"),
+                         'high_knowledge_threshold': format(HIGH_KNOWLEDGE_THRESHOLD, ".0%")},
+                        get_team_selector_context()))
 
 
 def render_projects(request, teams):
@@ -253,10 +267,10 @@ def render_projects(request, teams):
 
     return render(request,
                   'skills/projects.html',
-                  {'page_title': 'Projects: {teams}'.format(teams=get_current_teams(request, teams)),
-                   'projects': [{'project': p['project'],
-                                 'skills': all_projects[project_index[p['project']]]['skills']}
-                                for p in all_projects]} | get_team_selector_context())
+                  merge({'page_title': 'Projects: {teams}'.format(teams=get_current_teams(request, teams)),
+                         'projects': [{'project': p['project'],
+                                       'skills': all_projects[project_index[p['project']]]['skills']}
+                                      for p in all_projects]}, get_team_selector_context()))
 
 
 # ======================================================================================================================
