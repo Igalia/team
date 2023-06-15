@@ -26,10 +26,7 @@ ALL_TEAMS = '--'
 
 def merge(x, y):
     """Compatibility function that merges two dictionaries.
-
-    :param x:
-    :param y:
-    :return:
+    TODO: remove when we no longer need compatibility with 3.8.
     """
     z = x.copy()  # start with keys and values of x
     z.update(y)  # modifies z with keys and values of y
