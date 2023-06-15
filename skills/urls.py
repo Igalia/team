@@ -10,10 +10,12 @@ urlpatterns = [
     # Convenience view that redirects to one of meaningful URLs.
     path('', views.home, name='home'),
     # Sets the current team (stores it in the session).
+    # Recognises two special values for 1) showing data for all teams and 2) resetting the view to the teams of the
+    # current user.
     path('set-current-team/<str:team_slug>/', views.set_current_team, name='set-current-team'),
 
-    # Views that require the user to be in some (at least one) team.
-    # Team diagrams show data for either the currently selected team, or for teams of the current user.
+    # Team diagrams show data for the teams of the current user.  That requires the user to be in some (at least one)
+    # team.  If that is not the case, these views redirect to the team picker.
 
     # Team diagram of interest versus knowledge.
     path('interest-vs-knowledge/', views.interest_vs_knowledge, name='interest-vs-knowledge'),
@@ -38,7 +40,7 @@ urlpatterns = [
     # Shows data for a single skill: who knows it, and who is interested in it.
     path('skill/<int:skill_id>/', views.render_skill, name='skill'),
 
-    # Team diagram of interest versus knowledge for the particular team.
+    # Team diagram of interest versus knowledge for the particular team, or for all teams.
     path('interest-vs-knowledge/<str:team_slug>/', views.interest_vs_knowledge_for_team,
          name='interest-vs-knowledge-for-team'),
     # Team diagram of market demand versus  knowledge and interest for the particular team.
