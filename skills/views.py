@@ -653,20 +653,26 @@ def self_assess(request, person):
         return HttpResponseRedirect(reverse('skills:home'))
     else:
         skills, index = enumerate_skills(person.teams.all())
-
+        other_skills, other_index = enumerate_skills(Team.objects.exclude(id__in=(t.id for t in person.teams.all())))
         try:
             latest_assessment = PersonAssessment.objects.get(person=person, latest=True)
             for measurement in Measurement.objects.filter(assessment=latest_assessment):
-                if measurement.skill.pk not in index:
-                    continue
-                form = skills[index[measurement.skill.pk]]
-                form['knowledge'] = measurement.knowledge
-                form['interest'] = measurement.interest
+                if measurement.skill.pk in index:
+                    form = skills[index[measurement.skill.pk]]
+                    form['knowledge'] = measurement.knowledge
+                    form['interest'] = measurement.interest
+                elif measurement.skill.pk in other_index:
+                    form = other_skills[other_index[measurement.skill.pk]]
+                    form['knowledge'] = measurement.knowledge
+                    form['interest'] = measurement.interest
         except PersonAssessment.DoesNotExist:
             latest_assessment = None
 
-        formset = MeasurementFormSet(initial=skills)
+        if other_skills:
+            other_skills[0]['separator'] = True
+
         return render(request,
                       'skills/self-assess.html',
-                      {'page_title': 'Self assessment', 'user_login': person.login, 'formset': formset,
+                      {'page_title': 'Self assessment', 'user_login': person.login,
+                       'formset': MeasurementFormSet(initial=skills + other_skills),
                        'latest_assessment': latest_assessment})
