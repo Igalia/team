@@ -186,9 +186,12 @@ def render_demand_vs_knowledge(request, teams):
     for skill_record in skills_data:
         skill_record['bar_length'] = skill_record['count'] / max_count * 80 if 'count' in skill_record else 0
 
+    # noinspection PyUnresolvedReferences
     return render(request,
                   'skills/demand-vs-knowledge.html',
                   merge({'page_title': page_title,
+                         'people': Person.objects.filter(teams__in=teams).order_by('login') if len(
+                             teams) == 1 else None,
                          'projects': [{'project': p['project'],
                                        'skills': all_projects[project_index[p['project']]]['skills']}
                                       for p in all_projects],
@@ -238,9 +241,12 @@ def render_interest_vs_knowledge(request, teams):
         skill['knowledge'] = skill['knowledge'][1:]
         skill['interest'] = skill['interest'][1:]
 
+    # noinspection PyUnresolvedReferences
     return render(request,
                   'skills/interest-vs-knowledge.html',
                   merge({'page_title': page_title,
+                         'people': Person.objects.filter(teams__in=teams).order_by('login') if len(
+                             teams) == 1 else None,
                          'skills': skills_data,
                          'notable_interest_threshold': format(NOTABLE_INTEREST_THRESHOLD, ".0%"),
                          'expert_knowledge_threshold': format(EXPERT_KNOWLEDGE_THRESHOLD, ".0%"),
@@ -262,9 +268,12 @@ def render_projects(request, teams):
     for focus_record in all_focus_records:
         all_projects[project_index[focus_record.project]]['skills'].append(focus_record.skill)
 
+    # noinspection PyUnresolvedReferences
     return render(request,
                   'skills/projects.html',
                   merge({'page_title': 'Projects: {teams}'.format(teams=get_current_teams(request, teams)),
+                         'people': Person.objects.filter(teams__in=teams).order_by('login') if len(
+                             teams) == 1 else None,
                          'projects': [{'project': p['project'],
                                        'skills': all_projects[project_index[p['project']]]['skills']}
                                       for p in all_projects]}, get_team_selector_context()))

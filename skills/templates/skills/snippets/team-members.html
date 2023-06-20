@@ -1,0 +1,7 @@
+{% if people %}
+    <p><small>{{ people|length }} member(s) in this team:
+        {% for person in people %}
+            <a href="{% url 'skills:person' person.login %}">{{ person.login }}</a>
+        {% endfor %}
+    </small></p>
+{% endif %}
