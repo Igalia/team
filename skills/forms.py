@@ -11,7 +11,7 @@ class MeasurementForm(forms.ModelForm):
     """
     def __init__(self, *args, **kwargs):
         if 'initial' in kwargs:
-            for field in ('title', 'category_title'):
+            for field in ('title', 'category_title', 'separator'):
                 if field in kwargs['initial']:
                     setattr(self, field, kwargs['initial'][field])
         super().__init__(*args, **kwargs)
