@@ -390,20 +390,11 @@ def render_skill(request, skill_id):
     except Skill.DoesNotExist:
         raise Http404("Skill does not exist")
 
-    skill_teams = set(t for t in skill.category.teams.all())
-
-    latest_assessments = [a for a in PersonAssessment.objects.filter(latest=True).order_by('person__login')]
-    people = [{'person': p} for p in Person.objects.filter(teams__in=skill_teams)]
-    people_index = {people[i]['person'].login: i for i in range(len(people))}
-    measurements = Measurement.objects.filter(assessment__in=latest_assessments, skill=skill)
-    for measurement in measurements:
-        if measurement.assessment.person.login not in people_index:
-            continue
-        people[people_index[measurement.assessment.person.login]]['measurement'] = measurement
-
     return render(request,
                   'skills/skill.html',
-                  {'page_title': 'Skill: {}'.format(skill.name), 'skill': skill, 'people': people})
+                  {'page_title': 'Skill: {}'.format(skill.name), 'skill': skill,
+                   'measurements': Measurement.objects.filter(assessment__latest=True, skill=skill).order_by(
+                       'assessment__person__login')})
 
 
 # noinspection PyUnresolvedReferences
@@ -652,20 +643,26 @@ def self_assess(request, person):
         return HttpResponseRedirect(reverse('skills:home'))
     else:
         skills, index = enumerate_skills(person.teams.all())
-
+        other_skills, other_index = enumerate_skills(Team.objects.exclude(id__in=(t.id for t in person.teams.all())))
         try:
             latest_assessment = PersonAssessment.objects.get(person=person, latest=True)
             for measurement in Measurement.objects.filter(assessment=latest_assessment):
-                if measurement.skill.pk not in index:
-                    continue
-                form = skills[index[measurement.skill.pk]]
-                form['knowledge'] = measurement.knowledge
-                form['interest'] = measurement.interest
+                if measurement.skill.pk in index:
+                    form = skills[index[measurement.skill.pk]]
+                    form['knowledge'] = measurement.knowledge
+                    form['interest'] = measurement.interest
+                elif measurement.skill.pk in other_index:
+                    form = other_skills[other_index[measurement.skill.pk]]
+                    form['knowledge'] = measurement.knowledge
+                    form['interest'] = measurement.interest
         except PersonAssessment.DoesNotExist:
             latest_assessment = None
 
-        formset = MeasurementFormSet(initial=skills)
+        if other_skills:
+            other_skills[0]['separator'] = True
+
         return render(request,
                       'skills/self-assess.html',
-                      {'page_title': 'Self assessment', 'user_login': person.login, 'formset': formset,
+                      {'page_title': 'Self assessment', 'user_login': person.login,
+                       'formset': MeasurementFormSet(initial=skills + other_skills),
                        'latest_assessment': latest_assessment})
