@@ -6,15 +6,20 @@
 <p>Hi there, {{ user_login }}!  Please fill in and submit the form below.  {% if latest_assessment %}The current data is taken from your most recent record ({{ latest_assessment.date }}).{% else %}This will be your first record.{% endif %}</p>
 <hr>
 
+<h2>Your team(s) define the following skills</h2>
+
 <form method="post">
     {% csrf_token %}
     {{ formset.management_form }}
         {% for form in formset %}
+            {% if form.separator %}
+                <h2>Skills from other teams</h2>
+            {% endif %}
             {% for field in form.hidden_fields %}
                 {{ field }}
             {% endfor %}
             {% if form.category_title %}
-                <h2>{{ form.category_title }}</h2>
+                <h3>{{ form.category_title }}</h3>
             {% endif %}
             <div class="t-row">
                 <div class="t-cell skills-assess-form-label">{{ form.title }}</div>
