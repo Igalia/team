@@ -4,6 +4,8 @@
 
 {% block content %}
 
+<h2>Skills from the teams that {{ person.login }} is member of</h2>
+
 <div class="t-row">
     <div class="t-cell skills-row-header"></div>
     <div class="t-cell skills-column-header skills-cell-right">← Interest</div>
@@ -11,9 +13,11 @@
 </div>
 
 {% for skill in skills %}
+    {% if skill.separator %}
+        <h2>Skills from other teams</h2>
+    {% endif %}
     {% if skill.category_title %}
-        <hr>
-        <h2>{{ skill.category_title }}</h2>
+        <h3>{{ skill.category_title }}</h3>
     {% endif %}
     <div class="t-row-nth">
         <div class="t-cell skills-row-header"><a href="{% url 'skills:skill' skill.skill %}">{{ skill.title }}</a></div>
