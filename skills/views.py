@@ -91,9 +91,11 @@ def make_readonly(form):
         field.disabled = True
 
 
-def enumerate_skills(teams, additional_fields=None, index_offset=0):
+def enumerate_skills(teams, additional_fields=None, index_offset=0, skip_skills=None):
     if additional_fields is None:
         additional_fields = {}
+    if skip_skills is None:
+        skip_skills = []
 
     def describe(skill):
         nonlocal current_category
@@ -110,7 +112,8 @@ def enumerate_skills(teams, additional_fields=None, index_offset=0):
 
     # noinspection PyUnresolvedReferences
     form_data = [describe(s) for s in
-                 Skill.objects.filter(category__teams__in=teams).distinct().order_by('category__name', 'name')]
+                 Skill.objects.exclude(pk__in=skip_skills).filter(category__teams__in=teams).distinct().order_by(
+                     'category__name', 'name')]
     skills_index = {form_data[i]['skill']: i + index_offset for i in range(len(form_data))}
     return form_data, skills_index
 
@@ -127,7 +130,8 @@ def enumerate_all_skills(person):
     skills, index = enumerate_skills(person.teams.all())
     # noinspection PyUnresolvedReferences
     other_skills, other_index = enumerate_skills(Team.objects.exclude(id__in=(t.id for t in person.teams.all())),
-                                                 index_offset=len(skills))
+                                                 index_offset=len(skills),
+                                                 skip_skills=list(index.keys()))
 
     if other_skills:
         other_skills[0]['separator'] = True
