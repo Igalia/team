@@ -4,39 +4,53 @@
 
 {% block content %}
 
-<h2>Skills from the teams that {{ person.login }} is member of</h2>
+<div class="skills-person-category-group-primary">
+    <h2>Skills from the teams that {{ person.login }} is member of</h2>
 
-<div class="t-row">
-    <div class="t-cell skills-row-header"></div>
-    <div class="t-cell skills-column-header skills-cell-right">← Interest</div>
-    <div class="t-cell skills-column-header">Knowledge →</div>
-</div>
+    <div class="t-row">
+        <div class="t-cell skills-row-header"></div>
+        <div class="t-cell skills-column-header skills-cell-right">← Interest</div>
+        <div class="t-cell skills-column-header">Knowledge →</div>
+    </div>
 
 {% for skill in skills %}
     {% if skill.separator %}
-        <h2>Skills from other teams</h2>
+        {% if not forloop.first %}
+    </div>
+        {% endif %}
+</div>
+<div class="skills-person-category-group-other">
+    <h2>Skills from other teams</h2>
     {% endif %}
     {% if skill.category_title %}
+        {% if not skill.separator and not forloop.first %}
+    </div>
+        {% endif %}
+    <div class="skills-person-category">
         <h3>{{ skill.category_title }}</h3>
     {% endif %}
-    <div class="t-row-nth">
-        <div class="t-cell skills-row-header"><a href="{% url 'skills:skill' skill.skill %}">{{ skill.title }}</a></div>
-        <div class="t-cell skills-cell-right">
-            {% if skill.measurement.interest %}
-                <div class="skills-interest-{{ skill.measurement.interest }}">{{ skill.measurement.interest }}</div>
-            {% else %}
-                &nbsp;
-            {% endif %}
+        <div class="t-row-nth">
+            <div class="t-cell skills-row-header"><a href="{% url 'skills:skill' skill.skill %}">{{ skill.title }}</a></div>
+            <div class="t-cell skills-cell-right">
+                {% if skill.measurement.interest %}
+                    <div class="skills-interest-{{ skill.measurement.interest }}">{{ skill.measurement.interest }}</div>
+                {% else %}
+                    &nbsp;
+                {% endif %}
+            </div>
+            <div class="t-cell skills-cell-left">
+                {% if skill.measurement.knowledge %}
+                    <div class="skills-knowledge-{{ skill.measurement.knowledge }}">{{ skill.measurement.knowledge }}</div>
+                {% else %}
+                    &nbsp;
+                {% endif %}
+            </div>
         </div>
-        <div class="t-cell skills-cell-left">
-            {% if skill.measurement.knowledge %}
-                <div class="skills-knowledge-{{ skill.measurement.knowledge }}">{{ skill.measurement.knowledge }}</div>
-            {% else %}
-                &nbsp;
-            {% endif %}
-        </div>
+    {% if forloop.last %}
     </div>
+    {% endif %}
 {% endfor %}
+</div>
 
 <p>{% if latest_assessment %}The latest record for {{ person.login }} is {{ latest_assessment.date }}.{% else %}No records so far.{% endif %}</p>
 
