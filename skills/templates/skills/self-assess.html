@@ -6,30 +6,43 @@
 <p>Hi there, {{ user_login }}!  Please fill in and submit the form below.  {% if latest_assessment %}The current data is taken from your most recent record ({{ latest_assessment.date }}).{% else %}This will be your first record.{% endif %}</p>
 <hr>
 
-<h2>Your team(s) define the following skills</h2>
-
 <form method="post">
-    {% csrf_token %}
-    {{ formset.management_form }}
+    <div class="skills-assess-form-category-group-primary">
+        <h2>Skills from your teams</h2>
+
+        {% csrf_token %}
+        {{ formset.management_form }}
+
         {% for form in formset %}
             {% if form.separator %}
-                <h2>Skills from other teams</h2>
+                {% if not forloop.first %}
+        </div>
+                {% endif %}
+    </div>
+    <div class="skills-assess-form-category-group-other">
+        <h2>Skills from other teams</h2>
             {% endif %}
             {% for field in form.hidden_fields %}
-                {{ field }}
+            {{ field }}
             {% endfor %}
             {% if form.category_title %}
-                <h3>{{ form.category_title }}</h3>
+                {% if not form.separator and not forloop.first %}
+        </div>
+                {% endif %}
+        <div class="skills-assess-form-category">
+            <h3>{{ form.category_title }}</h3>
             {% endif %}
             <div class="t-row">
                 <div class="t-cell skills-assess-form-label">{{ form.title }}</div>
-                {% for field in form.visible_fields %}
-                    <div class="t-cell skills-assess-form-field">
-                        {{ field }}
-                    </div>
-                {% endfor %}
+            {% for field in form.visible_fields %}
+                <div class="t-cell skills-assess-form-field">{{ field }}</div>
+            {% endfor %}
             </div>
+            {% if forloop.last %}
+        </div>
+            {% endif %}
         {% endfor %}
+    </div>
     <hr>
     <div class="t-row">
         <div class="t-cell"><button type="submit">Submit</button></div>
