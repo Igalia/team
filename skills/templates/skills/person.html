@@ -34,15 +34,11 @@
             <div class="t-cell skills-cell-right">
                 {% if skill.measurement.interest %}
                     <div class="skills-interest-{{ skill.measurement.interest }}">{{ skill.measurement.interest }}</div>
-                {% else %}
-                    &nbsp;
                 {% endif %}
             </div>
             <div class="t-cell skills-cell-left">
                 {% if skill.measurement.knowledge %}
                     <div class="skills-knowledge-{{ skill.measurement.knowledge }}">{{ skill.measurement.knowledge }}</div>
-                {% else %}
-                    &nbsp;
                 {% endif %}
             </div>
         </div>
