@@ -1,0 +1,43 @@
+version: '3'
+
+services:
+  nginx:
+    build: ./nginx
+    ports:
+      - 1339:80
+    volumes:
+      - static:/app/static
+    depends_on:
+      - app
+    restart: on-failure
+  app:
+    build: .
+    environment:
+      - DB_ENGINE=postgresql
+      - DB_HOST=db
+      - DB_NAME=team
+      - DB_USERNAME=team
+      - DB_PASS=team
+      - DB_PORT=5432
+      - SECRET_KEY=my-secret-key-1234
+    expose:
+      - "8000"
+    volumes:
+      - static:/app/static
+    depends_on:
+      - db
+  db:
+    image: postgres
+    ports:
+      - "5432"
+    volumes:
+      - team-db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASS}
+    restart: always
+
+volumes:
+  team-db:
+  static:
