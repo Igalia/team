@@ -43,8 +43,6 @@ class Command(BaseCommand):
                 person, created = Person.objects.get_or_create(login=login_str)
                 if not created \
                         and person.level == level \
-                        and person.full_name == full_name_str \
-                        and person.join_date == join_date \
                         and team in person.teams.all():
                     self.stdout.write(self.style.SUCCESS("Skipping {person}.".format(person=login_str)))
                     continue
@@ -55,8 +53,6 @@ class Command(BaseCommand):
                     self.stdout.write(self.style.SUCCESS("Updating {person}.".format(person=login_str)))
 
                 person.level = level
-                person.full_name = full_name_str
-                person.join_date = join_date
                 person.teams.set((team,))
                 person.save()
 
