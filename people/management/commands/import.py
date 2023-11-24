@@ -3,15 +3,17 @@ import logging
 
 from django.core.management.base import BaseCommand
 
-from people.models import Person, Level
+from people.models import Level, Person, Team
 
 try:
     from .import_sources import DATA_SOURCES
-except ImportError:
+except ImportError as e:
     DATA_SOURCES = {}
     logger = logging.getLogger(__name__)
-    logger.warning("Cannot import data sources.  Take a look into import_sources_template.py.")
-    pass
+    logger.error("Cannot import data sources: {error}\n"
+                 "Does import_sources.py exist?  Are all its dependencies met?\n"
+                 "Take a look into import_sources_template.py.".format(error=str(e)))
+    exit(1)
 
 
 class Command(BaseCommand):
@@ -28,18 +30,22 @@ class Command(BaseCommand):
             return
 
         for item in data_source():
-            login_str, level_str, full_name_str, join_date_str = map(
-                item.get, ("login", "level", "full_name", "join_date"))
+            login_str, level_str, full_name_str, join_date_str, team_str = map(
+                item.get, ("login", "level", "full_name", "join_date", "team"))
 
             try:
                 level = Level.objects.get(name=level_str)
                 join_date = datetime.datetime.strptime(join_date_str, '%Y-%m-%d').date()
+                # This assumes that a person is always a member of a single team.  Technically the system maintains
+                # many-to-many relation so this can be extended to support a list of teams.
+                team = Team.objects.get(name=team_str)
 
                 person, created = Person.objects.get_or_create(login=login_str)
                 if not created \
                         and person.level == level \
                         and person.full_name == full_name_str \
-                        and person.join_date == join_date:
+                        and person.join_date == join_date \
+                        and team in person.teams.all():
                     self.stdout.write(self.style.SUCCESS("Skipping {person}.".format(person=login_str)))
                     continue
 
@@ -51,6 +57,7 @@ class Command(BaseCommand):
                 person.level = level
                 person.full_name = full_name_str
                 person.join_date = join_date
+                person.teams.set((team,))
                 person.save()
 
             except Level.DoesNotExist:
@@ -58,5 +65,11 @@ class Command(BaseCommand):
                     self.style.ERROR(
                         "Unknown level '{level}' specified for a person with login '{person}'!".format(
                             level=level_str, person=login_str)))
+
+            except Team.DoesNotExist:
+                self.stderr.write(
+                    self.style.ERROR(
+                        "Unknown team '{team}' specified for a person with login '{person}'!".format(
+                            team=team_str, person=login_str)))
 
         self.stdout.write(self.style.SUCCESS("Done."))
