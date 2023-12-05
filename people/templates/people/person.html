@@ -101,6 +101,35 @@
                     {% endfor %}
                 </div>
             {% endif %}
+            {% if contributions %}
+                <div class="t-cell people-person-contributions">
+                    <div class="t-row">
+                        <div class="t-cell t-header">Contributions</div>
+                        {% if can_edit %}
+                            <div class="t-cell right"><a href="{% url 'people:contributions' person.login %}">Full details/Edit</a></div>
+                        {% else %}
+                            <div class="t-cell right"><a href="{% url 'people:contributions' person.login %}">Full details…</a></div>
+                        {% endif %}
+                    </div>
+                    {% for contribution in contributions %}
+                        <div class="t-row-nth">
+                            <div class="t-cell people-person-contributions-project-cell">{{ contribution.project }}</div>
+                            <div class="t-cell people-person-contributions-details-cell">
+                                <div class="t-row">
+                                    <div class="t-cell">{{ contribution.description }}</div>
+                                </div>
+                                <div class="t-row">
+                                    <div class="t-cell">
+                                        {% for skill in contribution.skills.all %}
+                                            <span class="people-person-contribution-project-skill">{{ skill.name }}</span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
         </div>
     </div>
 </div>

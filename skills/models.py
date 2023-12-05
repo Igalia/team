@@ -42,6 +42,9 @@ class Skill(models.Model):
     def __str__(self):
         return self.name
 
+    def full_name(self):
+        return "{category}: {skill}".format(category=self.category.name, skill=self.name)
+
 
 class PersonAssessment(models.Model):
     """
@@ -153,7 +156,7 @@ class ProjectFocusRecord(models.Model):
         verbose_name_plural = _('Project focus records')
 
     def __str__(self):
-        return _('{project} → {skill}').format(project=self.project.name, skill=self.skill.name)
+        return _('{project} → {skill}').format(project=self.project.name, skill=self.skill.full_name)
 
 
 class Contribution(models.Model):

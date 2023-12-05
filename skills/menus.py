@@ -11,7 +11,6 @@ def in_app(request):
 
 # noinspection PyUnresolvedReferences
 MENUS = {
-    "NAV_MENU_1ST_LEVEL": [],
     "NAV_MENU_2ND_LEVEL": [
         {
             "name": "Interest vs. Knowledge",
@@ -28,7 +27,7 @@ MENUS = {
         {
             "name": "Demand vs. Knowledge",
             "url": "skills:demand-vs-knowledge",
-            "root": True,
+            "root": False,
             "validators": ["skills.views.enable_projects", "skills.menus.in_app"],
         },
     ],

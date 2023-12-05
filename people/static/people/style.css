@@ -82,3 +82,18 @@
     width: 100%;
     height: 300px;
 }
+
+.people-person-contributions-project-cell {
+    width: 15%;
+}
+
+.people-person-contributions-details-cell {
+    width: 85%;
+}
+
+.people-person-contribution-project-skill {
+    border: 1px solid black;
+    padding: 0px 3px 0px 3px;
+    border-radius: 5px;
+    white-space: nowrap;
+}

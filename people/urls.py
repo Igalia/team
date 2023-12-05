@@ -10,7 +10,6 @@ from common.auth import get_user_login
 from . import views
 
 
-# noinspection PyUnusedLocal
 def home(request):
     return HttpResponseRedirect(reverse('root:person', args=[get_user_login(request)]))
 
