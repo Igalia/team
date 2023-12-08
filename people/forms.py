@@ -1,6 +1,17 @@
 from django import forms
 
 from people.models import PersonalData
+from skills.models import Contribution
+
+
+class ContributionForm(forms.ModelForm):
+    """Allows to edit personal contribution.
+
+    Used by the people.add_or_edit_contribution view.
+    """
+    class Meta:
+        model = Contribution
+        fields = ('project', 'description')
 
 
 class SearchForm(forms.Form):
