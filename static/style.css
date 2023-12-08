@@ -59,18 +59,9 @@ a:hover {
     overflow: hidden;
 }
 
-.menu li {
+.menu div {
     float: left;
-}
-
-.menu li a {
-    display: block;
-    text-align: center;
     padding: 14px 16px;
-}
-
-.menu li a.active {
-    float: right;
 }
 
 .active {

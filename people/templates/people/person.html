@@ -1,17 +1,15 @@
 {% extends "people/base.html" %}
 {% load menu_generator %}{% load static %}
 
-{% block second_level_menu %}
+{% block title %}{{ person | default_if_none:"Person not found" }}{% endblock %}
+
+{% block content %}
+
 <form method="post" autocomplete="off" id="id_search_form">
     {% csrf_token %}
 
     <div class="people-autocomplete">{{ search_form.login }}</div>
 </form>
-{% endblock %}
-
-{% block title %}{{ person | default_if_none:"Person not found" }}{% endblock %}
-
-{% block content %}
 
 {% if person %}
 <div class="t-row">

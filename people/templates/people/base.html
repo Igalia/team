@@ -4,3 +4,16 @@
 {% block head %}
     <link rel="stylesheet" type="text/css" href="{% static 'people/style.css' %}">
 {% endblock %}
+
+{% block second_level_menu %}
+    <div class="menu-bar">
+        <div class="menu">
+            {% get_menu "NAV_MENU_2ND_LEVEL" as menu %}
+            {% for item in menu %}
+                <div class="{% if item.selected %} active {% endif %}">
+                    <a href="{{ item.url }}"> <i class="{{ item.icon_class }}"></i> {{ item.name }}</a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
