@@ -90,6 +90,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTH_FALLBACK_USER = 'average_joe'
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.1/topics/i18n/
