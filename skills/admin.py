@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.db import models
 from django.forms.widgets import CheckboxSelectMultiple
 
-from skills.models import Category, PersonAssessment, Project, ProjectFocusRecord, Skill
+from skills.models import Category, Contribution, PersonAssessment, Project, ProjectFocusRecord, Skill
 
 
 @admin.register(Category)
@@ -36,3 +36,9 @@ class ProjectAdmin(admin.ModelAdmin):
 class SkillAdmin(admin.ModelAdmin):
     list_display = ('__str__', 'category',)
     ordering = ('category__name', 'name')
+
+
+@admin.register(Contribution)
+class SkillAdmin(admin.ModelAdmin):
+    list_display = ('person', 'project', 'description')
+    ordering = ('person', 'project', 'description')
