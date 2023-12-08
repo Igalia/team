@@ -1,0 +1,34 @@
+{% extends "people/base.html" %}
+
+{% block title %}<a href="{% url 'people:contributions' person.login %}">{{ contribution_list_title }}</a> &rarr; {{ contribution_title }}{% endblock %}
+
+{% block content %}
+
+<form method="post">
+    {% csrf_token %}
+
+    <div class="t-row">
+        <div class="t-cell form-label">Project:</div>
+        <div class="t-cell form-field">{{ contribution_form.project }}</div>
+    </div>
+    {% if contribution_form.project.errors %}
+        <div class="t-row">
+            <div class="t-cell form-label">&nbsp;</div>
+            <div class="t-cell form-field">{{ contribution_form.project.errors }}</div>
+        </div>
+    {% endif %}
+    <div class="t-row">
+        <div class="t-cell form-label">Description:</div>
+        <div class="t-cell form-field" id="description">{{ contribution_form.description }}</div>
+    </div>
+
+    {% if can_edit %}
+        <hr>
+        <div class="t-row">
+            <div class="t-cell"><button type="submit">Submit</button></div>
+        </div>
+    {% endif %}
+</form>
+
+{% endblock %}
+

@@ -1,0 +1,49 @@
+{% extends "people/base.html" %}
+{% load i18n %}{% load markdownify %}
+
+{% block title %}
+    {% if can_edit %}
+        {% translate "My contributions" %}
+    {% else %}
+        {% url 'root:person' person.login as person_url %}
+        {% blocktranslate %}<a href="{{ person_url }}">{{ person }}</a>'s contributions{% endblocktranslate %}
+    {% endif %}
+{% endblock %}
+
+{% block quick_link %}
+    {% if can_edit %}
+        <a href="{% url 'people:contribution-new' %}">Add new…</a>
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+
+{% for contribution in contributions %}
+    <div class="t-row-nth">
+        <div class="t-cell people-person-contributions-project-cell">
+            <a href="{% url 'skills:project' contribution.project.id %}">{{ contribution.project }}</a>
+        </div>
+        <div class="t-cell people-person-contributions-details-cell">
+            <div class="t-row">
+                <div class="t-cell">
+                    {{ contribution.description|markdownify }}
+                </div>
+            </div>
+            <div class="t-row">
+                <div class="t-cell">
+                    {% for skill in contribution.skills.all %}
+                        <span class="people-person-contribution-project-skill">{{ skill.name }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            <div class="t-row">
+                <div class="t-cell">
+                    <a href="{% url 'people:contribution' contribution.id %}">Edit…</a>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endfor %}
+
+{% endblock %}
+
