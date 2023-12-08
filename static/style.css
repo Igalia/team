@@ -46,13 +46,6 @@ a:hover {
     box-sizing: border-box;
 }
 
-/* Inputs take all available horizontal space. */
-.t-cell > input, .t-cell > textarea, .t-cell > select {
-    width: 100%;
-    box-sizing: border-box;
-    resize: vertical;
-}
-
 /* A 'header' cell, either for the row or for the column. */
 .t-header {
     font-weight: bolder;
@@ -108,6 +101,23 @@ a:hover {
 
 .permanent-message {
     font-size: smaller;
+}
+
+/* Standard form proportions. */
+
+.form-label {
+    width: 30%;
+}
+
+.form-field {
+    width: 70%;
+}
+
+/* Inputs take all available horizontal space. */
+.t-cell > input, .t-cell > textarea, .t-cell > select {
+    width: 100%;
+    box-sizing: border-box;
+    resize: vertical;
 }
 
 /* Form validation. */
