@@ -3,9 +3,10 @@ from django.shortcuts import render
 from django.urls import reverse, resolve, Resolver404
 
 from common.auth import get_user_login
+from inventory.models import Device
 
 from .forms import SearchForm, PersonalDataForm
-from .models import Person, PersonalData
+from .models import Person, PersonalData, Level
 
 
 def person(request, login):
@@ -31,10 +32,11 @@ def person(request, login):
                 return HttpResponseRedirect(reverse('people:person', args=[login]))
 
         context = {'can_edit': can_edit,
-                       'person': person,
-                       'personal_data': personal_data,
-                       'people': people,
-                       'search_form': search_form}
+                   'inventory': Device.objects.filter(assignee=person),
+                   'people': people,
+                   'person': person,
+                   'personal_data': personal_data,
+                   'search_form': search_form}
         if can_edit:
             context['personal_data_form'] = personal_data_form
 
@@ -50,3 +52,10 @@ def person(request, login):
             'person': None,
             'people': people,
             'search_form': search_form})
+
+
+def picker(request):
+    return render(request, 'people/picker.html', {
+        "levels": Level.objects.order_by("id"),
+        "people": Person.objects.order_by("login"),
+    })

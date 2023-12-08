@@ -154,3 +154,20 @@ class ProjectFocusRecord(models.Model):
 
     def __str__(self):
         return _('{project} → {skill}').format(project=self.project.name, skill=self.skill.name)
+
+
+class Contribution(models.Model):
+    """Describes a contribution that a person made into a project.
+    """
+    person = models.ForeignKey(Person, on_delete=models.CASCADE)
+    project = models.ForeignKey(Project, on_delete=models.CASCADE)
+    skills = models.ManyToManyField(Skill, blank=True)
+
+    description = models.TextField()
+
+    class Meta:
+        verbose_name = _('Contribution')
+        verbose_name_plural = _('Contributions')
+
+    def __str__(self):
+        return _('{person} contributed to {project}').format(person=self.person.login, project=self.project.name)

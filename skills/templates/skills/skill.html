@@ -1,41 +1,43 @@
 {% extends "skills/base.html" %}
 {% load markdownify %}
 
-{% block title %}Knowledge area: {{ skill.name }}{% endblock %}
+{% block title %}{{ skill.category }} &rarr; {{ skill.name }}{% endblock %}
 
 {% block content %}
-
-<div class="t-row">
-    <div class="t-cell skills-row-header"></div>
-    <div class="t-cell skills-column-header skills-cell-right">← Interest</div>
-    <div class="t-cell skills-column-header">Knowledge →</div>
-</div>
-
-<hr>
-
-{% for person in people %}
-    <div class="t-row-nth">
-        <div class="t-cell skills-row-header"><a href="{% url 'skills:person' person.person.login %}">{{ person.person.login }}</a></div>
-        <div class="t-cell skills-cell-right">
-            {% if person.measurement.interest %}
-                <div class="skills-interest-{{ person.measurement.interest }}">{{ person.measurement.interest }}</div>
-            {% else %}
-                &nbsp;
-            {% endif %}
-        </div>
-        <div class="t-cell skills-cell-left">
-            {% if person.measurement.knowledge %}
-                <div class="skills-knowledge-{{ person.measurement.knowledge }}">{{ person.measurement.knowledge }}</div>
-            {% else %}
-                &nbsp;
-            {% endif %}
-        </div>
-    </div>
-{% endfor %}
 
 {% if skill.description %}
     <hr>
     {{ skill.description|markdownify }}
 {% endif %}
+
+{% for measurement in measurements %}
+    {% if forloop.first %}
+        <div class="t-row">
+            <div class="t-cell skills-row-header"></div>
+            <div class="t-cell skills-column-header skills-cell-right">← Interest</div>
+            <div class="t-cell skills-column-header">Knowledge →</div>
+        </div>
+
+        <hr>
+    {% endif %}
+
+    <div class="t-row-nth">
+        <div class="t-cell skills-row-header">
+            <a href="{% url 'skills:person' measurement.assessment.person.login %}">{{ measurement.assessment.person.login }}</a>
+        </div>
+        <div class="t-cell skills-cell-right">
+            {% if measurement.interest %}
+                <div class="skills-interest-{{ measurement.interest }}">{{ measurement.interest }}</div>
+            {% endif %}
+        </div>
+        <div class="t-cell skills-cell-left">
+            {% if measurement.knowledge %}
+                <div class="skills-knowledge-{{ measurement.knowledge }}">{{ measurement.knowledge }}</div>
+            {% endif %}
+        </div>
+    </div>
+{% empty %}
+    <p>Nobody in the company knows what is this ¯\_(ツ)_/¯️</p>
+{% endfor %}
 
 {% endblock %}

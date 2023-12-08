@@ -1,5 +1,6 @@
 import copy
 
+from django.conf import settings
 from django.contrib import messages
 from django.forms import formset_factory
 from django.http.response import Http404, HttpResponseRedirect
@@ -14,6 +15,33 @@ from . import forms
 from .forms import ProjectForm
 from .models import Measurement, PersonAssessment, Project, ProjectFocusRecord, Skill, \
     EXPERT_KNOWLEDGE_THRESHOLD, HIGH_KNOWLEDGE_THRESHOLD, NOTABLE_INTEREST_THRESHOLD
+
+# Virtual team selector that shows data for all teams that the current user is in.
+# Only recognised by the team selector view that redirects immediately.  Cannot be used as a fictive slug.
+MY_TEAMS = '-'
+# Virtual team selector that shows data for all teams in the company.
+# Recognised as a fictive team slug and can be used in permanent URLs to all views that accept team slug.
+ALL_TEAMS = '--'
+
+
+def merge(x, y):
+    """Compatibility function that merges two dictionaries.
+    TODO: remove when we no longer need compatibility with 3.8.
+    """
+    z = x.copy()  # start with keys and values of x
+    z.update(y)  # modifies z with keys and values of y
+    return z
+
+
+# noinspection PyUnusedLocal
+def enable_projects(request):
+    """
+    Feature switch for "projects" which may be disabled.
+
+    :param request: not used.
+    :return: Whether project-related functionality should be exposed.
+    """
+    return getattr(settings, "SKILLS_ENABLE_PROJECTS", False)
 
 
 def user_should_be_in_some_teams(strict):
@@ -33,6 +61,7 @@ def user_should_be_in_some_teams(strict):
     :param strict: whether the selection is required even if the current team is set in the session.
     :return: a decorated view that will show the team selection form instead of the requested view, if necessary.
     """
+
     def user_must_be_in_some_teams(function):
         def _function(request, *args, **kwargs):
             user_login = get_user_login(request)
@@ -62,10 +91,11 @@ def make_readonly(form):
         field.disabled = True
 
 
-# noinspection PyUnresolvedReferences
-def enumerate_skills(teams, additional_fields=None):
+def enumerate_skills(teams, additional_fields=None, index_offset=0, skip_skills=None):
     if additional_fields is None:
         additional_fields = {}
+    if skip_skills is None:
+        skip_skills = []
 
     def describe(skill):
         nonlocal current_category
@@ -80,10 +110,41 @@ def enumerate_skills(teams, additional_fields=None):
     # Holds status for describe().
     current_category = None
 
+    # noinspection PyUnresolvedReferences
     form_data = [describe(s) for s in
-                 Skill.objects.filter(category__teams__in=teams).distinct().order_by('category__name', 'name')]
-    skills_index = {form_data[i]['skill']: i for i in range(len(form_data))}
+                 Skill.objects.exclude(pk__in=skip_skills).filter(category__teams__in=teams).distinct().order_by(
+                     'category__name', 'name')]
+    skills_index = {form_data[i]['skill']: i + index_offset for i in range(len(form_data))}
     return form_data, skills_index
+
+
+def enumerate_all_skills(person):
+    """Enumerates all skills, using `person` as a reference for grouping data
+
+    Combines two calls to `enumerate_skills()`, first enumerating the skills linked to the teams that `person` is in,
+    then enumerating all other skills.  The lists and indices are joined.  The first record in the list of "all other"
+    skills gets the boolean `separator` field set to `True`, which allows separating these lists in the views.
+
+    :returns tuple of a list and a dictionary, in the same format like `enumerate_skills()` does
+    """
+    skills, index = enumerate_skills(person.teams.all())
+    # noinspection PyUnresolvedReferences
+    other_skills, other_index = enumerate_skills(Team.objects.exclude(id__in=(t.id for t in person.teams.all())),
+                                                 index_offset=len(skills),
+                                                 skip_skills=list(index.keys()))
+
+    if other_skills:
+        other_skills[0]['separator'] = True
+
+    return skills + other_skills, merge(index, other_index)
+
+
+def get_team_selector_context():
+    return {
+        'ALL_TEAMS': ALL_TEAMS,
+        'MY_TEAMS': MY_TEAMS,
+        'show_team_selector': True,
+    }
 
 
 # ======================================================================================================================
@@ -105,11 +166,10 @@ def render_demand_vs_knowledge(request, teams):
                                                  {'knowledge': [0 for _ in Measurement.KNOWLEDGE_CHOICES],
                                                   'interest': [0 for _ in Measurement.INTEREST_CHOICES]})
 
-    page_title = 'Market demand versus knowledge: all your teams' if len(teams) > 1 \
-        else 'Market demand versus knowledge: {team} team'.format(team=teams[0].name)
+    page_title = 'Market demand versus knowledge: {teams}'.format(teams=get_current_teams(request, teams))
 
     if not skills_data:
-        return render(request, 'skills/empty.html', {'page_title': page_title, 'show_team_selector': True})
+        return render(request, 'skills/empty.html', merge({'page_title': page_title}, get_team_selector_context()))
 
     # noinspection PyUnresolvedReferences
     latest_assessments = [a for a in PersonAssessment.objects.filter(latest=True, person__teams__in=teams)]
@@ -128,8 +188,8 @@ def render_demand_vs_knowledge(request, teams):
     interest_threshold = assessment_count * NOTABLE_INTEREST_THRESHOLD
     for skill in skills_data:
         skill['star_knowledge'] = assessment_count > 0 and (
-                    skill['knowledge'][Measurement.KNOWLEDGE_EXPERT] >= expert_threshold or
-                    skill['knowledge'][Measurement.KNOWLEDGE_HIGH] >= high_threshold)
+                skill['knowledge'][Measurement.KNOWLEDGE_EXPERT] >= expert_threshold or
+                skill['knowledge'][Measurement.KNOWLEDGE_HIGH] >= high_threshold)
         skill['knowledge'] = skill['knowledge'][1:]
         skill['star_interest'] = assessment_count > 0 and skill['interest'][
             Measurement.INTEREST_EXTREME] >= interest_threshold
@@ -150,17 +210,20 @@ def render_demand_vs_knowledge(request, teams):
     for skill_record in skills_data:
         skill_record['bar_length'] = skill_record['count'] / max_count * 80 if 'count' in skill_record else 0
 
+    # noinspection PyUnresolvedReferences
     return render(request,
                   'skills/demand-vs-knowledge.html',
-                  {'page_title': page_title,
-                   'show_team_selector': True,
-                   'projects': [{'project': p['project'],
-                                 'skills': all_projects[project_index[p['project']]]['skills']}
-                                for p in all_projects],
-                   'skills': skills_data,
-                   'notable_interest_threshold': format(NOTABLE_INTEREST_THRESHOLD, ".0%"),
-                   'expert_knowledge_threshold': format(EXPERT_KNOWLEDGE_THRESHOLD, ".0%"),
-                   'high_knowledge_threshold': format(HIGH_KNOWLEDGE_THRESHOLD, ".0%")})
+                  merge({'page_title': page_title,
+                         'people': Person.objects.filter(teams__in=teams).order_by('login') if len(
+                             teams) == 1 else None,
+                         'projects': [{'project': p['project'],
+                                       'skills': all_projects[project_index[p['project']]]['skills']}
+                                      for p in all_projects],
+                         'skills': skills_data,
+                         'notable_interest_threshold': format(NOTABLE_INTEREST_THRESHOLD, ".0%"),
+                         'expert_knowledge_threshold': format(EXPERT_KNOWLEDGE_THRESHOLD, ".0%"),
+                         'high_knowledge_threshold': format(HIGH_KNOWLEDGE_THRESHOLD, ".0%")},
+                        get_team_selector_context()))
 
 
 def render_interest_vs_knowledge(request, teams):
@@ -172,11 +235,10 @@ def render_interest_vs_knowledge(request, teams):
                                                  {'knowledge': [0 for _ in Measurement.KNOWLEDGE_CHOICES],
                                                   'interest': [0 for _ in Measurement.INTEREST_CHOICES]})
 
-    page_title = 'Interest versus knowledge: all your teams' if len(teams) > 1 \
-        else 'Interest versus knowledge: {team} team'.format(team=teams[0].name)
+    page_title = 'Interest versus knowledge: {teams}'.format(teams=get_current_teams(request, teams))
 
     if not skills_data:
-        return render(request, 'skills/empty.html', {'page_title': page_title, 'show_team_selector': True})
+        return render(request, 'skills/empty.html', merge({'page_title': page_title}, get_team_selector_context()))
 
     # noinspection PyUnresolvedReferences
     latest_assessments = [a for a in PersonAssessment.objects.filter(latest=True, person__teams__in=teams)]
@@ -195,22 +257,25 @@ def render_interest_vs_knowledge(request, teams):
     interest_threshold = assessment_count * NOTABLE_INTEREST_THRESHOLD
     for skill in skills_data:
         skill['star_knowledge'] = assessment_count > 0 and (
-                    skill['knowledge'][Measurement.KNOWLEDGE_EXPERT] >= expert_threshold or
-                    skill['knowledge'][Measurement.KNOWLEDGE_HIGH] >= high_threshold)
+                skill['knowledge'][Measurement.KNOWLEDGE_EXPERT] >= expert_threshold or
+                skill['knowledge'][Measurement.KNOWLEDGE_HIGH] >= high_threshold)
         skill['star_interest'] = assessment_count > 0 and skill['interest'][
             Measurement.INTEREST_EXTREME] >= interest_threshold
 
         skill['knowledge'] = skill['knowledge'][1:]
         skill['interest'] = skill['interest'][1:]
 
+    # noinspection PyUnresolvedReferences
     return render(request,
                   'skills/interest-vs-knowledge.html',
-                  {'page_title': page_title,
-                   'show_team_selector': True,
-                   'skills': skills_data,
-                   'notable_interest_threshold': format(NOTABLE_INTEREST_THRESHOLD, ".0%"),
-                   'expert_knowledge_threshold': format(EXPERT_KNOWLEDGE_THRESHOLD, ".0%"),
-                   'high_knowledge_threshold': format(HIGH_KNOWLEDGE_THRESHOLD, ".0%")})
+                  merge({'page_title': page_title,
+                         'people': Person.objects.filter(teams__in=teams).order_by('login') if len(
+                             teams) == 1 else None,
+                         'skills': skills_data,
+                         'notable_interest_threshold': format(NOTABLE_INTEREST_THRESHOLD, ".0%"),
+                         'expert_knowledge_threshold': format(EXPERT_KNOWLEDGE_THRESHOLD, ".0%"),
+                         'high_knowledge_threshold': format(HIGH_KNOWLEDGE_THRESHOLD, ".0%")},
+                        get_team_selector_context()))
 
 
 def render_projects(request, teams):
@@ -227,14 +292,15 @@ def render_projects(request, teams):
     for focus_record in all_focus_records:
         all_projects[project_index[focus_record.project]]['skills'].append(focus_record.skill)
 
+    # noinspection PyUnresolvedReferences
     return render(request,
                   'skills/projects.html',
-                  {'page_title': 'Projects: all your teams' if len(teams) > 1
-                                 else 'Projects: {team} team'.format(team=teams[0].name),
-                   'projects': [{'project': p['project'],
-                                 'skills': all_projects[project_index[p['project']]]['skills']}
-                                for p in all_projects],
-                   'show_team_selector': True})
+                  merge({'page_title': 'Projects: {teams}'.format(teams=get_current_teams(request, teams)),
+                         'people': Person.objects.filter(teams__in=teams).order_by('login') if len(
+                             teams) == 1 else None,
+                         'projects': [{'project': p['project'],
+                                       'skills': all_projects[project_index[p['project']]]['skills']}
+                                      for p in all_projects]}, get_team_selector_context()))
 
 
 # ======================================================================================================================
@@ -249,18 +315,41 @@ def home(request):
 
 # noinspection PyUnresolvedReferences
 def set_current_team(request, team_slug):
-    if team_slug:
+    if team_slug and team_slug != MY_TEAMS:
         try:
-            Team.objects.get(slug=team_slug)
+            if team_slug != ALL_TEAMS:
+                # Try to get the Team instance just to check that it exists.
+                Team.objects.get(slug=team_slug)
             request.session['current_team_slug'] = team_slug
             if 'current_view' in request.session:
                 return HttpResponseRedirect(reverse(request.session['current_view'], args=[team_slug]))
             return HttpResponseRedirect(reverse('skills:home'))
         except Team.DoesNotExist:
             raise Http404("Team does not exist")
+    # If either an empty team slug or MY_TEAMS comes, delete the current team selector and redirect to the default view.
     if 'current_team_slug' in request.session:
         del request.session['current_team_slug']
     return HttpResponseRedirect(reverse('skills:home'))
+
+
+# noinspection PyUnresolvedReferences
+def get_teams_by_slug(team_slug):
+    """Returns a team for the given slug, or a set of teams for virtual team selectors.
+
+    :raise Team.DoesNotExist if no team was found for a slug that is not a virtual team selector.
+    """
+
+    if team_slug == ALL_TEAMS:
+        return Team.objects.all()
+    return Team.objects.get(slug=team_slug),
+
+
+def get_current_teams(request, teams):
+    if len(teams) == 1:
+        return '{team} team'.format(team=teams[0].name)
+    if request.session.get('current_team_slug') and request.session['current_team_slug'] == ALL_TEAMS:
+        return 'whole company'
+    return 'all your teams'
 
 
 # noinspection PyUnresolvedReferences
@@ -275,9 +364,11 @@ def demand_vs_knowledge(request, person):
 # noinspection PyUnresolvedReferences
 def demand_vs_knowledge_for_team(request, team_slug):
     try:
-        team = Team.objects.get(slug=team_slug)
+        # Try to get the teams first.  It can raise en exception, and in that event we do not update `current_view`
+        # in the session.
+        teams = get_teams_by_slug(team_slug)
         request.session['current_view'] = 'skills:demand-vs-knowledge-for-team'
-        return render_demand_vs_knowledge(request, (team, ))
+        return render_demand_vs_knowledge(request, teams)
     except Team.DoesNotExist:
         raise Http404("Team does not exist")
 
@@ -292,9 +383,11 @@ def projects(request, person):
 # noinspection PyUnresolvedReferences
 def projects_for_team(request, team_slug):
     try:
-        team = Team.objects.get(slug=team_slug)
+        # Try to get the teams first.  It can raise en exception, and in that event we do not update `current_view`
+        # in the session.
+        teams = get_teams_by_slug(team_slug)
         request.session['current_view'] = 'skills:projects-for-team'
-        return render_projects(request, (team, ))
+        return render_projects(request, teams)
     except Team.DoesNotExist:
         raise Http404("Team does not exist")
 
@@ -311,9 +404,11 @@ def interest_vs_knowledge(request, person):
 # noinspection PyUnresolvedReferences
 def interest_vs_knowledge_for_team(request, team_slug):
     try:
-        team = Team.objects.get(slug=team_slug)
+        # Try to get the teams first.  It can raise en exception, and in that event we do not update `current_view`
+        # in the session.
+        teams = get_teams_by_slug(team_slug)
         request.session['current_view'] = 'skills:interest-vs-knowledge-for-team'
-        return render_interest_vs_knowledge(request, (team, ))
+        return render_interest_vs_knowledge(request, teams)
     except Team.DoesNotExist:
         raise Http404("Team does not exist")
 
@@ -328,20 +423,11 @@ def render_skill(request, skill_id):
     except Skill.DoesNotExist:
         raise Http404("Skill does not exist")
 
-    skill_teams = set(t for t in skill.category.teams.all())
-
-    latest_assessments = [a for a in PersonAssessment.objects.filter(latest=True).order_by('person__login')]
-    people = [{'person': p} for p in Person.objects.filter(teams__in=skill_teams)]
-    people_index = {people[i]['person'].login: i for i in range(len(people))}
-    measurements = Measurement.objects.filter(assessment__in=latest_assessments, skill=skill)
-    for measurement in measurements:
-        if measurement.assessment.person.login not in people_index:
-            continue
-        people[people_index[measurement.assessment.person.login]]['measurement'] = measurement
-
     return render(request,
                   'skills/skill.html',
-                  {'page_title': 'Skill: {}'.format(skill.name), 'skill': skill, 'people': people})
+                  {'page_title': 'Skill: {}'.format(skill.name), 'skill': skill,
+                   'measurements': Measurement.objects.filter(assessment__latest=True, skill=skill).order_by(
+                       'assessment__person__login')})
 
 
 # noinspection PyUnresolvedReferences
@@ -354,25 +440,23 @@ def render_person(request, login):
     except Person.DoesNotExist:
         raise Http404("Person does not exist")
 
+    skills, index = enumerate_all_skills(person)
+
     try:
         latest_assessment = PersonAssessment.objects.get(latest=True, person=person)
+        for measurement in Measurement.objects.filter(assessment=latest_assessment):
+            if measurement.skill.pk not in index:
+                continue
+            skills[index[measurement.skill.pk]]['measurement'] = measurement
     except PersonAssessment.DoesNotExist:
         latest_assessment = None
-
-    skills_data, skills_index = enumerate_skills([t for t in person.teams.all()])
-
-    if latest_assessment is not None:
-        for measurement in Measurement.objects.filter(assessment=latest_assessment):
-            if measurement.skill.pk not in skills_index:
-                continue
-            skills_data[skills_index[measurement.skill.pk]]['measurement'] = measurement
 
     return render(request,
                   'skills/person.html',
                   {'page_title': 'Member: {}'.format(person.login),
                    'person': person,
                    'latest_assessment': latest_assessment,
-                   'skills': skills_data})
+                   'skills': skills})
 
 
 def render_pick_teams(request, **kwargs):
@@ -589,7 +673,7 @@ def self_assess(request, person):
         messages.success(request, 'Thank you for your input!')
         return HttpResponseRedirect(reverse('skills:home'))
     else:
-        skills, index = enumerate_skills(person.teams.all())
+        skills, index = enumerate_all_skills(person)
 
         try:
             latest_assessment = PersonAssessment.objects.get(person=person, latest=True)
@@ -602,8 +686,8 @@ def self_assess(request, person):
         except PersonAssessment.DoesNotExist:
             latest_assessment = None
 
-        formset = MeasurementFormSet(initial=skills)
         return render(request,
                       'skills/self-assess.html',
-                      {'page_title': 'Self assessment', 'user_login': person.login, 'formset': formset,
+                      {'page_title': 'Self assessment', 'user_login': person.login,
+                       'formset': MeasurementFormSet(initial=skills),
                        'latest_assessment': latest_assessment})
