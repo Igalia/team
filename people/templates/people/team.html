@@ -1,0 +1,27 @@
+
+{% extends "people/base.html" %}
+{% load markdownify %}
+
+{% block title %}{{ team | default_if_none:"Team not found" }}{% endblock %}
+
+{% block content %}
+
+{{ team.description|markdownify }}
+
+<h2>Members</h2>
+
+<ul>
+{% for person in team.person_set.all %}
+    <li><a href="{% url 'root:person' person.login %}">{{ person }}</a></li>
+{% endfor %}
+</ul>
+
+<h2>Projects</h2>
+
+<ul>
+{% for project in team.project_set.all %}
+    <li><a href="{% url 'skills:project' project.id %}">{{ project }}</a></li>
+{% endfor %}
+</ul>
+
+{% endblock %}
