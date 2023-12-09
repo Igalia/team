@@ -8,11 +8,14 @@
 {% for team in teams %}
     <div class="people-teams-team">
         <h2><a href="{% url 'people:team' team.slug %}">{{ team }}</a></h2>
-        <p><small>{{ team.person_set.all|length }} member(s) in this team:
-        {% for person in team.person_set.all %}
-            <a href="{% url 'root:person' person.login %}">{{ person.login }}</a>
-        {% endfor %}
-    </small></p>
+        <p>
+            <small>
+                {{ team.person_set.all|length }} member(s) in this team:
+                {% for person in team.person_set.all %}
+                <a href="{% url 'root:person' person.login %}">{{ person.login }}</a>
+                {% endfor %}
+            </small>
+        </p>
     </div>
 {% endfor %}
 
