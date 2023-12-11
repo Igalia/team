@@ -10,9 +10,15 @@
         <div class="menu">
             {% get_menu "NAV_MENU_2ND_LEVEL" as menu %}
             {% for item in menu %}
-                <div class="{% if item.selected %} active {% endif %}">
-                    <a href="{{ item.url }}"> <i class="{{ item.icon_class }}"></i> {{ item.name }}</a>
-                </div>
+                {% if item.is_person_view and at_person_view %}
+                    <div class="active">
+                        <a href="{{ item.url }}"> <i class="{{ item.icon_class }}"></i> {{ item.name }}</a>
+                    </div>
+                {% else %}
+                    <div class="{% if item.selected %} active {% endif %}">
+                        <a href="{{ item.url }}"> <i class="{{ item.icon_class }}"></i> {{ item.name }}</a>
+                    </div>
+                {% endif %}
             {% endfor %}
         </div>
     </div>
