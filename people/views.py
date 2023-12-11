@@ -59,7 +59,7 @@ def render_contributions(request, login):
         })
 
     except Person.DoesNotExist:
-        raise
+        raise Http404("User does not exist")
 
 
 def render_person(request, login):
