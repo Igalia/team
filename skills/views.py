@@ -10,6 +10,7 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
 from common.auth import get_user_login
+from common.forms import make_readonly
 from people.models import Person, Team
 from . import forms
 from .forms import ProjectForm
@@ -81,14 +82,6 @@ def user_should_be_in_some_teams(strict):
         return _function
 
     return user_must_be_in_some_teams
-
-
-def make_readonly(form):
-    """Sets the disabled attribute for all fields in the form.
-    """
-    for field_name in form.fields:
-        field = getattr(form, 'fields')[field_name]
-        field.disabled = True
 
 
 def enumerate_skills(teams, additional_fields=None, index_offset=0, skip_skills=None):
