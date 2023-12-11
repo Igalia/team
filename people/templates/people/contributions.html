@@ -5,7 +5,7 @@
     {% if can_edit %}
         {% translate "My contributions" %}
     {% else %}
-        {% url 'people:person' person.login as person_url %}
+        {% url 'root:person' person.login as person_url %}
         {% blocktranslate %}<a href="{{ person_url }}">{{ person }}</a>'s contributions{% endblocktranslate %}
     {% endif %}
 {% endblock %}

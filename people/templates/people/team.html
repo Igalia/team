@@ -11,7 +11,7 @@
 
 <ul>
 {% for person in team.person_set.all %}
-    <li><a href="{% url 'people:person' person.login %}">{{ person }}</a></li>
+    <li><a href="{% url 'root:person' person.login %}">{{ person }}</a></li>
 {% endfor %}
 </ul>
 

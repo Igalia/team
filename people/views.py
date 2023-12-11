@@ -68,7 +68,7 @@ def render_person(request, login):
 
     try:
         if request.method == 'POST' and search_form.is_valid():
-            return HttpResponseRedirect(reverse('people:person', args=[search_form.cleaned_data['login']]))
+            return HttpResponseRedirect(reverse('root:person', args=[search_form.cleaned_data['login']]))
 
         person = Person.objects.get(login=login)
         try:
@@ -82,9 +82,14 @@ def render_person(request, login):
             personal_data_form = PersonalDataForm(request.POST or None, instance=personal_data)
             if request.method == 'POST' and personal_data_form.is_valid():
                 personal_data_form.save()
-                return HttpResponseRedirect(reverse('people:person', args=[login]))
+                return HttpResponseRedirect(reverse('root:person', args=[login]))
 
-        context = {'can_edit': can_edit,
+        # The `at_person_view` flag is part of a hack to force "active" state for the root:person view.
+        # Django-menu-generator does not seem to recognise that URL as "child" for the People app, and does not activate
+        # the menu item as expected.  That is why we have explicit flags set for these two menu items, and the templates
+        # detect them when rendering the menu.
+        context = {'at_person_view': True,
+                   'can_edit': can_edit,
                    'inventory': Device.objects.filter(assignee=person),
                    'people': people,
                    'person': person,

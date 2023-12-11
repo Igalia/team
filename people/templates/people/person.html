@@ -37,7 +37,7 @@
 
                 <div class="t-row">
                     <div class="t-cell">Teams:</div>
-                    <div class="t-cell">{% for team in person.teams.all %}{{ team }}{% endfor %}</div>
+                    <div class="t-cell">{% for team in person.teams.all %}<a href="{% url 'people:team' team.slug %}">{{ team }}</a>{% endfor %}</div>
                 </div>
             </div>
 

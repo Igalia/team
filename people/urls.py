@@ -1,6 +1,6 @@
 """URL configuration of the People application.
 
-The People application is
+This is the main section for the URL map. See also `.root_urls.py`.
 """
 
 from django.http.response import HttpResponseRedirect
@@ -12,7 +12,7 @@ from . import views
 
 # noinspection PyUnusedLocal
 def home(request):
-    return HttpResponseRedirect(reverse('people:person', args=[get_user_login(request)]))
+    return HttpResponseRedirect(reverse('root:person', args=[get_user_login(request)]))
 
 
 app_name = 'people'
