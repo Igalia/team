@@ -14,10 +14,20 @@ class ContributionForm(forms.ModelForm):
         fields = ('project', 'description')
 
 
+class PersonalDataForm(forms.ModelForm):
+    """Allows to edit personal details.
+
+    Used by the people.render_person view.
+    """
+    class Meta:
+        model = PersonalData
+        fields = ('location_query', 'tz_name', 'work_begin_time', 'work_end_time')
+
+
 class SearchForm(forms.Form):
     """Captures the login of a person to show.
 
-    This form is used by the people.person view to search people.
+    Used by the people.render_person view.
     """
     login = forms.CharField(widget=forms.TextInput(attrs={'placeholder': 'Type to search'}))
 
@@ -26,13 +36,3 @@ class SearchForm(forms.Form):
 
     class Meta:
         fields = ('login',)
-
-
-class PersonalDataForm(forms.ModelForm):
-    """Allows to edit personal details.
-
-    Used by the people.person view.
-    """
-    class Meta:
-        model = PersonalData
-        fields = ('location_query', 'tz_name', 'work_begin_time', 'work_end_time')

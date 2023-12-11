@@ -12,7 +12,7 @@
             <small>
                 {{ team.person_set.all|length }} member(s) in this team:
                 {% for person in team.person_set.all %}
-                <a href="{% url 'root:person' person.login %}">{{ person.login }}</a>
+                <a href="{% url 'people:person' person.login %}">{{ person.login }}</a>
                 {% endfor %}
             </small>
         </p>
