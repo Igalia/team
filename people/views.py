@@ -84,10 +84,10 @@ def render_person(request, login):
                 personal_data_form.save()
                 return HttpResponseRedirect(reverse('root:person', args=[login]))
 
-        # The `at_person_view` flag is part of a hack to force "active" state for the root:person view.
+        # The `at_person_view` flag is part of a hack to force "active" state for the menu item for the root:person URL.
         # Django-menu-generator does not seem to recognise that URL as "child" for the People app, and does not activate
-        # the menu item as expected.  That is why we have explicit flags set for these two menu items, and the templates
-        # detect them when rendering the menu.
+        # the menu item as expected.  That is why we set explicit flags for these two menu items, and the templates look
+        # at them when rendering the menu.
         context = {'at_person_view': True,
                    'can_edit': can_edit,
                    'inventory': Device.objects.filter(assignee=person),

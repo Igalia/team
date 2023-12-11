@@ -3,6 +3,7 @@ from people.models import Team
 
 def in_app(request):
     """Returns whether `request` would be handled by this app.
+
     This is a validator for the menu.  It hides the Skills second level menu when views from other apps are rendered.
     """
     return 'skills' in request.resolver_match.app_names
