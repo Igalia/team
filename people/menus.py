@@ -9,38 +9,17 @@ def in_app(request):
 
 
 MENUS = {
-    "NAV_MENU_1ST_LEVEL": [
+    'NAV_MENU_1ST_LEVEL': [
         {
             "is_people_app": True,  # This is part of a hack to force "active" state for the root:person view.
             "name": "People",
             "url": "people:home",
-            "root": True,
+            'root': True,
         },
         {
             "name": "Skills",
             "url": "skills:home",
             "root": True,
-        },
-    ],
-    "NAV_MENU_2ND_LEVEL": [
-        {
-            "is_person_view": True,  # This is part of a hack to force "active" state for the root:person view.
-            "name": "Home",
-            "url": "people:home",
-            "root": False,
-            "validators": ["people.menus.in_app"],
-        },
-        {
-            "name": "Teams",
-            "url": "people:teams",
-            "root": False,
-            "validators": ["people.menus.in_app"],
-        },
-        {
-            "name": "People picker",
-            "url": "people:picker",
-            "root": False,
-            "validators": ["people.menus.in_app"],
         },
     ],
     "NAV_MENU_2ND_LEVEL": [
