@@ -19,7 +19,7 @@ MENUS = {
         {
             "name": "Skills",
             "url": "skills:home",
-            "root": True,
+            'root': True,
         },
     ],
     "NAV_MENU_2ND_LEVEL": [
