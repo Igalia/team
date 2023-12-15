@@ -14,7 +14,11 @@
 {% if person %}
 <div class="t-row">
     <div class="t-cell people-person-block-photo">
-        <img src="{% static 'people/stub-avatar.png' %}" width="200" height="200">
+        {% ifequal personal_data.avatar None %}
+            <img src="{% static 'people/stub-avatar.png' %}" width="200" height="200">
+        {% else %}
+            <img src="{{ personal_data.avatar.url }}" width="200" height="200">
+        {% endifequal %}
     </div>
     <div class="t-cell people-person-block-data">
         <div class="t-row">

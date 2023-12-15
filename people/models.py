@@ -1,7 +1,30 @@
 import datetime
+import os
+from uuid import uuid4
 
 from django.db import models
+from django.dispatch import receiver
 from django.utils.translation import gettext_lazy as _
+
+from team import settings
+
+
+def mangle_filename(instance, filename):
+    """Generates a UUID-based unique hard-to-guess filename
+
+    :param instance: the DB model that this path is generated for
+    :param filename: the "original" filename (normally comes from the uploaded file)
+    :return: path to the new location within `MEDIA_ROOT`
+
+    The `instance` may have a `STORAGE_PATH` attribute that will be used as a prefix of the resulting path
+    """
+    name, ext = os.path.splitext(filename)
+    new_path = os.path.join(instance.STORAGE_PATH if hasattr(instance, "STORAGE_PATH") else "",
+                            '{}.{}'.format(uuid4().hex, ext))
+    # UUID is generated based on current time and 14 bit random component as parts, so the collision is not likely.
+    # In an unlikely event of the collision, just bail out.
+    assert not os.path.exists(new_path)
+    return new_path
 
 
 class Level(models.Model):
@@ -40,6 +63,9 @@ class PersonalData(models.Model):
     """
     Extended data about a person.
     """
+
+    STORAGE_PATH = settings.PEOPLE_PERSONAL_DATA_STORAGE
+
     # Extends the Person model.
     person = models.OneToOneField(Person, on_delete=models.CASCADE)
     # Geographical location in form of a query for the external locator service, like "London, United Kingdom".
@@ -50,6 +76,8 @@ class PersonalData(models.Model):
     work_begin_time = models.TimeField(default=datetime.time(9, 00))
     # Typical hour of ending the work.
     work_end_time = models.TimeField(default=datetime.time(18, 00))
+    # Person's avatar.
+    avatar = models.ImageField(null=True, upload_to=mangle_filename)
 
     class Meta:
         verbose_name = _('Personal data')
@@ -57,6 +85,19 @@ class PersonalData(models.Model):
 
     def __str__(self):
         return str(self.person)
+
+
+@receiver(models.signals.pre_save, sender=PersonalData)
+def delete_old_avatar(sender, instance, **kwargs):
+    if not instance.pk:
+        return
+
+    try:
+        old_avatar = PersonalData.objects.get(pk=instance.pk).avatar
+        if old_avatar.url != instance.avatar.url:
+            old_avatar.delete(save=False)
+    except PersonalData.DoesNotExist:
+        pass
 
 
 class Team(models.Model):
