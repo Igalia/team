@@ -20,7 +20,7 @@ def mangle_filename(instance, filename):
     """
     name, ext = os.path.splitext(filename)
     new_path = os.path.join(instance.STORAGE_PATH if hasattr(instance, "STORAGE_PATH") else "",
-                            '{}.{}'.format(uuid4().hex, ext))
+                            '{}{}'.format(uuid4().hex, ext))
     # UUID is generated based on current time and 14 bit random component as parts, so the collision is not likely.
     # In an unlikely event of the collision, just bail out.
     assert not os.path.exists(new_path)
