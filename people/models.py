@@ -94,7 +94,8 @@ def delete_old_avatar(sender, instance, **kwargs):
 
     try:
         old_avatar = PersonalData.objects.get(pk=instance.pk).avatar
-        if old_avatar.url != instance.avatar.url:
+        # old_avatar can be None if it belongs to a new PersonalData that has just been created
+        if old_avatar and old_avatar.url != instance.avatar.url:
             old_avatar.delete(save=False)
     except PersonalData.DoesNotExist:
         pass
