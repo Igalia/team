@@ -4,7 +4,7 @@ import logging
 from django.core.files import File
 from django.core.management.base import BaseCommand
 
-from people.models import Level, Person, Team, PersonalData
+from people.models import Level, Person, PersonalData, Team
 
 try:
     from .import_sources import DATA_SOURCES
