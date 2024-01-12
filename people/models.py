@@ -77,7 +77,7 @@ class PersonalData(models.Model):
     # Typical hour of ending the work.
     work_end_time = models.TimeField(default=datetime.time(18, 00))
     # Person's avatar.
-    avatar = models.ImageField(null=True, upload_to=mangle_filename)
+    avatar = models.ImageField(null=True, blank=True, upload_to=mangle_filename)
 
     class Meta:
         verbose_name = _('Personal data')
@@ -87,6 +87,7 @@ class PersonalData(models.Model):
         return str(self.person)
 
 
+# noinspection PyUnusedLocal
 @receiver(models.signals.pre_save, sender=PersonalData)
 def delete_old_avatar(sender, instance, **kwargs):
     if not instance.pk:
@@ -94,8 +95,10 @@ def delete_old_avatar(sender, instance, **kwargs):
 
     try:
         old_avatar = PersonalData.objects.get(pk=instance.pk).avatar
-        # old_avatar can be None if it belongs to a new PersonalData that has just been created
-        if old_avatar and old_avatar.url != instance.avatar.url:
+        # old_avatar can be None if it belongs to a new PersonalData that has just been created.
+        # It should be deleted IFF it exists AND the new instance differs (that is, either is empty or points to another
+        # file).
+        if old_avatar and old_avatar.url and old_avatar != instance.avatar:
             old_avatar.delete(save=False)
     except PersonalData.DoesNotExist:
         pass

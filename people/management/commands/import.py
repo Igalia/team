@@ -48,7 +48,9 @@ class Command(BaseCommand):
             personal_data.location = location_str
             personal_data.tz_name = tz_name_str
             if avatar_file:
-                personal_data.avatar.save("avatar.png", File(avatar_file), save=True)
+                personal_data.avatar.save("avatar.png", File(avatar_file), save=False)
+            elif personal_data.avatar:
+                personal_data.avatar.delete(save=False)
             personal_data.save()
 
             try:
