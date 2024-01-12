@@ -45,6 +45,12 @@
     width: 20%;
 }
 
+.people-person-block-photo img {
+    border: 1px solid black;
+    padding: 1px;
+    object-fit: contain;
+}
+
 .people-person-block-data {
     width: 80%;
 }
