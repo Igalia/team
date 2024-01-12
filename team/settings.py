@@ -15,6 +15,9 @@ import logging
 # noinspection PyUnresolvedReferences
 from pathlib import Path
 
+# Can be changed later but needed here for the test environment
+DEBUG = True
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
