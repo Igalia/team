@@ -15,6 +15,9 @@ import logging
 # noinspection PyUnresolvedReferences
 from pathlib import Path
 
+# Can be changed later but needed here for the test environment
+DEBUG = True
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -117,6 +120,9 @@ STATICFILES_DIRS = [
     BASE_DIR / 'skills' / 'static',
 ]
 
+MEDIA_ROOT = ''
+MEDIA_URL = '/media/'
+
 MARKDOWNIFY_STRIP = False
 MARKDOWNIFY_WHITELIST_TAGS = [
     'a',
@@ -180,6 +186,9 @@ def set_target_blank(attrs, new=False):
 
 MARKDOWNIFY_LINKIFY_CALLBACKS = [set_target_blank, ]
 MARKDOWNIFY_MARKDOWN_EXTENSIONS = ['markdown.extensions.extra',]
+
+# Sub-path under MEDIA_ROOT where files bound to the instances of the people.PersonalData model will be put
+PEOPLE_PERSONAL_DATA_STORAGE = "people/personal_data"
 
 try:
     from .site_settings import *
