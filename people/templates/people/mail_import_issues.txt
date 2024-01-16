@@ -1,0 +1,14 @@
+{% autoescape off %}Issues occurred while importing personal records from the remote data source.
+
+{% if issues %}Issues with existing records
+----------------------------
+
+There were issues while importing:
+{% for issue in issues %}- {{ issue }}
+{% endfor %}{% endif %}
+{% if persons_to_delete %}Personal records to delete
+--------------------------
+
+Some records do not present in the data source, probably they should be removed:
+{% for person in persons_to_delete %}- {{ person }}
+{% endfor %}{% endif %}{% endautoescape %}
