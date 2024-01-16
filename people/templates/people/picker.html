@@ -1,7 +1,7 @@
 {% extends "people/base.html" %}
 {% load menu_generator %}{% load static %}
 
-{% block title %}{{ person | default_if_none:"Person not found" }}{% endblock %}
+{% block title %}People picker{% endblock %}
 
 {% block content %}
 
@@ -9,17 +9,22 @@
     <div class="t-cell people-picker-list">
         <h2>Available</h2>
 
-        <select multiple id="available-list" class="people-picker-list">
-            {% for person in people %}
-            <option value="{{ person.login }}">{{ person }}</option>
-            {% endfor %}
-        </select>
+        <div>
+            <select multiple id="available-list" class="people-picker-list">
+                {% for person in people %}
+                <option value="{{ person.login }}">{{ person }}</option>
+                {% endfor %}
+            </select>
+        </div>
 
-        <button id="ignore-people-button">Ignore selected &downarrow;</button>
-        <button id="unignore-people-button">Unignore all &uparrow;</button>
+        <div>
+            <button id="ignore-people-button">Ignore selected &downarrow;</button>
+            <button id="unignore-people-button">Unignore all &uparrow;</button>
+        </div>
 
-        <select multiple id="ignored-list" class="people-picker-list-short">
-        </select>
+        <div>
+            <select multiple id="ignored-list" class="people-picker-list-short"></select>
+        </div>
     </div>
     <div class="t-cell people-picker-pick">
         <h2>Filter</h2>
@@ -66,6 +71,24 @@ var levelCheckboxes = {
 {% endfor %}
 };
 
+function sortList(selectElement) {
+    var items = new Array();
+    for (var i = 0; i < selectElement.options.length; ++i) {
+        items[i] = new Array();
+        items[i][0] = selectElement.options[i].text;
+        items[i][1] = selectElement.options[i].value;
+    }
+    items.sort(function (a, b) { return a[0].toLowerCase().localeCompare(b[0].toLowerCase()); });
+
+    for (var i = selectElement.options.length - 1; i >= 0; --i) {
+      selectElement.remove(i);
+    }
+
+    for (var i = 0; i < items.length; ++i) {
+        selectElement.options[i] = new Option(items[i][0], items[i][1]);
+    }
+}
+
 function availablePeopleCount() {
     var result = 0;
     for (const option of availableList.options) {
@@ -93,6 +116,8 @@ function moveSelectedItems(fromList, toList) {
         option.selected = false;
    }
 
+   sortList(toList);
+
    updateButtons();
 }
 
@@ -119,6 +144,11 @@ function updateButtons() {
         unpickPeopleButton.innerHTML = "&larr; Remove all";
     else
         unpickPeopleButton.innerHTML = "&larr; Remove selected";
+
+    if (ignoredList.selectedIndex == -1)
+        unignorePeopleButton.innerHTML = "Unignore all &uparrow;";
+    else
+        unignorePeopleButton.innerHTML = "Unignore selected &uparrow;";
 }
 
 function onFilterLevelCheckboxChange() {

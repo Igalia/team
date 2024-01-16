@@ -77,10 +77,20 @@
 
 .people-picker-list {
     width: 40%;
+    padding: 0px;
+}
+
+.people-picker-list h2, .people-picker-list div {
+    text-align: center;
+}
+
+.people-picker-list div+div {
+    margin-top: 6px;
 }
 
 .people-picker-pick {
     width: 20%;
+    padding: 0px 6px 0px 6px;
     text-align: center;
 }
 

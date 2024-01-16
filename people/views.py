@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.db.models.functions import Lower
 from django.http.response import Http404, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import resolve, Resolver404, reverse
@@ -115,7 +116,7 @@ def render_person(request, login):
 def picker(request):
     return render(request, 'people/picker.html', {
         "levels": Level.objects.order_by("id"),
-        "people": Person.objects.order_by("login"),
+        "people": Person.objects.order_by(Lower("login")),
     })
 
 
