@@ -1,10 +1,14 @@
 import datetime
+import email
 import logging
+import smtplib
 
 from django.core.files import File
 from django.core.management.base import BaseCommand
+from django.template.loader import render_to_string
 
 from people.models import Level, Person, PersonalData, Team
+from team import settings
 
 try:
     from .import_sources import DATA_SOURCES
@@ -23,12 +27,44 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         parser.add_argument('source', type=str)
 
+    def notify_about_issues(self, issues, persons_to_delete):
+        if not settings.GENERAL_FROM_EMAIL or not settings.PEOPLE_ADMIN_EMAILS:
+            self.stderr.write(self.style.ERROR("There were issues but the from and to emails are not configured "
+                                               "properly.  Cannot notify anyone."))
+            return
+
+        if not issues and not persons_to_delete:
+            self.stderr.write(self.style.SUCCESS("There were no issues.  Will not notify anyone."))
+            return
+
+        report = render_to_string('people/mail_import_issues.txt', {
+            'issues': issues,
+            'persons_to_delete': persons_to_delete
+        })
+
+        message = email.message.EmailMessage()
+        message['Subject'] = 'There were issues while importing people from the external data source'
+        message['From'] = settings.GENERAL_FROM_EMAIL
+        message['To'] = ', '.join(settings.PEOPLE_ADMIN_EMAILS)
+        message.set_content(report)
+
+        mail_server = smtplib.SMTP(settings.EMAIL_SMTP)
+        mail_server.send_message(message)
+        mail_server.quit()
+
     def handle(self, *args, **options):
         data_source_label = options["source"]
         data_source = DATA_SOURCES[data_source_label] if data_source_label in DATA_SOURCES else None
         if not data_source:
             self.stderr.write(self.style.ERROR("Unknown data source: '{label}'!".format(label=data_source_label)))
             return
+
+        issues = []
+        persons_to_delete = set(Person.objects.all())
+
+        def report_issue(issue):
+            self.stderr.write(self.style.ERROR(issue))
+            issues.append(issue)
 
         for item in data_source():
             login_str, level_str, full_name_str, join_date_str, team_str, location_str, tz_name_str, avatar_file = map(
@@ -39,6 +75,7 @@ class Command(BaseCommand):
                 self.stdout.write(self.style.SUCCESS("Creating {person}.".format(person=login_str)))
             else:
                 self.stdout.write(self.style.SUCCESS("Updating {person}.".format(person=login_str)))
+                persons_to_delete.remove(person)
 
             person.full_name = full_name_str
             person.join_date = datetime.datetime.strptime(join_date_str, '%Y-%m-%d').date()
@@ -57,10 +94,8 @@ class Command(BaseCommand):
                 person.level = Level.objects.get(name=level_str)
                 person.save()
             except Level.DoesNotExist:
-                self.stderr.write(
-                    self.style.ERROR(
-                        "Unknown level '{level}' specified for a person with login '{person}'!".format(
-                            level=level_str, person=login_str)))
+                report_issue("Unknown level '{level}' specified for {person}".format(
+                    level=level_str, person=person))
 
             try:
                 # This assumes that a person is always a member of a single team.  Technically the system maintains
@@ -68,9 +103,9 @@ class Command(BaseCommand):
                 person.teams.set((Team.objects.get(name=team_str),))
                 person.save()
             except Team.DoesNotExist:
-                self.stderr.write(
-                    self.style.ERROR(
-                        "Unknown team '{team}' specified for a person with login '{person}'!".format(
-                            team=team_str, person=login_str)))
+                report_issue("Unknown team '{team}' specified for {person}".format(
+                    team=team_str, person=person))
+
+        self.notify_about_issues(issues, sorted(list(persons_to_delete), key=lambda p: p.login.lower()))
 
         self.stdout.write(self.style.SUCCESS("Done."))

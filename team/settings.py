@@ -187,6 +187,14 @@ def set_target_blank(attrs, new=False):
 MARKDOWNIFY_LINKIFY_CALLBACKS = [set_target_blank, ]
 MARKDOWNIFY_MARKDOWN_EXTENSIONS = ['markdown.extensions.extra',]
 
+# General settings for notifications sent by the system.
+EMAIL_SMTP = ''
+# The From: address for notifications sent by the system.
+EMAIL_GENERAL_FROM = ''
+
+
+# List of email addresses of administrators of the people application.  Re-define in the site settings.
+PEOPLE_ADMIN_EMAILS = ()
 # Sub-path under MEDIA_ROOT where files bound to the instances of the people.PersonalData model will be put
 PEOPLE_PERSONAL_DATA_STORAGE = "people/personal_data"
 
