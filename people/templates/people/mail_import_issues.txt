@@ -9,6 +9,6 @@ There were issues while importing:
 {% if persons_to_delete %}Personal records to delete
 --------------------------
 
-Some records do not present in the data source, probably they should be removed:
+Some records are not present in the data source, probably they should be removed:
 {% for person in persons_to_delete %}- {{ person }}
 {% endfor %}{% endif %}{% endautoescape %}
