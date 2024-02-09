@@ -1,5 +1,11 @@
 /*
-    CSS shared by all applications.  See notes on particular rules.
+    CSS shared by all applications.
+
+    To keep the visual style of the system consistent, try to use as much as possible from this sheet.  In particular,
+    avoid overriding margins, padding, fonts, and font sizes in the apps.
+
+    Colors, especially ones used for backgrounds and to fill elements, are taken from the 2014 Material Design palettes,
+    see https://m2.material.io/design/color/the-color-system.html#tools-for-picking-colors
 */
 
 body {

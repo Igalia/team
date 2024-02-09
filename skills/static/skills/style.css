@@ -8,6 +8,26 @@
     width: 35%;
 }
 
+.skills-assess-form-category-group-primary {
+    /* Material Green 50 */
+    background-color: #E8F5E9;
+}
+
+.skills-assess-form-category-group-primary .skills-assess-form-category >.t-row:nth-of-type(even) {
+    /* Material Green 100 */
+    background-color: #C8E6C9;
+}
+
+.skills-assess-form-category-group-other {
+    /* Material Gray 100 */
+    background-color: #F5F5F5;
+}
+
+.skills-assess-form-category-group-other .skills-assess-form-category >.t-row:nth-of-type(even) {
+    /* Material Gray 300 */
+    background-color: #E0E0E0;
+}
+
 .skills-project-skills-cell, .skills-project-skills-column-header {
     width: 60%;
 }
