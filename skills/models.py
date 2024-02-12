@@ -90,7 +90,7 @@ class Measurement(models.Model):
         (KNOWLEDGE_LOW, _('Touched it while doing unrelated things')),
         (KNOWLEDGE_MEDIUM, _('Did minor things there')),
         (KNOWLEDGE_HIGH, _('Did major things there')),
-        (KNOWLEDGE_EXPERT, _('Expert')),
+        (KNOWLEDGE_EXPERT, _('I am expert in this area')),
     )
 
     INTEREST_NONE = 0
@@ -100,10 +100,10 @@ class Measurement(models.Model):
     INTEREST_EXTREME = 4
     INTEREST_CHOICES = (
         (INTEREST_NONE, _('No interest')),
-        (INTEREST_LOW, _('I wouldn\'t mind working in this area')),
+        (INTEREST_LOW, _('I would not mind working in this area')),
         (INTEREST_MEDIUM, _('I would like to work in this area')),
         (INTEREST_HIGH, _('I really want to work in this area')),
-        (INTEREST_EXTREME, _('I am obsessed with it!')),
+        (INTEREST_EXTREME, _('This is one of my favourite areas')),
     )
 
     assessment = models.ForeignKey(PersonAssessment, on_delete=models.CASCADE)
