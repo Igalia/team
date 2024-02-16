@@ -5,7 +5,7 @@
 
 <p>Hi there, {{ user_login }}!  Please fill in and submit the form below.  {% if latest_assessment %}The current data is taken from your most recent record ({{ latest_assessment.date }}).{% else %}This will be your first record.{% endif %}</p>
 
-<form method="post">
+<form method="post" id="self-assess-form">
     <div class="skills-assess-form-category-group-primary">
         <h2>Skills from your teams</h2>
 
@@ -49,4 +49,32 @@
         <div class="t-cell skills-assess-form-submit"><button type="submit">Submit</button></div>
     </div>
 </form>
+
+<script>
+    var formIsDirty = false;
+    var formIsSubmitting = false;
+
+    var selectElements = document.getElementsByTagName("select");
+    for (var i = 0; i < selectElements.length; ++i) {
+        selectElements[i].onchange = function() {
+            formIsDirty = true;
+        };
+    }
+
+    var formElement = document.getElementById("self-assess-form");
+    formElement.onsubmit = function() {
+        formIsSubmitting = true;
+    };
+
+    window.onbeforeunload = function(event) {
+        if (formIsSubmitting || !formIsDirty) {
+            return;
+        }
+
+        event.preventDefault();
+        // Legacy support.
+        event.returnValue = true;
+    };
+</script>
+
 {% endblock %}
