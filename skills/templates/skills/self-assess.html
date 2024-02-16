@@ -4,7 +4,6 @@
 {% block content %}
 
 <p>Hi there, {{ user_login }}!  Please fill in and submit the form below.  {% if latest_assessment %}The current data is taken from your most recent record ({{ latest_assessment.date }}).{% else %}This will be your first record.{% endif %}</p>
-<hr>
 
 <form method="post">
     <div class="skills-assess-form-category-group-primary">
@@ -18,6 +17,9 @@
                 {% if not forloop.first %}
         </div>
                 {% endif %}
+    </div>
+    <div class="t-row">
+        <div class="t-cell skills-assess-form-submit"><button type="submit">Submit</button></div>
     </div>
     <div class="skills-assess-form-category-group-other">
         <h2>Skills from other teams</h2>
@@ -43,9 +45,8 @@
             {% endif %}
         {% endfor %}
     </div>
-    <hr>
     <div class="t-row">
-        <div class="t-cell"><button type="submit">Submit</button></div>
+        <div class="t-cell skills-assess-form-submit"><button type="submit">Submit</button></div>
     </div>
 </form>
 {% endblock %}
