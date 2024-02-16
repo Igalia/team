@@ -28,6 +28,16 @@
     background-color: #E0E0E0;
 }
 
+.skills-assess-form-submit {
+    width: 100%;
+    text-align: center;
+}
+
+.skills-assess-form-submit button {
+    padding: 6px 6px 6px 6px;
+    font-size: 20px;
+}
+
 .skills-project-skills-cell, .skills-project-skills-column-header {
     width: 60%;
 }
