@@ -670,8 +670,8 @@ def self_assess(request, person):
                                       interest=form.cleaned_data['interest'])
             if measurement.knowledge != Measurement.KNOWLEDGE_NONE or measurement.interest != Measurement.INTEREST_NONE:
                 measurement.save()
-        messages.success(request, 'Thank you for your input!')
-        return HttpResponseRedirect(reverse('skills:home'))
+        messages.success(request, _('Thank you for your input!  Here is your updated data.'))
+        return HttpResponseRedirect(reverse('skills:self-assess'))
     else:
         skills, index = enumerate_all_skills(person)
 
